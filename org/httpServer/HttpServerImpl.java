@@ -1,5 +1,8 @@
 package org.httpServer;
 
+import org.httpServer.HttpResponse.response.HttpResponse;
+import org.httpServer.HttpResponse.response.HttpResponseFactory;
+import org.httpServer.HttpResponse.response.HttpStatus;
 import utils.configuration.Configuration;
 
 import java.io.BufferedReader;
@@ -66,7 +69,6 @@ public class HttpServerImpl implements HttpServer {
     private void listen(Socket clientSocket) {
         EXECUTOR_SERVICE.submit(() -> {
             try {
-
                 this.receiveRequest(clientSocket);
                 this.sendResponse(clientSocket);
             } catch (IOException e) {
@@ -77,9 +79,9 @@ public class HttpServerImpl implements HttpServer {
 
     private void receiveRequest(Socket clientSocket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String line= in.readLine();
+        String line = in.readLine();
 
-        while(!line.isEmpty()){
+        while (!line.isEmpty()) {
             System.out.println(line);
             line = in.readLine();
         }
@@ -90,17 +92,17 @@ public class HttpServerImpl implements HttpServer {
 
     private void sendResponse(Socket clientSocket) throws IOException {
 
-        String response = """
-                HTTP/1.1 200 OK\r\n
-                Content-Type: application/json
-                Connection: Closed\r\n
-                {
-                    "status": 200
-                }
-                """;
+        HttpResponse<String> httpResponse = HttpResponseFactory.create(
+                "HTTP/1.1",
+                HttpStatus.OK,
+                "{\"task\": \"CREATE JSON MAKER FOR HttpBody\"}",
+                "application/json"
+        );
+
+        System.out.println(httpResponse.getResponseString());
 
         clientSocket.getOutputStream()
-                .write(response.getBytes(StandardCharsets.UTF_8));
+                .write(httpResponse.getResponseString().getBytes(StandardCharsets.UTF_8));
 
         clientSocket.shutdownOutput();
     }
