@@ -1,10 +1,11 @@
 import org.httpServer.HttpServer;
 import org.httpServer.HttpServerImpl;
-import utils.configuration.Configuration;
-import utils.configuration.ConfigurationImpl;
+import org.configuration.Configuration;
+import org.configuration.ConfigurationImpl;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 public class Conqueror {
 
@@ -14,12 +15,15 @@ public class Conqueror {
         //HTTP SERVER Configuration
         Configuration configuration = ConfigurationImpl.getInstance();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
-        HttpServerImpl.HttpServerInit.create(configuration, executorService);
+        //HTTP SERVER CREATE
+        HttpServerImpl.create(configuration, executorService);
 
-        HttpServer httpServer = HttpServerImpl.HttpServerInit.getInstance();
+        HttpServer httpServer = HttpServerImpl.getInstance();
 
+        // HTTP SERVER START
         httpServer.start();
     }
 }

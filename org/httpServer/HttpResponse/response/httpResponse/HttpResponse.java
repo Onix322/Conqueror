@@ -1,30 +1,34 @@
-package org.httpServer.HttpResponse.response;
+package org.httpServer.HttpResponse.response.httpResponse;
+
+import org.httpServer.HttpResponse.response.httpHeaders.HttpHeaders;
+import org.httpServer.HttpResponse.response.httpStartLine.HttpStartLine;
+import org.httpServer.HttpResponse.response.httpBody.HttpBody;
 
 public class HttpResponse<T> {
 
-    private HttpStatusLine statusLine;
-    private HttpHeader header;
+    private HttpStartLine statusLine;
+    private HttpHeaders header;
     private HttpBody<T> body;
 
-    public HttpResponse(HttpStatusLine statusLine, HttpHeader header, HttpBody<T> body) {
+    public HttpResponse(HttpStartLine statusLine, HttpHeaders header, HttpBody<T> body) {
         this.statusLine = statusLine;
         this.header = header;
         this.body = body;
     }
 
-    public HttpStatusLine getStatusLine() {
+    public HttpStartLine getStatusLine() {
         return statusLine;
     }
 
-    public void setStatusLine(HttpStatusLine statusLine) {
+    public void setStatusLine(HttpStartLine statusLine) {
         this.statusLine = statusLine;
     }
 
-    public HttpHeader getHeader() {
+    public HttpHeaders getHeader() {
         return header;
     }
 
-    public void setHeader(HttpHeader header) {
+    public void setHeader(HttpHeaders header) {
         this.header = header;
     }
 
@@ -39,7 +43,7 @@ public class HttpResponse<T> {
     public String getResponseString(){
         return statusLine.getStatusLineString() + "\r\n"
                 + header.getHeaderString() + "\r\n\n"
-                + body.getBodyString();
+                + body.toJson();
     }
 
     @Override

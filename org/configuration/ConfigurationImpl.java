@@ -1,4 +1,4 @@
-package utils.configuration;
+package org.configuration;
 
 import java.io.IOException;
 import java.io.InputStream;

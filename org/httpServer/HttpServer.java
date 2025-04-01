@@ -1,6 +1,6 @@
 package org.httpServer;
 
-import utils.configuration.Configuration;
+import org.configuration.Configuration;
 
 public interface HttpServer {
 

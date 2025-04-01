@@ -1,4 +1,6 @@
-package org.httpServer.HttpResponse.response;
+package org.httpServer.HttpResponse.response.httpBody;
+
+import utils.json.JsonParserImpl;
 
 public class HttpBody<T> {
 
@@ -16,8 +18,8 @@ public class HttpBody<T> {
         this.body = body;
     }
 
-    public String getBodyString(){
-        return " CREATE JSON FACTORY ";
+    public String toJson(){
+        return JsonParserImpl.getInstance().generate(this);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package org.httpServer;
 
-import org.httpServer.HttpResponse.response.HttpResponse;
-import org.httpServer.HttpResponse.response.HttpResponseFactory;
+import org.httpServer.HttpResponse.response.httpResponse.HttpResponse;
+import org.httpServer.HttpResponse.response.httpResponse.HttpResponseFactory;
 import org.httpServer.HttpResponse.response.HttpStatus;
-import utils.configuration.Configuration;
+import org.configuration.Configuration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,22 +24,22 @@ public class HttpServerImpl implements HttpServer {
         this.EXECUTOR_SERVICE = executorService;
     }
 
-    public static class HttpServerInit {
+    private static class Init {
         private static HttpServerImpl instance;
+    }
 
-        public synchronized static void create(Configuration configuration, ExecutorService executorService) {
-            if (instance == null) {
-                System.out.println("Setting up server configuration...");
-                instance = new HttpServerImpl(configuration, executorService);
-            }
+    public synchronized static void create(Configuration configuration, ExecutorService executorService) {
+        if (Init.instance == null) {
+            System.out.println("Setting up server configuration...");
+            Init.instance = new HttpServerImpl(configuration, executorService);
         }
+    }
 
-        public static HttpServerImpl getInstance() {
-            if (instance == null) {
-                throw new IllegalStateException("Server not initialized!");
-            }
-            return instance;
+    public static HttpServerImpl getInstance(){
+        if (Init.instance == null) {
+            throw new IllegalStateException("Server not initialized!");
         }
+        return Init.instance;
     }
 
     public Configuration getConfig() {
@@ -95,11 +95,11 @@ public class HttpServerImpl implements HttpServer {
         HttpResponse<String> httpResponse = HttpResponseFactory.create(
                 "HTTP/1.1",
                 HttpStatus.OK,
-                "{\"task\": \"CREATE JSON MAKER FOR HttpBody\"}",
-                "application/json"
+                "application/json",
+                "body"
         );
 
-        System.out.println(httpResponse.getResponseString());
+        System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
 
         clientSocket.getOutputStream()
                 .write(httpResponse.getResponseString().getBytes(StandardCharsets.UTF_8));
