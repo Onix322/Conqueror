@@ -1,8 +1,8 @@
-package org.httpServer.HttpResponse.response.httpResponse;
+package org.httpServer.response.httpResponse;
 
-import org.httpServer.HttpResponse.response.httpHeaders.HttpHeaders;
-import org.httpServer.HttpResponse.response.httpStartLine.HttpStartLine;
-import org.httpServer.HttpResponse.response.httpBody.HttpBody;
+import org.httpServer.response.httpHeaders.HttpHeaders;
+import org.httpServer.response.httpStartLine.HttpStartLine;
+import org.httpServer.response.httpBody.HttpBody;
 
 public class HttpResponse<T> {
 

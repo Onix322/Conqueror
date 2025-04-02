@@ -1,8 +1,8 @@
 package org.httpServer;
 
-import org.httpServer.HttpResponse.response.httpResponse.HttpResponse;
-import org.httpServer.HttpResponse.response.httpResponse.HttpResponseFactory;
-import org.httpServer.HttpResponse.response.HttpStatus;
+import org.httpServer.response.httpResponse.HttpResponse;
+import org.httpServer.response.httpResponse.HttpResponseFactory;
+import org.httpServer.response.HttpStatus;
 import org.configuration.Configuration;
 
 import java.io.BufferedReader;

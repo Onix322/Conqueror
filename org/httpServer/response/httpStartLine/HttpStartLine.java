@@ -1,6 +1,6 @@
-package org.httpServer.HttpResponse.response.httpStartLine;
+package org.httpServer.response.httpStartLine;
 
-import org.httpServer.HttpResponse.response.HttpStatus;
+import org.httpServer.response.HttpStatus;
 
 public class HttpStartLine {
     private String version;

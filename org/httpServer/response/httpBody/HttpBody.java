@@ -1,4 +1,4 @@
-package org.httpServer.HttpResponse.response.httpBody;
+package org.httpServer.response.httpBody;
 
 import utils.json.JsonParserImpl;
 

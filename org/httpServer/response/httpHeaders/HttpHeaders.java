@@ -1,4 +1,4 @@
-package org.httpServer.HttpResponse.response.httpHeaders;
+package org.httpServer.response.httpHeaders;
 
 public class HttpHeaders {
 
