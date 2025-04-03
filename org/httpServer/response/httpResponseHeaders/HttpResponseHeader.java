@@ -1,11 +1,11 @@
-package org.httpServer.response.httpHeaders;
+package org.httpServer.response.httpResponseHeaders;
 
-public class HttpHeaders {
+public class HttpResponseHeader {
 
     private Integer contentLength;
     private String contentType;
 
-    public HttpHeaders(Integer contentLength, String contentType) {
+    public HttpResponseHeader(Integer contentLength, String contentType) {
         this.contentLength = contentLength;
         this.contentType = contentType;
     }

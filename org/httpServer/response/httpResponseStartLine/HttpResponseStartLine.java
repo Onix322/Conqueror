@@ -1,13 +1,13 @@
-package org.httpServer.response.httpStartLine;
+package org.httpServer.response.httpResponseStartLine;
 
 import org.httpServer.response.HttpStatus;
 
-public class HttpStartLine {
+public class HttpResponseStartLine {
     private String version;
     private Integer statusCode;
     private String reasonPhrase;
 
-    public HttpStartLine(String version, HttpStatus status) {
+    public HttpResponseStartLine(String version, HttpStatus status) {
         this.version = version;
         this.statusCode = status.getCode();
         this.reasonPhrase = status.getMessage();

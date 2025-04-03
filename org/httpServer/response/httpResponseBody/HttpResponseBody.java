@@ -1,12 +1,12 @@
-package org.httpServer.response.httpBody;
+package org.httpServer.response.httpResponseBody;
 
 import utils.json.JsonParserImpl;
 
-public class HttpBody<T> {
+public class HttpResponseBody<T> {
 
     private T body;
 
-    public HttpBody(T body) {
+    public HttpResponseBody(T body) {
         this.body = body;
     }
 

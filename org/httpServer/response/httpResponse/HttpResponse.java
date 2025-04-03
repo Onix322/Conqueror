@@ -1,42 +1,42 @@
 package org.httpServer.response.httpResponse;
 
-import org.httpServer.response.httpHeaders.HttpHeaders;
-import org.httpServer.response.httpStartLine.HttpStartLine;
-import org.httpServer.response.httpBody.HttpBody;
+import org.httpServer.response.httpResponseHeaders.HttpResponseHeader;
+import org.httpServer.response.httpResponseStartLine.HttpResponseStartLine;
+import org.httpServer.response.httpResponseBody.HttpResponseBody;
 
 public class HttpResponse<T> {
 
-    private HttpStartLine statusLine;
-    private HttpHeaders header;
-    private HttpBody<T> body;
+    private HttpResponseStartLine statusLine;
+    private HttpResponseHeader header;
+    private HttpResponseBody<T> body;
 
-    public HttpResponse(HttpStartLine statusLine, HttpHeaders header, HttpBody<T> body) {
+    public HttpResponse(HttpResponseStartLine statusLine, HttpResponseHeader header, HttpResponseBody<T> body) {
         this.statusLine = statusLine;
         this.header = header;
         this.body = body;
     }
 
-    public HttpStartLine getStatusLine() {
+    public HttpResponseStartLine getStatusLine() {
         return statusLine;
     }
 
-    public void setStatusLine(HttpStartLine statusLine) {
+    public void setStatusLine(HttpResponseStartLine statusLine) {
         this.statusLine = statusLine;
     }
 
-    public HttpHeaders getHeader() {
+    public HttpResponseHeader getHeader() {
         return header;
     }
 
-    public void setHeader(HttpHeaders header) {
+    public void setHeader(HttpResponseHeader header) {
         this.header = header;
     }
 
-    public HttpBody<T> getBody() {
+    public HttpResponseBody<T> getBody() {
         return body;
     }
 
-    public void setBody(HttpBody<T> body) {
+    public void setBody(HttpResponseBody<T> body) {
         this.body = body;
     }
 

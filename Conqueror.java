@@ -24,6 +24,11 @@ public class Conqueror {
         HttpServer httpServer = HttpServerImpl.getInstance();
 
         // HTTP SERVER START
-        httpServer.start();
+
+        try{
+            httpServer.start();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
