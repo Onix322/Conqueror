@@ -26,6 +26,8 @@ public class HttpServerImpl implements HttpServer {
     private final Configuration CONFIGURATION;
     private final ExecutorService EXECUTOR_SERVICE;
 
+    private HttpRequestStartLine startLine;
+
     private HttpServerImpl(Configuration configuration, ExecutorService executorService) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
@@ -92,7 +94,6 @@ public class HttpServerImpl implements HttpServer {
     private void receiveRequest(Socket clientSocket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
         String header = in.readLine();
-        HttpRequestStartLine startLine;
         List<HttpRequestHeader<?>> headers = new ArrayList<>();
 
         while (header != null && !header.isEmpty()) {
