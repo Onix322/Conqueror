@@ -1,27 +1,30 @@
 package org.httpServer.response.httpResponse;
 
+import org.httpServer.response.HttpConnectionType;
 import org.httpServer.response.httpResponseHeaders.HttpResponseHeader;
 import org.httpServer.response.httpResponseStartLine.HttpResponseStartLine;
 import org.httpServer.response.httpResponseBody.HttpResponseBody;
 
 public class HttpResponse<T> {
 
-    private HttpResponseStartLine statusLine;
+    private HttpResponseStartLine startLine;
     private HttpResponseHeader header;
+    private HttpConnectionType connection;
     private HttpResponseBody<T> body;
 
-    public HttpResponse(HttpResponseStartLine statusLine, HttpResponseHeader header, HttpResponseBody<T> body) {
-        this.statusLine = statusLine;
+    public HttpResponse(HttpResponseStartLine startLine, HttpResponseHeader header, HttpConnectionType httpConnectionType, HttpResponseBody<T> body) {
+        this.startLine = startLine;
         this.header = header;
         this.body = body;
+        this.connection = httpConnectionType;
     }
 
-    public HttpResponseStartLine getStatusLine() {
-        return statusLine;
+    public HttpResponseStartLine getStartLine() {
+        return startLine;
     }
 
-    public void setStatusLine(HttpResponseStartLine statusLine) {
-        this.statusLine = statusLine;
+    public void setStartLine(HttpResponseStartLine startLine) {
+        this.startLine = startLine;
     }
 
     public HttpResponseHeader getHeader() {
@@ -30,6 +33,14 @@ public class HttpResponse<T> {
 
     public void setHeader(HttpResponseHeader header) {
         this.header = header;
+    }
+
+    public HttpConnectionType getConnection() {
+        return connection;
+    }
+
+    public void setConnection(HttpConnectionType connection) {
+        this.connection = connection;
     }
 
     public HttpResponseBody<T> getBody() {
@@ -41,17 +52,20 @@ public class HttpResponse<T> {
     }
 
     public String getResponseString(){
-        return statusLine.getStatusLineString() + "\r\n"
-                + header.getHeaderString() + "\r\n\n"
+        return startLine.getStatusLineString() + "\r\n"
+                + header.getHeaderString() + "\r\n"
+                + "Connection: " + connection.getType() + "\r\n\n"
                 + body.toJson();
     }
 
     @Override
     public String toString() {
         return "HttpResponse{" +
-                "statusLine=" + statusLine +
+                "startLine=" + startLine +
                 ", header=" + header +
+                ", connection=" + connection +
                 ", body=" + body +
                 '}';
     }
 }
+

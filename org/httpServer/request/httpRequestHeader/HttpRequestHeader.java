@@ -1,10 +1,10 @@
 package org.httpServer.request.httpRequestHeader;
 
-public class HttpRequestHeader<T> {
+public class HttpRequestHeader {
     private String key;
-    private T value;
+    private Object value;
 
-    public HttpRequestHeader(String key, T value) {
+    public HttpRequestHeader(String key, Object value) {
         this.key = key;
         this.value = value;
     }
@@ -17,11 +17,11 @@ public class HttpRequestHeader<T> {
         this.key = key;
     }
 
-    public T getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(T value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 

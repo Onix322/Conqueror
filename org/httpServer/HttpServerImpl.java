@@ -1,32 +1,30 @@
 package org.httpServer;
 
 import org.configuration.Configuration;
+import org.httpServer.request.httpRequest.HttpRequest;
 import org.httpServer.request.httpRequestHeader.HttpRequestHeader;
 import org.httpServer.request.httpRequestHeader.HttpRequestHeaderFactory;
 import org.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
 import org.httpServer.request.httpRequestStartLine.HttpRequestStartLineFactory;
+import org.httpServer.response.HttpConnectionType;
 import org.httpServer.response.HttpStatus;
 import org.httpServer.response.httpResponse.HttpResponse;
 import org.httpServer.response.httpResponse.HttpResponseFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class HttpServerImpl implements HttpServer {
 
     private final Configuration CONFIGURATION;
     private final ExecutorService EXECUTOR_SERVICE;
-
-    private HttpRequestStartLine startLine;
 
     private HttpServerImpl(Configuration configuration, ExecutorService executorService) {
         this.CONFIGURATION = configuration;
@@ -80,10 +78,10 @@ public class HttpServerImpl implements HttpServer {
         EXECUTOR_SERVICE.close();
     }
 
-    private void listen(Socket clientSocket) throws IOException{
+    private void listen(Socket clientSocket) throws IOException {
         EXECUTOR_SERVICE.submit(() -> {
             try {
-                this.receiveRequest(clientSocket);
+                this.handleRequest(clientSocket);
                 this.sendResponse(clientSocket);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -91,31 +89,54 @@ public class HttpServerImpl implements HttpServer {
         });
     }
 
-    private void receiveRequest(Socket clientSocket) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
-        String header = in.readLine();
-        List<HttpRequestHeader<?>> headers = new ArrayList<>();
+    private void handleRequest(Socket clientSocket) throws IOException {
 
-        while (header != null && !header.isEmpty()) {
-            System.out.println(header);
+        HttpRequestStartLine startLine;
+        List<HttpRequestHeader> headers = new ArrayList<>();
+        StringBuilder bodyBuilder = new StringBuilder();
+        InputStream inputStream = clientSocket.getInputStream();
+        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
-            this.grabStartLine(header);
-            this.grabHeader(header);
+        //read headers
+        String line = in.readLine();
 
-            header = in.readLine();
+        while (line != null && !line.isEmpty()) {
+            if (Pattern.compile("^(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH|TRACE)\\s/\\S*\\sHTTP/\\d\\.\\d$").matcher(line).find()) {
+                startLine = HttpRequestStartLineFactory.create(line);
+            }
+
+            if (Pattern.compile("\\w+:\\s").matcher(line).find()) {
+                headers.add(HttpRequestHeaderFactory.create(line));
+            }
+            System.out.println(line);
+            line = in.readLine();
         }
 
-        System.out.println(headers);
+        int b = in.read();
+
+        while (b > -1 && in.ready()){
+            System.out.println(b);
+            b = in.read();
+            line = in.readLine();
+            System.out.println(line);
+        }
+
+
+        clientSocket.close();
         clientSocket.shutdownInput();
+        //TODO return HttpRequest
     }
 
     private void sendResponse(Socket clientSocket) throws IOException {
+
+        //TODO CREATE THE RESPONSE
 
         HttpResponse<String> httpResponse = HttpResponseFactory.create(
                 "HTTP/1.1",
                 HttpStatus.OK,
                 "application/json",
-                "body"
+                HttpConnectionType.CLOSED,
+                "RESPONSE TEST"
         );
 
         System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
@@ -124,27 +145,6 @@ public class HttpServerImpl implements HttpServer {
                 .write(httpResponse.getResponseString().getBytes(StandardCharsets.UTF_8));
 
         clientSocket.shutdownOutput();
-    }
-
-    /*
-    * Define a HttpRequestStartLine field in global scope.
-     */
-    private void grabStartLine(String string){
-        if (string.matches("^(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH|TRACE)\\s/\\S*\\sHTTP/\\d\\.\\d$")) {
-            startLine = HttpRequestStartLineFactory.create(string);
-        }
-    }
-
-    /*
-     * Define a List<HttpRequestHeader<?>> field in global scope.
-     */
-    private void grabHeader(String string) {
-
-        Pattern pattern = Pattern.compile("\\w+:\\s");
-
-        if(pattern.matcher(string).find()){
-            headers.add(HttpRequestHeaderFactory.create(string));
-        }
     }
 
     @Override
