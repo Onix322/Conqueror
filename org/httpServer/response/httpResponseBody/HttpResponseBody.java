@@ -1,6 +1,6 @@
 package org.httpServer.response.httpResponseBody;
 
-import utils.json.JsonParserImpl;
+import utils.json.parser.JsonParser;
 
 public class HttpResponseBody<T> {
 
@@ -19,7 +19,7 @@ public class HttpResponseBody<T> {
     }
 
     public String toJson(){
-        return JsonParserImpl.getInstance().generate(this);
+        return JsonParser.getInstance().generate(this);
     }
 
     @Override

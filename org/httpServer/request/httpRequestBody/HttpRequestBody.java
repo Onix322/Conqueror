@@ -1,18 +1,18 @@
 package org.httpServer.request.httpRequestBody;
 
-public class HttpRequestBody <T>{
+public class HttpRequestBody{
 
-    private T body;
+    private Object body;
 
-    public HttpRequestBody(T body) {
+    public HttpRequestBody(Object body) {
         this.body = body;
     }
 
-    public T getBody() {
+    public Object getBody() {
         return body;
     }
 
-    public void setBody(T body) {
+    public void setBody(Object body) {
         this.body = body;
     }
 }

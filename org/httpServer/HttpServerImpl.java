@@ -1,7 +1,9 @@
 package org.httpServer;
 
 import org.configuration.Configuration;
+import org.entities.TestObject;
 import org.httpServer.request.httpRequest.HttpRequest;
+import org.httpServer.request.httpRequestBody.HttpRequestBody;
 import org.httpServer.request.httpRequestHeader.HttpRequestHeader;
 import org.httpServer.request.httpRequestHeader.HttpRequestHeaderFactory;
 import org.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
@@ -10,35 +12,43 @@ import org.httpServer.response.HttpConnectionType;
 import org.httpServer.response.HttpStatus;
 import org.httpServer.response.httpResponse.HttpResponse;
 import org.httpServer.response.httpResponse.HttpResponseFactory;
+import utils.json.parser.JsonParser;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 public class HttpServerImpl implements HttpServer {
 
     private final Configuration CONFIGURATION;
     private final ExecutorService EXECUTOR_SERVICE;
+    private final JsonParser JSON_PARSER;
 
-    private HttpServerImpl(Configuration configuration, ExecutorService executorService) {
+    private HttpServerImpl(Configuration configuration, ExecutorService executorService, JsonParser jsonParser) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
+        this.JSON_PARSER = jsonParser;
     }
 
     private static class Init {
         private static HttpServerImpl instance;
     }
 
-    public synchronized static void create(Configuration configuration, ExecutorService executorService) {
+    public synchronized static void create(Configuration configuration, ExecutorService executorService, JsonParser jsonParser) {
         if (Init.instance == null) {
             System.out.println("Setting up server configuration...");
-            Init.instance = new HttpServerImpl(configuration, executorService);
+            Init.instance = new HttpServerImpl(configuration, executorService, jsonParser);
         }
     }
 
@@ -79,21 +89,25 @@ public class HttpServerImpl implements HttpServer {
     }
 
     private void listen(Socket clientSocket) throws IOException {
+
+        AtomicReference<HttpRequest> httpRequest = new AtomicReference<>();
+
         EXECUTOR_SERVICE.submit(() -> {
             try {
-                this.handleRequest(clientSocket);
+                httpRequest.set(this.handleRequest(clientSocket));
                 this.sendResponse(clientSocket);
                 clientSocket.close();
-            } catch (IOException e) {
+            } catch (IOException | URISyntaxException e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    private void handleRequest(Socket clientSocket) throws IOException {
+    private HttpRequest handleRequest(Socket clientSocket) throws IOException, URISyntaxException {
 
-        HttpRequestStartLine startLine;
+        HttpRequestStartLine startLine = null;
         List<HttpRequestHeader> headers = new ArrayList<>();
+        HttpRequestBody body = new HttpRequestBody(null);
         StringBuilder bodyBuilder = new StringBuilder();
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -111,17 +125,27 @@ public class HttpServerImpl implements HttpServer {
             if (Pattern.compile("\\w+:\\s").matcher(line).find()) {
                 headers.add(HttpRequestHeaderFactory.create(line));
             }
-            System.out.println(line);
         }
 
         //read body
-        while ( in.ready() && (b = in.read()) != -1){
+        while (in.ready() && (b = in.read()) != -1) {
             bodyBuilder.append(Character.toString(b));
         }
 
-        System.out.println(bodyBuilder);
+        if(!bodyBuilder.isEmpty()){
+            System.out.println(bodyBuilder);
 
-        //TODO return HttpRequest
+            //TODO fa o lista cu toate entitatile si sa o ia pe cea care se potriveste!!!!!
+            body.setBody(JSON_PARSER.map(bodyBuilder.toString(), TestObject.class));
+        }
+
+        clientSocket.shutdownInput();
+
+        return HttpRequest.builder()
+                .setHttpRequestHeader(headers)
+                .setStartLine(startLine)
+                .setHttpRequestBody(body)
+                .build();
     }
 
     private void sendResponse(Socket clientSocket) throws IOException {
@@ -136,7 +160,7 @@ public class HttpServerImpl implements HttpServer {
                 "RESPONSE TEST"
         );
 
-        System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
+//        System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
 
         clientSocket.getOutputStream()
                 .write(httpResponse.getResponseString().getBytes(StandardCharsets.UTF_8));

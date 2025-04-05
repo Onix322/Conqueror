@@ -8,30 +8,57 @@ import org.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class HttpRequestBuilder<T> {
+public class HttpRequestBuilder {
     private HttpRequestStartLine startLine;
-    private HttpRequestHeader httpRequestHeader;
-    private HttpRequestBody<?> httpRequestBody;
+    private List<HttpRequestHeader> httpRequestHeader;
+    private HttpRequestBody httpRequestBody;
 
     public HttpRequestBuilder() throws URISyntaxException {
         this.startLine = new HttpRequestStartLine(HttpMethod.GET, new URI("/"), HttpVersion.HTTP_1_1);
-        this.httpRequestHeader = new HttpRequestHeader("UNKNOWN", "UNKNOWN");
-        this.httpRequestBody = new HttpRequestBody<>(null);
+        this.httpRequestHeader = new ArrayList<>();
+        this.httpRequestBody = new HttpRequestBody(null);
     }
 
-    public HttpRequestBuilder<T> setStartLine(HttpRequestStartLine startLine) {
+    public HttpRequestBuilder setStartLine(HttpRequestStartLine startLine) {
         this.startLine = startLine;
         return this;
     }
 
-    public HttpRequestBuilder<T> setHttpRequestHeader(HttpRequestHeader httpRequestHeader) {
+    public HttpRequestBuilder setHttpRequestHeader(List<HttpRequestHeader> httpRequestHeader) {
         this.httpRequestHeader = httpRequestHeader;
         return this;
     }
 
-    public HttpRequestBuilder<T> setHttpRequestBody(HttpRequestBody<T> httpRequestBody) {
+    public HttpRequestBuilder setHttpRequestBody(HttpRequestBody httpRequestBody) {
         this.httpRequestBody = httpRequestBody;
         return this;
+    }
+
+    public HttpRequestStartLine getStartLine() {
+        return startLine;
+    }
+
+    public List<HttpRequestHeader> getHttpRequestHeader() {
+        return httpRequestHeader;
+    }
+
+    public HttpRequestBody getHttpRequestBody() {
+        return httpRequestBody;
+    }
+
+    public HttpRequest build(){
+        return new HttpRequest(this);
+    }
+
+    @Override
+    public String toString() {
+        return "HttpRequestBuilder{" +
+                "startLine=" + startLine +
+                ", httpRequestHeader=" + httpRequestHeader +
+                ", httpRequestBody=" + httpRequestBody +
+                '}';
     }
 }
