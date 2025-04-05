@@ -83,6 +83,7 @@ public class HttpServerImpl implements HttpServer {
             try {
                 this.handleRequest(clientSocket);
                 this.sendResponse(clientSocket);
+                clientSocket.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -97,10 +98,12 @@ public class HttpServerImpl implements HttpServer {
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
-        //read headers
-        String line = in.readLine();
 
-        while (line != null && !line.isEmpty()) {
+        String line;
+        int b;
+
+        //read headers
+        while ((line = in.readLine()) != null && !line.isEmpty()) {
             if (Pattern.compile("^(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH|TRACE)\\s/\\S*\\sHTTP/\\d\\.\\d$").matcher(line).find()) {
                 startLine = HttpRequestStartLineFactory.create(line);
             }
@@ -109,21 +112,15 @@ public class HttpServerImpl implements HttpServer {
                 headers.add(HttpRequestHeaderFactory.create(line));
             }
             System.out.println(line);
-            line = in.readLine();
         }
 
-        int b = in.read();
-
-        while (b > -1 && in.ready()){
-            System.out.println(b);
-            b = in.read();
-            line = in.readLine();
-            System.out.println(line);
+        //read body
+        while ( in.ready() && (b = in.read()) != -1){
+            bodyBuilder.append(Character.toString(b));
         }
 
+        System.out.println(bodyBuilder);
 
-        clientSocket.close();
-        clientSocket.shutdownInput();
         //TODO return HttpRequest
     }
 
