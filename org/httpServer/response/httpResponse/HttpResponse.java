@@ -5,14 +5,14 @@ import org.httpServer.response.httpResponseHeaders.HttpResponseHeader;
 import org.httpServer.response.httpResponseStartLine.HttpResponseStartLine;
 import org.httpServer.response.httpResponseBody.HttpResponseBody;
 
-public class HttpResponse<T> {
+public class HttpResponse {
 
     private HttpResponseStartLine startLine;
     private HttpResponseHeader header;
     private HttpConnectionType connection;
-    private HttpResponseBody<T> body;
+    private HttpResponseBody body;
 
-    public HttpResponse(HttpResponseStartLine startLine, HttpResponseHeader header, HttpConnectionType httpConnectionType, HttpResponseBody<T> body) {
+    public HttpResponse(HttpResponseStartLine startLine, HttpResponseHeader header, HttpConnectionType httpConnectionType, HttpResponseBody body) {
         this.startLine = startLine;
         this.header = header;
         this.body = body;
@@ -43,11 +43,11 @@ public class HttpResponse<T> {
         this.connection = connection;
     }
 
-    public HttpResponseBody<T> getBody() {
+    public HttpResponseBody getBody() {
         return body;
     }
 
-    public void setBody(HttpResponseBody<T> body) {
+    public void setBody(HttpResponseBody body) {
         this.body = body;
     }
 

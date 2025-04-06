@@ -1,25 +1,25 @@
 package org.httpServer.response.httpResponseBody;
 
-import utils.json.parser.JsonParser;
+import org.json.parser.JsonServiceImpl;
 
-public class HttpResponseBody<T> {
+public class HttpResponseBody {
 
-    private T body;
+    private Object body;
 
-    public HttpResponseBody(T body) {
+    public HttpResponseBody(Object body) {
         this.body = body;
     }
 
-    public T getBody() {
+    public Object getBody() {
         return body;
     }
 
-    public void setBody(T body) {
+    public void setBody(Object body) {
         this.body = body;
     }
 
     public String toJson(){
-        return JsonParser.getInstance().generate(this);
+        return JsonServiceImpl.getInstance().generate(this);
     }
 
     @Override

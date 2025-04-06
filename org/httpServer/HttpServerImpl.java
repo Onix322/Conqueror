@@ -1,7 +1,9 @@
 package org.httpServer;
 
+import org.Controller.ControllerManager;
 import org.configuration.Configuration;
-import org.entities.TestObject;
+import org.entityManager.EntityManager;
+import org.httpServer.exepltions.NoEntityMatchesJson;
 import org.httpServer.request.httpRequest.HttpRequest;
 import org.httpServer.request.httpRequestBody.HttpRequestBody;
 import org.httpServer.request.httpRequestHeader.HttpRequestHeader;
@@ -12,43 +14,52 @@ import org.httpServer.response.HttpConnectionType;
 import org.httpServer.response.HttpStatus;
 import org.httpServer.response.httpResponse.HttpResponse;
 import org.httpServer.response.httpResponse.HttpResponseFactory;
-import utils.json.parser.JsonParser;
+import org.json.parser.JsonService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class HttpServerImpl implements HttpServer {
 
     private final Configuration CONFIGURATION;
     private final ExecutorService EXECUTOR_SERVICE;
-    private final JsonParser JSON_PARSER;
+    private final JsonService JSON_PARSER;
+    private final EntityManager ENTITY_MANAGER;
+    private final ControllerManager CONTROLLER_MANAGER;
 
-    private HttpServerImpl(Configuration configuration, ExecutorService executorService, JsonParser jsonParser) {
+    private HttpServerImpl(Configuration configuration, ExecutorService executorService, JsonService jsonParser, EntityManager entityManager, ControllerManager controllerManager) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
         this.JSON_PARSER = jsonParser;
+        this.ENTITY_MANAGER = entityManager;
+        this.CONTROLLER_MANAGER = controllerManager;
     }
 
     private static class Init {
         private static HttpServerImpl instance;
     }
 
-    public synchronized static void create(Configuration configuration, ExecutorService executorService, JsonParser jsonParser) {
+    public synchronized static void create(Configuration configuration, ExecutorService executorService, JsonService jsonParser, EntityManager entityManager, ControllerManager controllerManager) {
         if (Init.instance == null) {
             System.out.println("Setting up server configuration...");
-            Init.instance = new HttpServerImpl(configuration, executorService, jsonParser);
+            Init.instance = new HttpServerImpl(configuration, executorService, jsonParser, entityManager, controllerManager);
         }
     }
 
@@ -77,7 +88,7 @@ public class HttpServerImpl implements HttpServer {
             while (serverSocket.isBound() && !serverSocket.isClosed()) {
                 this.listen(serverSocket.accept());
             }
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException | InterruptedException e) {
             this.stop();
             throw new RuntimeException(e);
         }
@@ -88,22 +99,25 @@ public class HttpServerImpl implements HttpServer {
         EXECUTOR_SERVICE.close();
     }
 
-    private void listen(Socket clientSocket) throws IOException {
-
-        AtomicReference<HttpRequest> httpRequest = new AtomicReference<>();
-
+    private void listen(Socket clientSocket) throws IOException, ExecutionException, InterruptedException {
         EXECUTOR_SERVICE.submit(() -> {
-            try {
-                httpRequest.set(this.handleRequest(clientSocket));
-                this.sendResponse(clientSocket);
-                clientSocket.close();
-            } catch (IOException | URISyntaxException e) {
+            try (clientSocket) {
+                //* STEP 1: handle request
+                HttpRequest request = this.handleRequest(clientSocket);
+
+                //* STEP 2: handle response based on request
+                HttpResponse response = this.handleResponse(request);
+
+                //* STEP 3: send response
+                this.sendResponse(clientSocket, response);
+            } catch (IOException | URISyntaxException | ParseException | IllegalAccessException e) {
+                this.stop();
                 throw new RuntimeException(e);
             }
         });
     }
 
-    private HttpRequest handleRequest(Socket clientSocket) throws IOException, URISyntaxException {
+    private HttpRequest handleRequest(Socket clientSocket) throws IOException, URISyntaxException, ParseException, IllegalAccessException {
 
         HttpRequestStartLine startLine = null;
         List<HttpRequestHeader> headers = new ArrayList<>();
@@ -131,14 +145,17 @@ public class HttpServerImpl implements HttpServer {
         while (in.ready() && (b = in.read()) != -1) {
             bodyBuilder.append(Character.toString(b));
         }
-
-        if(!bodyBuilder.isEmpty()){
-            System.out.println(bodyBuilder);
-
-            //TODO fa o lista cu toate entitatile si sa o ia pe cea care se potriveste!!!!!
-            body.setBody(JSON_PARSER.map(bodyBuilder.toString(), TestObject.class));
+        //* VA trimite URI si clasa entitatii catre (baza de date) mai in detaliu
+        // ? ce va face controllerul??
+        // ? care e rolul acestuia? sa faca legatura dintre server si baza de date
+        // ? cum o va face ?
+        if (!bodyBuilder.isEmpty()) {
+            Class<?> clazz = this.findEntityClass(ENTITY_MANAGER, JSON_PARSER.getProperties(bodyBuilder.toString()));
+            Object obj = JSON_PARSER.map(bodyBuilder.toString(), clazz);
+            body.setBody(obj);
+        } else {
+            body.setBody("");
         }
-
         clientSocket.shutdownInput();
 
         return HttpRequest.builder()
@@ -148,19 +165,38 @@ public class HttpServerImpl implements HttpServer {
                 .build();
     }
 
-    private void sendResponse(Socket clientSocket) throws IOException {
+    private Class<?> findEntityClass(EntityManager entityManager, Map<String, Object> objectMap) throws NoEntityMatchesJson {
 
-        //TODO CREATE THE RESPONSE
+        return entityManager.getEntities()
+                .values()
+                .stream()
+                .filter(entity -> Arrays.stream(entity.getDeclaredFields())
+                        .map(Field::getName)
+                        .collect(Collectors.toSet())
+                        .equals(objectMap.keySet())
+                )
+                .findAny()
+                .orElseThrow(NoEntityMatchesJson::new);
+    }
 
-        HttpResponse<String> httpResponse = HttpResponseFactory.create(
+
+    //TODO CREATE THE RESPONSE
+
+    private HttpResponse handleResponse(HttpRequest httpRequest) {
+
+        HttpRequestStartLine startLine = httpRequest.getStartLine();
+
+        return HttpResponseFactory.create(
                 "HTTP/1.1",
                 HttpStatus.OK,
                 "application/json",
                 HttpConnectionType.CLOSED,
                 "RESPONSE TEST"
         );
+    }
 
-//        System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
+    private void sendResponse(Socket clientSocket, HttpResponse httpResponse) throws IOException {
+        System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
 
         clientSocket.getOutputStream()
                 .write(httpResponse.getResponseString().getBytes(StandardCharsets.UTF_8));

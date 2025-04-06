@@ -7,12 +7,12 @@ import org.httpServer.response.HttpStatus;
 import org.httpServer.response.httpResponseBody.HttpResponseBody;
 
 public class HttpResponseFactory {
-    public static <T> HttpResponse<T> create(String version, HttpStatus status, String contentType, HttpConnectionType connectionType, T body){
+    public static HttpResponse create(String version, HttpStatus status, String contentType, HttpConnectionType connectionType, Object body){
 
         HttpResponseStartLine httpStatusLine = new HttpResponseStartLine(version, status);
-        HttpResponseBody<T> httpResponseBody = new HttpResponseBody<>(body);
+        HttpResponseBody httpResponseBody = new HttpResponseBody(body);
         HttpResponseHeader httpHeader = new HttpResponseHeader(httpResponseBody.toJson().length(), contentType);
 
-        return new HttpResponse<>(httpStatusLine, httpHeader,connectionType, httpResponseBody);
+        return new HttpResponse(httpStatusLine, httpHeader,connectionType, httpResponseBody);
     }
 }

@@ -1,4 +1,4 @@
-package utils.json.parser;
+package org.json.parser;
 
 import org.httpServer.exepltions.NoEmptyConstructorFound;
 
@@ -7,60 +7,55 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class JsonParser {
+public class JsonServiceImpl implements JsonService {
 
     private final NumberFormat NUMBER_FORMAT;
 
-    private JsonParser(NumberFormat numberFormat) {
+    private JsonServiceImpl(NumberFormat numberFormat) {
         this.NUMBER_FORMAT = numberFormat;
     }
 
     private static class Init {
-        private static JsonParser INSTANCE = null;
+        private static JsonServiceImpl INSTANCE = null;
     }
 
-    public synchronized static void init(NumberFormat numberFormat){
-        if(Init.INSTANCE == null){
-            Init.INSTANCE = new JsonParser(numberFormat);
+    public synchronized static void init(NumberFormat numberFormat) {
+        if (Init.INSTANCE == null) {
+            Init.INSTANCE = new JsonServiceImpl(numberFormat);
         }
-    };
+    }
 
-
-    public static JsonParser getInstance() {
-        if(Init.INSTANCE == null){
+    public static JsonServiceImpl getInstance() {
+        if (Init.INSTANCE == null) {
             throw new IllegalStateException("JsonParser not initialized! call JsonParser.init()");
         }
         return Init.INSTANCE;
     }
 
+    @Override
     public String generate(Object object) {
         return this.generate(object, null);
     }
 
-    public Object map(String stringLikeJson, Class<?> clazz) {
-
-
-        System.out.println("from mapper: ");
-        System.out.println(this.getProperties(stringLikeJson));
+    @Override
+    public Object map(String stringLikeJson, Class<?> clazz) throws IllegalAccessException, ParseException {
 
         Map<String, Object> objectMapped = this.getProperties(stringLikeJson);
 
         Object instance = this.createInstance(clazz);
 
-        Arrays.stream(instance.getClass().getDeclaredFields())
-                .toList()
-                .forEach(field -> {
-                    field.setAccessible(true);
-                    try {
-                        field.set(instance, objectMapped.get(field.getName()));
-                    } catch (Exception e) {
-                        System.err.println(e.getCause().getMessage());
-                        throw new RuntimeException(e);
-                    }
-                });
+        List<Field> fields = Arrays.stream(instance.getClass().getDeclaredFields())
+                .toList();
+
+        for (Field field: fields){
+            field.setAccessible(true);
+            field.set(instance, objectMapped.get(field.getName()));
+        }
 
         return instance;
     }
@@ -75,37 +70,36 @@ public class JsonParser {
                     .findAny()
                     .orElseThrow(NoEmptyConstructorFound::new);
 
+
             constructor.setAccessible(true);
 
             return constructor.newInstance();
-        } catch (NoEmptyConstructorFound | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoEmptyConstructorFound | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
             System.err.println(e.getCause().getMessage());
             throw new NoEmptyConstructorFound();
         }
     }
 
-    private Map<String, Object> getProperties(String stringLikeJson) {
+    @Override
+    public Map<String, Object> getProperties(String stringLikeJson) throws ParseException {
         Map<String, Object> properties = new HashMap<>();
-        Arrays.stream(stringLikeJson.replace("\r\n", "")
+        List<String> lines = Arrays.stream(stringLikeJson.replace("\r\n", "")
                         .replace(" ", "")
                         .replace("{", "")
                         .replace("}", "")
                         .replace("\"", "")
-                        .split(","))
-                .toList()
-                .forEach(line -> {
-                    List<?> prop = List.of(line.split(":"));
-                    String value = (String) prop.getLast();
-                    if (value.matches("\\d")) {
-                        try {
-                            properties.put((String) prop.getFirst(), NUMBER_FORMAT.parse(value).intValue());
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        properties.put((String) prop.getFirst(), prop.getLast());
-                    }
-                });
+                        .split(",")).toList();
+
+        for (String line : lines){
+            List<?> prop = List.of(line.split(":"));
+            String value = (String) prop.getLast();
+            if (value.matches("\\d")) {
+                properties.put((String) prop.getFirst(), NUMBER_FORMAT.parse(value).intValue());
+            } else {
+                properties.put((String) prop.getFirst(), prop.getLast());
+            }
+        }
 
         return properties;
     }

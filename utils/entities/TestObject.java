@@ -1,6 +1,8 @@
-package org.entities;
+package utils.entities;
 
-public class TestObject {
+import org.entityManager.Entity;
+
+public class TestObject implements Entity<TestObject> {
 
     private String hello;
     private Integer number;
@@ -35,5 +37,15 @@ public class TestObject {
                 "hello='" + hello + '\'' +
                 ", number=" + number +
                 '}';
+    }
+
+    @Override
+    public Class<TestObject> classOf() {
+        return TestObject.class;
+    }
+
+    @Override
+    public TestObject get(){
+        return this;
     }
 }

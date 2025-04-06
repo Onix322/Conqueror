@@ -1,7 +1,6 @@
 package org.httpServer;
 
 public enum HttpMethod {
-
     GET,
     POST,
     PUT,
