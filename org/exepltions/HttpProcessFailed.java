@@ -1,4 +1,4 @@
-package org.httpServer.exepltions;
+package org.exepltions;
 
 public class HttpProcessFailed extends RuntimeException {
     public HttpProcessFailed(String message) {

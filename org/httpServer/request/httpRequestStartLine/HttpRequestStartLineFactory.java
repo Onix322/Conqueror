@@ -2,7 +2,7 @@ package org.httpServer.request.httpRequestStartLine;
 
 import org.httpServer.HttpMethod;
 import org.httpServer.HttpVersion;
-import org.httpServer.exepltions.HttpStartLineIncorrect;
+import org.exepltions.HttpStartLineIncorrect;
 
 import java.net.URI;
 import java.util.Arrays;

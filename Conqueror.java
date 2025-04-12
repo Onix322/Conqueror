@@ -1,5 +1,5 @@
-import org.Controller.ControllerManager;
-import org.Controller.ControllerManagerImpl;
+import org.controller.ControllerManager;
+import org.controller.ControllerManagerImpl;
 import org.httpServer.HttpServer;
 import org.httpServer.HttpServerImpl;
 import org.configuration.Configuration;
@@ -29,9 +29,9 @@ public class Conqueror {
 
         //*JsonParser Initialization
         //Asigura mappare de obiecte din json si invers
-        /*
-            !Nu poate initializa obiecte din json ce contin altceva decat string si integer
-         */
+        //TODO - support for arrays, objects and different json types
+        //TODO - annotations for classes
+        //TODO - annotations for fields
         JsonServiceImpl.init(NumberFormat.getInstance());
         JsonService JsonService = JsonServiceImpl.getInstance();
 
@@ -45,7 +45,10 @@ public class Conqueror {
         ControllerManager controllerManager = ControllerManagerImpl.getInstance();
 
 
+
         //*HTTP SERVER CREATE
+        //TODO - annotations for Controllers
+        //TODO - annotations for HttpMethods
         HttpServerImpl.create(configuration, executorService, JsonService, entityManager, controllerManager);
         HttpServer httpServer = HttpServerImpl.getInstance();
 

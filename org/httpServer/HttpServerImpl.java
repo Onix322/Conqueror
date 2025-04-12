@@ -1,9 +1,9 @@
 package org.httpServer;
 
-import org.Controller.ControllerManager;
+import org.controller.ControllerManager;
 import org.configuration.Configuration;
 import org.entityManager.EntityManager;
-import org.httpServer.exepltions.NoEntityMatchesJson;
+import org.exepltions.NoEntityMatchesJson;
 import org.httpServer.request.httpRequest.HttpRequest;
 import org.httpServer.request.httpRequestBody.HttpRequestBody;
 import org.httpServer.request.httpRequestHeader.HttpRequestHeader;

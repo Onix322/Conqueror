@@ -1,4 +1,4 @@
-package org.httpServer.exepltions;
+package org.exepltions;
 
 public class HttpStartLineIncorrect extends RuntimeException {
     public HttpStartLineIncorrect() {

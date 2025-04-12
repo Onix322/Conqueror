@@ -1,4 +1,4 @@
-package org.Controller;
+package org.controller;
 
 import java.net.URI;
 import java.util.Map;

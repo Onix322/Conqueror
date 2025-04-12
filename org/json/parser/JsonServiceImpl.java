@@ -1,6 +1,6 @@
 package org.json.parser;
 
-import org.httpServer.exepltions.NoEmptyConstructorFound;
+import org.exepltions.NoEmptyConstructorFound;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

@@ -1,4 +1,4 @@
-package org.httpServer.exepltions;
+package org.exepltions;
 
 public class NoCompatibleHttpVersionFound extends RuntimeException {
     public NoCompatibleHttpVersionFound() {

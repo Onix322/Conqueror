@@ -1,7 +1,11 @@
 package org.configuration;
 
+import org.exepltions.ConfigPropertyNonExistent;
+
+import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
 import java.util.Properties;
 
 public class ConfigurationImpl implements Configuration {
@@ -26,8 +30,12 @@ public class ConfigurationImpl implements Configuration {
     }
 
     @Override
-    public String readProperty(String name) {
-        return PROPERTIES.getProperty(name);
+    public String readProperty(String name) throws ConfigPropertyNonExistent{
+        String property = PROPERTIES.getProperty(name);
+        if(property == null){
+            throw new ConfigPropertyNonExistent(name);
+        }
+        return property;
     }
 
     public void refreshProperties() {
@@ -42,8 +50,14 @@ public class ConfigurationImpl implements Configuration {
         }
     }
 
-    private InputStream getStream() {
-        return ClassLoader.getSystemResourceAsStream("./config.properties");
+    private InputStream getStream() throws IOError {
+        InputStream stream = ClassLoader.getSystemResourceAsStream("./config.properties");
+
+        if(stream == null){
+            throw new IOError(new Throwable("File 'config.properties' is not created. Please create 'config.properties'!"));
+        }
+
+        return stream;
     }
 
     @Override
