@@ -4,10 +4,7 @@ import org.json.parser_v2.JsonServiceImpl;
 
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TestJsonService {
 
@@ -67,8 +64,15 @@ public class TestJsonService {
                 "name":"Alex",
                 "age": 30,
                 "height":1.82,
-                "isProgrammer": true,
-                "certificate":null
+                "isProgrammer": "",
+                "certificate":null,
+                "preferences": {
+                 "darkMode": true,
+                 "fontSize": 14,
+                 "language": "en",
+                 "notifications": null
+               },
+               "beatrice": "yes"
             }
             """;
 
@@ -82,7 +86,7 @@ public class TestJsonService {
         List<String> js = jsonService.createJsonSchema(simpleJson);
         System.out.println(js);
 
-        Map<String, Object> prop =  jsonService.pullProperties(js,new HashMap<>());
+        Map<String, Object> prop =  jsonService.pullProperties(js,1, js.lastIndexOf("}"), new LinkedHashMap<>());
         System.out.println(prop);
     }
 

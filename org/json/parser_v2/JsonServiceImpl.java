@@ -1,14 +1,19 @@
 package org.json.parser_v2;
 
+import org.exepltions.JsonNotValid;
+
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JsonServiceImpl implements JsonService {
 
     private final NumberFormat NUMBER_FORMAT;
+
     private JsonServiceImpl(NumberFormat numberFormat) {
         this.NUMBER_FORMAT = numberFormat;
     }
@@ -61,52 +66,30 @@ public class JsonServiceImpl implements JsonService {
     public List<String> createJsonSchema(String json) {
         String s = json.replaceAll("\s", "")
                 .replaceAll("(?!.)\\{", "\n{\n")
-                .replaceAll("}", "\n}\n")
                 .replaceAll("(?:\s+|),(?!\s+|)", ",\n");
 
         List<String> schema = Arrays.stream(s.split("\n"))
                 .filter(line -> !line.isEmpty())
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(LinkedList::new));
 
         System.out.println(s);
         if (this.isJson(schema)) {
             return schema;
         }
-        throw new RuntimeException("Not a valid json!");
+        throw new JsonNotValid("Not a valid json!");
     }
 
-    public Map<String, Object> pullProperties(List<String> schema, Map<String, Object> properties) {
-
-        for (String line : schema) {
-            System.out.println(line);
-            if(!line.contains(":")) continue;
-            String[] prop = line.split(":");
-            String key = prop[0];
-            String value = prop[1];
-            String noCommaValue = value;
-            if (value.charAt(value.length() - 1) == ',') {
-                noCommaValue = value.substring(0, value.length() - 1);
-            }
-            try{
-                properties.put(key, NUMBER_FORMAT.parse(noCommaValue));
-            } catch (ParseException e){
-                properties.put(key, noCommaValue);
-            }
-        }
-
-        return properties;
-    }
 
     public boolean isJson(List<String> lines) {
         String firstLine = lines.getFirst();
         String lastLine = lines.getLast();
 
         if (!firstLine.matches("\\{")) {
-            throw new RuntimeException("First char should be '{' not '" + lines.getFirst().charAt(0) + "'");
+            throw new JsonNotValid("First char should be '{' not '" + lines.getFirst().charAt(0) + "'");
         }
 
         if (!lastLine.matches("}")) {
-            throw new RuntimeException("Last char should be '}' not '" + lines.getLast().charAt(lines.getLast().length() - 1) + "'");
+            throw new JsonNotValid("Last char should be '}' not '" + lines.getLast().charAt(lines.getLast().length() - 1) + "'");
         }
 
         lines.removeIf(String::isEmpty);
@@ -114,22 +97,59 @@ public class JsonServiceImpl implements JsonService {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             if (!line.contains(":")) continue;
-
-            this.hasValidJsonLines(line, i == lines.size() - 2);
+            this.hasValidJsonLines(line, lines.indexOf("}") - 1 == i);
         }
+
 
         return true;
     }
 
-    private void hasValidJsonLines(String line, boolean isLast) {
-        String pattern = "\"\\w+\":(?:\".+\"|\\d+(?:\\.\\d+|)|true|false|null|\\{)";
+    private void hasValidJsonLines(String line, boolean skipComma) {
+        String pattern = "\"\\w+\":(?:\".+\"|\\d+(?:\\.\\d+|)|true|false|null|\\{|\"(?:.|)\")";
 
-        if(isLast && !line.matches(pattern + "(?!,)")){
-            throw new RuntimeException("Line: " + line + " must NOT have ',' at the end");
+        if (line.matches(".+\\{,$")) {
+            throw new JsonNotValid("Line: " + line + " is NOT valid!");
         }
 
-        if(!isLast && !line.matches(pattern + ",")){
-            throw new RuntimeException("Line: " + line + " must have ',' at the end");
-        };
+        if (skipComma && !line.matches(pattern)) {
+            throw new JsonNotValid("Line: " + line + " is NOT valid!");
+        }
+
+        if (!skipComma && !line.matches(pattern + ",") && !line.matches(".+\\{$") && line.matches("},")) {
+            throw new JsonNotValid("Line: " + line + " must HAVE ',' at the end!");
+        }
+    }
+
+    public Map<String, Object> pullProperties(List<String> schema, Integer startIndex, Integer stopIndex, Map<String, Object> properties) {
+
+
+        // ! TODO Problems with properties after },
+        // TODO verification for comma in },
+        // TODO support arrays
+
+        for (int i = startIndex; i < schema.size(); i++) {
+            if (i == stopIndex) break;
+
+            String line = schema.get(i);
+            String[] prop = line.split(":");
+            String key = prop[0];
+            String value = prop[1];
+
+            if(key.equals("{,")) continue;
+
+            if (line.matches(".+\\{$")) {
+                properties.put(key, this.pullProperties(schema, i + 1, schema.indexOf("},"), new LinkedHashMap<>()));
+                break;
+            }
+
+            if (value.charAt(value.length() - 1) == ',') {
+                properties.put(key, value.substring(0, value.length() - 1));
+                continue;
+            }
+
+            properties.put(key, value);
+        }
+
+        return properties;
     }
 }
