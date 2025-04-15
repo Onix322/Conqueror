@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.IntFunction;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -97,9 +98,8 @@ public class JsonServiceImpl implements JsonService {
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             if (!line.contains(":")) continue;
-            this.hasValidJsonLines(line, lines.indexOf("}") - 1 == i);
+            this.hasValidJsonLines(line, lines.indexOf("}") - 1 == i || lines.indexOf("},") - 1 == i);
         }
-
 
         return true;
     }
@@ -115,7 +115,7 @@ public class JsonServiceImpl implements JsonService {
             throw new JsonNotValid("Line: " + line + " is NOT valid!");
         }
 
-        if (!skipComma && !line.matches(pattern + ",") && !line.matches(".+\\{$") && line.matches("},")) {
+        if (!skipComma && !line.matches(pattern + ",") && !line.matches(".+\\{$") && line.matches(pattern + "(?<=.)\\n}\\n")) {
             throw new JsonNotValid("Line: " + line + " must HAVE ',' at the end!");
         }
     }
@@ -128,18 +128,20 @@ public class JsonServiceImpl implements JsonService {
         // TODO support arrays
 
         for (int i = startIndex; i < schema.size(); i++) {
-            if (i == stopIndex) break;
+
+            if(i == stopIndex) break;
 
             String line = schema.get(i);
             String[] prop = line.split(":");
+            if(prop.length == 1) continue;
+
             String key = prop[0];
             String value = prop[1];
 
-            if(key.equals("{,")) continue;
-
-            if (line.matches(".+\\{$")) {
+            if (value.matches("\\{")) {
                 properties.put(key, this.pullProperties(schema, i + 1, schema.indexOf("},"), new LinkedHashMap<>()));
-                break;
+                i = schema.indexOf("},");
+                continue;
             }
 
             if (value.charAt(value.length() - 1) == ',') {
@@ -148,8 +150,10 @@ public class JsonServiceImpl implements JsonService {
             }
 
             properties.put(key, value);
+
         }
 
+        System.out.println(schema);
         return properties;
     }
 }
