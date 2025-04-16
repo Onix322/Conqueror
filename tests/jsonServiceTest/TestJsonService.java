@@ -72,7 +72,14 @@ public class TestJsonService {
                  "language": "en",
                  "notifications": null
                },
-               "beatrice": "yes"
+              "ada2": {
+                 "darkMode": true,
+                 "fontSize": 14,
+                 "language": "en",
+                 "notifications": null
+               },
+               "beatrice": "doi"
+               "alex": "unu"
             }
             """;
 
@@ -83,10 +90,7 @@ public class TestJsonService {
         JsonServiceImpl jsonService = JsonServiceImpl.getInstance();
 
         //test
-        List<String> js = jsonService.createJsonSchema(simpleJson);
-        System.out.println(js);
-
-        Map<String, Object> prop =  jsonService.pullProperties(js,1, js.lastIndexOf("}"), new LinkedHashMap<>());
+        Map<String, Object> prop =  jsonService.pullProperties(simpleJson);
         System.out.println(prop);
     }
 

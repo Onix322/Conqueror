@@ -6,10 +6,7 @@ import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
-import java.util.function.IntFunction;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class JsonServiceImpl implements JsonService {
 
@@ -64,7 +61,7 @@ public class JsonServiceImpl implements JsonService {
                 .collect(Collectors.toSet());
     }
 
-    public List<String> createJsonSchema(String json) {
+    private List<String> createJsonSchema(String json) {
         String s = json.replaceAll("\s", "")
                 .replaceAll("(?!.)\\{", "\n{\n")
                 .replaceAll("(?:\s+|),(?!\s+|)", ",\n");
@@ -115,12 +112,21 @@ public class JsonServiceImpl implements JsonService {
             throw new JsonNotValid("Line: " + line + " is NOT valid!");
         }
 
+        if(line.matches("}(?<!,)")){
+            throw new JsonNotValid("Line: " + line + " must HAVE ',' at the end!");
+        }
+
         if (!skipComma && !line.matches(pattern + ",") && !line.matches(".+\\{$") && line.matches(pattern + "(?<=.)\\n}\\n")) {
             throw new JsonNotValid("Line: " + line + " must HAVE ',' at the end!");
         }
     }
 
-    public Map<String, Object> pullProperties(List<String> schema, Integer startIndex, Integer stopIndex, Map<String, Object> properties) {
+    public Map<String, Object> pullProperties(String json) {
+        List<String> schema = this.createJsonSchema(json);
+        return this.pullProperties(schema, 1, schema.lastIndexOf("}"), new LinkedHashMap<>(), new LinkedList<>());
+    }
+
+    private Map<String, Object> pullProperties(List<String> schema, Integer startIndex, Integer stopIndex, Map<String, Object> properties, List<Integer> skipIndexes) {
 
 
         // ! TODO Problems with properties after },
@@ -129,18 +135,20 @@ public class JsonServiceImpl implements JsonService {
 
         for (int i = startIndex; i < schema.size(); i++) {
 
-            if(i == stopIndex) break;
+            if (i == stopIndex) return properties;
+            if (skipIndexes.contains(i)) continue;
 
             String line = schema.get(i);
             String[] prop = line.split(":");
-            if(prop.length == 1) continue;
+            skipIndexes.add(i);
+            if (prop.length == 1) continue;
 
             String key = prop[0];
             String value = prop[1];
 
             if (value.matches("\\{")) {
-                properties.put(key, this.pullProperties(schema, i + 1, schema.indexOf("},"), new LinkedHashMap<>()));
-                i = schema.indexOf("},");
+                properties.put(key, this.pullProperties(schema, i + 1, schema.indexOf("},"), new LinkedHashMap<>(), skipIndexes));
+                schema.remove("},");
                 continue;
             }
 
@@ -150,10 +158,8 @@ public class JsonServiceImpl implements JsonService {
             }
 
             properties.put(key, value);
-
         }
 
-        System.out.println(schema);
         return properties;
     }
 }
