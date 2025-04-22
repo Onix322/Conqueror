@@ -2,33 +2,26 @@ package tests.jsonServiceTest;
 
 import org.json.parser_v2.JsonServiceImpl;
 
-import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public class TestJsonService {
-
-
 
 
     public static String json = """
             {
                "name": "Alex",
-               "age": 30,
-               "height": 1.82,
-               "isProgrammer": true,
-               "certificate": null,
                "address": {
                  "street": "Main Blvd.",
                  "city": "Darmstadt",
                  "country": "Germany",
                  "postalCode": 64285
                },
-               "languagesSpoken": [
-                 "Romanian",
-                 "German",
-                 "English"
-               ],
+               "age": 30,
+               "height": 1.82,
+               "isProgrammer": true,
+               "certificate": null,
                "education": [
                  {
                    "degree": "BSc",
@@ -40,6 +33,11 @@ public class TestJsonService {
                    "field": "AI",
                    "year": 2019
                  }
+               ],
+               "languagesSpoken": [
+                 "Romanian",
+                 "German",
+                 "English"
                ],
                "projects": [
                  "website",
@@ -59,29 +57,6 @@ public class TestJsonService {
              }
             """;
 
-    public static String simpleJson ="""
-            {
-                "name":"Alex",
-                "age": 30,
-                "height":1.82,
-                "isProgrammer": "",
-                "certificate":null,
-                "preferences": {
-                 "darkMode": true,
-                 "fontSize": 14,
-                 "language": "en",
-                 "notifications": null
-               },
-              "ada2": {
-                 "darkMode": true,
-                 "fontSize": 14,
-                 "language": "en",
-                 "notifications": null
-               },
-               "beatrice": "doi"
-               "alex": "unu"
-            }
-            """;
 
     public static void isJsonValidTest() {
 
@@ -90,8 +65,11 @@ public class TestJsonService {
         JsonServiceImpl jsonService = JsonServiceImpl.getInstance();
 
         //test
-        Map<String, Object> prop =  jsonService.pullProperties(simpleJson);
-        System.out.println(prop);
+        List<String> lvlOneProperties = jsonService.listTheProperties(json);
+
+        Map<String, String> pair = jsonService.divideKeyValue(lvlOneProperties);
+        pair.forEach((k, v) -> System.out.println(k + "=" + v));
+
     }
 
     public static void main(String[] args) {
