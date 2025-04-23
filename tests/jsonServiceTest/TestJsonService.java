@@ -3,6 +3,7 @@ package tests.jsonServiceTest;
 import org.json.parser_v2.JsonServiceImpl;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,13 @@ public class TestJsonService {
                  {
                    "degree": "BSc",
                    "field": "Computer Science",
-                   "year": 2017
+                   "year": 2017,
+                   "preferences|": {
+                         "darkMode": true,
+                         "fontSize": 14,
+                         "language": "en",
+                         "notifications": null
+                    }
                  },
                  {
                    "degree": "MSc",
@@ -65,11 +72,8 @@ public class TestJsonService {
         JsonServiceImpl jsonService = JsonServiceImpl.getInstance();
 
         //test
-        List<String> lvlOneProperties = jsonService.listTheProperties(json);
 
-        Map<String, String> pair = jsonService.divideKeyValue(lvlOneProperties);
-        pair.forEach((k, v) -> System.out.println(k + "=" + v));
-
+        jsonService.gatherRawObjects(json).forEach((k, v) -> System.out.println(k + "=" + v));
     }
 
     public static void main(String[] args) {

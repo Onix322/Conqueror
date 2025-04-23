@@ -2,9 +2,11 @@ package org.json.parser_v2;
 
 import org.exepltions.JsonNotValid;
 
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class JsonServiceImpl implements JsonService {
@@ -49,49 +51,63 @@ public class JsonServiceImpl implements JsonService {
         return Map.of();
     }
 
+    private Integer countObjects(String lineJson){
+        int number = 0;
 
-    //TODO for each object from value side replace it with a reference from a list of primitive objects
-    //TODO Create validation for the end of the line checking for missing ',' unless is the last line in object / array
-    public List<String> listTheProperties(String json) {
-        String lineJson = json.replaceAll("\n\s+", "");
+        for (int i = 0; i < lineJson.length(); i++) {
+            if(lineJson.charAt(i) == '{') number++;
+        }
 
-        StringBuilder property = new StringBuilder();
-        List<String> properties = new ArrayList<>();
-        System.out.println(lineJson);
+        return number;
+    }
+    public int[] findTheHighestObjectLocation(String lineJson) {
+        int level = 0;
+        int highestIndex = 0;
+        int closingColumnIndex = 0;
+
         for (int i = 0, layer = 0; i < lineJson.length(); i++) {
             char c = lineJson.charAt(i);
-            property.append(lineJson.charAt(i));
 
-            switch (c){
-                case '{', '[' -> ++ layer;
-                case '}', ']' -> -- layer;
-                case ',' -> {
-                    if(layer <= 1){
-                        properties.add(property.toString());
-                        property.setLength(0);
-                    }
-                }
+            switch (c) {
+                case '{':
+                case '[':
+                    ++layer;
+                    break;
+                case '}', ']':
+                    --layer;
             }
-            if(layer != 0 && i == lineJson.length() - 1){
-                throw new JsonNotValid("You missed a '{' / '}' or '[' / ']'");
+
+            if (layer > level) {
+                level = layer;
+                highestIndex = i;
             }
         }
 
-        if (!property.isEmpty()) {
-            properties.add(property.toString());
+        for (int j = highestIndex; j < lineJson.length(); j++) {
+            char c = lineJson.charAt(j);
+            if (c == '}') {
+                closingColumnIndex = j;
+                break;
+            }
         }
 
-        return properties;
+        return new int[]{highestIndex, closingColumnIndex};
     }
 
-    public Map<String, String> divideKeyValue(List<String> properties) {
-        Map<String, String> pair = new LinkedHashMap<>();
+    public Map<String, String> gatherRawObjects(String json){
+        Map<String, String> rawObjects = new LinkedHashMap<>();
+        String lineJson = json.replaceAll("\n\s+", "");
+        int numberOfObjects = this.countObjects(lineJson);
+        int[] objectLocation = this.findTheHighestObjectLocation(lineJson);
 
-        for (String line : properties) {
-            String key = line.substring(0, line.indexOf(":")).replaceAll("\\W", "");
-            String value = line.substring(line.indexOf(":") + 2, line.length() - 1);
-            pair.put(key, value);
+        for (int i = 0; i < numberOfObjects - 1; i++) {
+
+            String id = "o-" + rawObjects.size();
+            String value = lineJson.substring(objectLocation[0], objectLocation[1] + 1);
+            rawObjects.put(id,value);
+            lineJson = lineJson.replace(value, id);
+            objectLocation = this.findTheHighestObjectLocation(lineJson);
         }
-        return pair;
+        return rawObjects;
     }
 }
