@@ -73,7 +73,9 @@ public class TestJsonService {
 
         //test
 
-        jsonService.gatherRawObjects(json).forEach((k, v) -> System.out.println(k + "=" + v));
+        Map<String, String> objs = jsonService.gatherRawObjects(json);
+
+        objs.forEach((k, v) -> System.out.println(k + "=" + v));
     }
 
     public static void main(String[] args) {

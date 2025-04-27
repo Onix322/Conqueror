@@ -1,13 +1,9 @@
 package org.json.parser_v2;
 
-import org.exepltions.JsonNotValid;
-
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class JsonServiceImpl implements JsonService {
 
@@ -51,15 +47,16 @@ public class JsonServiceImpl implements JsonService {
         return Map.of();
     }
 
-    private Integer countObjects(String lineJson){
+    private Integer countObjects(String lineJson) {
         int number = 0;
 
         for (int i = 0; i < lineJson.length(); i++) {
-            if(lineJson.charAt(i) == '{') number++;
+            if (lineJson.charAt(i) == '{' || lineJson.charAt(i) == '[') number++;
         }
 
         return number;
     }
+
     public int[] findTheHighestObjectLocation(String lineJson) {
         int level = 0;
         int highestIndex = 0;
@@ -69,12 +66,8 @@ public class JsonServiceImpl implements JsonService {
             char c = lineJson.charAt(i);
 
             switch (c) {
-                case '{':
-                case '[':
-                    ++layer;
-                    break;
-                case '}', ']':
-                    --layer;
+                case '{', '[' -> ++layer;
+                case '}', ']' -> --layer;
             }
 
             if (layer > level) {
@@ -85,7 +78,7 @@ public class JsonServiceImpl implements JsonService {
 
         for (int j = highestIndex; j < lineJson.length(); j++) {
             char c = lineJson.charAt(j);
-            if (c == '}') {
+            if (c == '}' || c == ']') {
                 closingColumnIndex = j;
                 break;
             }
@@ -94,19 +87,19 @@ public class JsonServiceImpl implements JsonService {
         return new int[]{highestIndex, closingColumnIndex};
     }
 
-    public Map<String, String> gatherRawObjects(String json){
+    public Map<String, String> gatherRawObjects(String json) {
         Map<String, String> rawObjects = new LinkedHashMap<>();
         String lineJson = json.replaceAll("\n\s+", "");
         int numberOfObjects = this.countObjects(lineJson);
         int[] objectLocation = this.findTheHighestObjectLocation(lineJson);
 
-        for (int i = 0; i < numberOfObjects - 1; i++) {
-
+        while (numberOfObjects > 0 && objectLocation[1] > objectLocation[0]) {
             String id = "o-" + rawObjects.size();
             String value = lineJson.substring(objectLocation[0], objectLocation[1] + 1);
-            rawObjects.put(id,value);
+            rawObjects.put(id, value);
             lineJson = lineJson.replace(value, id);
             objectLocation = this.findTheHighestObjectLocation(lineJson);
+            numberOfObjects--;
         }
         return rawObjects;
     }
