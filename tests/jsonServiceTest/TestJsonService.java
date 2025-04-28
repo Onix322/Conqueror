@@ -1,6 +1,7 @@
 package tests.jsonServiceTest;
 
 import org.json.parser_v2.JsonServiceImpl;
+import org.json.parser_v2.JsonValidator;
 
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -28,7 +29,7 @@ public class TestJsonService {
                    "degree": "BSc",
                    "field": "Computer Science",
                    "year": 2017,
-                   "preferences|": {
+                   "preferences": {
                          "darkMode": true,
                          "fontSize": 14,
                          "language": "en",
@@ -58,7 +59,7 @@ public class TestJsonService {
                "preferences": {
                  "darkMode": true,
                  "fontSize": 14,
-                 "language": "en",
+                 "language": "e{}[]n",
                  "notifications": null
                }
              }
@@ -68,7 +69,7 @@ public class TestJsonService {
     public static void isJsonValidTest() {
 
         //init
-        JsonServiceImpl.init(NumberFormat.getInstance());
+        JsonServiceImpl.init(NumberFormat.getInstance(), JsonValidator.getInstance());
         JsonServiceImpl jsonService = JsonServiceImpl.getInstance();
 
         //test
