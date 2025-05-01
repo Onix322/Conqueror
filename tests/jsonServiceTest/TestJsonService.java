@@ -1,7 +1,6 @@
 package tests.jsonServiceTest;
 
-import org.json.parser_v2.JsonServiceImpl;
-import org.json.parser_v2.JsonValidator;
+import org.json.parser_v2.*;
 
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -59,24 +58,55 @@ public class TestJsonService {
                "preferences": {
                  "darkMode": true,
                  "fontSize": 14,
-                 "language": "e{}[]n",
-                 "notifications": null
+                 "language": "en",
+                 "notifications": null,
+                 "projects": [
+                     "website",
+                     {
+                       "title": "a{}[]\\"pp",
+                       "completed": false
+                     },
+                     42,
+                     null
+                ]
                }
              }
             """;
 
+    public static String jsonSimple = """
+            {
+                "preferences": {
+                    "darkMode": true,
+                    "fontSize": 14,
+                    "language": "en",
+                    "notifications": null,
+                    "address": {
+                         "street": "Main Blvd.",
+                         "city": "Darmstadt",
+                         "country": "Germa{}[]\\"ny",
+                         "postalCode": 64285
+                   }
+                }
+            }
+            """;
 
     public static void isJsonValidTest() {
 
         //init
-        JsonServiceImpl.init(NumberFormat.getInstance(), JsonValidator.getInstance());
-        JsonServiceImpl jsonService = JsonServiceImpl.getInstance();
+
+        JsonParser.init(
+                NumberFormat.getInstance(),
+                JsonValidator.getInstance(),
+                JsonFormat.getInstance()
+        );
+        JsonParser jsonParser = JsonParser.getInstance();
 
         //test
 
-        Map<String, String> objs = jsonService.gatherRawObjects(json);
+        Map<String, String> objs = jsonParser.parse(json);
 
         objs.forEach((k, v) -> System.out.println(k + "=" + v));
+
     }
 
     public static void main(String[] args) {
