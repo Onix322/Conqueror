@@ -3,8 +3,7 @@ package org.json.parser_v2;
 import org.exepltions.JsonNotValid;
 
 import java.text.NumberFormat;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class JsonParser {
 
@@ -44,7 +43,7 @@ public class JsonParser {
             throw new JsonNotValid("Json is not valid!");
         }
 
-        //parse
+        //parsing
         return this.gatherRawObjects(jsonString);
     }
 
@@ -69,6 +68,28 @@ public class JsonParser {
         }
 
         return rawObjects;
+    }
+
+    //TODO -- getProperties and parse the object
+    public Map<String, String> parseObject(Map<String, String> objects){
+
+        String key = objects.keySet().stream().toList().getLast();
+        List<String> values = objects.values().stream().toList();
+        String regex = "^\\{\\s*(?:\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)\\s*(?:,\\s*\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)\\s*)*)?\\s*\\}$";
+
+        for (String v : values){
+            if(v.charAt(0) == '[') continue;
+            System.out.println(v);
+            if(!v.matches(regex)){
+                throw new JsonNotValid("This is not valid: " + v);
+            }
+        }
+        return Map.of();
+    }
+
+    private List<String> getProperties(List<String> values) {
+
+        return List.of();
     }
 
     /*
@@ -132,5 +153,4 @@ public class JsonParser {
 
         return new JsonCoordinate.JsonCoordinateBuilder(startIndex, endIndex).build();
     }
-
 }

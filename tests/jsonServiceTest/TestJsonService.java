@@ -105,8 +105,9 @@ public class TestJsonService {
 
         Map<String, String> objs = jsonParser.parse(json);
 
-        objs.forEach((k, v) -> System.out.println(k + "=" + v));
+//        objs.forEach((k, v) -> System.out.println(k + "=" + v));
 
+        jsonParser.parseObject(objs);
     }
 
     public static void main(String[] args) {

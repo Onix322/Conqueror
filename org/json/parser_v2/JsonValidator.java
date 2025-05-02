@@ -1,5 +1,7 @@
 package org.json.parser_v2;
 
+import org.exepltions.JsonNotValid;
+
 public class JsonValidator {
 
     private JsonValidator() {}
@@ -13,7 +15,11 @@ public class JsonValidator {
     }
 
     public boolean isValidJsonValue(JsonString json) {
-        return hasAllBrackets(json);
+
+        if(!this.hasAllBrackets(json)){
+            throw new JsonNotValid("A bracket is missing or a key has invalid word characters!");
+        }
+        return true;
     }
 
     public boolean hasAllBrackets(JsonString json){
@@ -31,6 +37,7 @@ public class JsonValidator {
                 case '}', ']' -> close++;
             }
         }
+
         return open == close;
     }
 
