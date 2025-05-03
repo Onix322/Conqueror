@@ -1,11 +1,11 @@
-package org.json.parser_v2;
+package org.json.parser_v2.json;
 
-public class JsonCoordinate {
+public class Coordinate {
 
     private int startIndex;
     private int endIndex;
 
-    public JsonCoordinate(JsonCoordinateBuilder jsonCoordinateBuilder) {
+    public Coordinate(CoordinateBuilder jsonCoordinateBuilder) {
         this.startIndex = jsonCoordinateBuilder.getStartIndex();
         this.endIndex = jsonCoordinateBuilder.getEndIndex();
     }
@@ -26,21 +26,30 @@ public class JsonCoordinate {
         this.endIndex = endIndex;
     }
 
-    public static class JsonCoordinateBuilder {
-        private int startIndex;
-        private int endIndex;
+    public static CoordinateBuilder builder(){
+        return new CoordinateBuilder();
+    }
 
-        public JsonCoordinateBuilder(int startIndex, int endIndex) {
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
-        }
+    @Override
+    public String toString() {
+        return "Coordinate{" +
+                "startIndex=" + startIndex +
+                ", endIndex=" + endIndex +
+                '}';
+    }
 
-        public JsonCoordinateBuilder setStartIndex(int startIndex) {
+    public static class CoordinateBuilder {
+        private int startIndex = 0;
+        private int endIndex = 0;
+
+        private CoordinateBuilder() {}
+
+        public CoordinateBuilder setStartIndex(int startIndex) {
             this.startIndex = startIndex;
             return this;
         }
 
-        public JsonCoordinateBuilder setEndIndex(int endIndex) {
+        public CoordinateBuilder setEndIndex(int endIndex) {
             this.endIndex = endIndex;
             return this;
         }
@@ -53,8 +62,8 @@ public class JsonCoordinate {
             return endIndex;
         }
 
-        public JsonCoordinate build() {
-            return new JsonCoordinate(this);
+        public Coordinate build() {
+            return new Coordinate(this);
         }
     }
 }

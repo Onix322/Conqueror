@@ -1,4 +1,4 @@
-package org.json.parser_v2;
+package org.json.parser_v2.json;
 
 /*
  *Its role is to transform a string into a json format.

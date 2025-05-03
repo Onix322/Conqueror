@@ -1,4 +1,4 @@
-package org.json.parser_v2;
+package org.json.parser_v2.json;
 
 import org.exepltions.JsonNotValid;
 

@@ -1,5 +1,7 @@
 package org.json.parser_v2;
 
+import org.json.parser_v2.json.JsonParser;
+
 import java.text.ParseException;
 import java.util.Map;
 

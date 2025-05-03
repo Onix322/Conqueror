@@ -1,11 +1,17 @@
 package tests.jsonServiceTest;
 
-import org.json.parser_v2.*;
+import org.json.parser_v2.json.JsonFormat;
+import org.json.parser_v2.json.JsonValidator;
+import org.json.parser_v2.json.JsonParser;
+import org.json.parser_v2.json.properties.JsonValue;
+import org.json.parser_v2.json.types.JsonArray;
+import org.json.parser_v2.json.types.JsonObject;
+import org.json.parser_v2.json.types.JsonType;
 
+import java.awt.*;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 
 public class TestJsonService {
 
@@ -90,12 +96,10 @@ public class TestJsonService {
             }
             """;
 
-    public static void isJsonValidTest() {
+    public static void isJsonValidTest() throws ParseException {
 
         //init
-
         JsonParser.init(
-                NumberFormat.getInstance(),
                 JsonValidator.getInstance(),
                 JsonFormat.getInstance()
         );
@@ -103,14 +107,23 @@ public class TestJsonService {
 
         //test
 
-        Map<String, String> objs = jsonParser.parse(json);
+        JsonObject parseObj = (JsonObject) jsonParser.parse(json);
 
-//        objs.forEach((k, v) -> System.out.println(k + "=" + v));
+        System.out.println(parseObj.getProperty("education")
+                .getValue()
+                .get(JsonArray.class)
+                .getArray()[1]
+                .get(JsonValue.class)
+                .get(JsonObject.class)
+                .getProperty("degree")
+                .getValue()
+                .get(String.class));
 
-        jsonParser.parseObject(objs);
+
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         isJsonValidTest();
+//        valuesLocationInArrayTest();
     }
 }
