@@ -1,5 +1,6 @@
 package tests.jsonServiceTest;
 
+import org.json.parser_v2.json.JsonNavigator;
 import org.json.parser_v2.json.formatter.JsonFormat;
 import org.json.parser_v2.json.JsonParser;
 import org.json.parser_v2.json.JsonValidator;
@@ -7,6 +8,7 @@ import org.json.parser_v2.json.types.JsonArray;
 import org.json.parser_v2.json.types.JsonObject;
 
 import java.text.ParseException;
+import java.util.Scanner;
 
 public class TestJsonService {
 
@@ -85,7 +87,7 @@ public class TestJsonService {
             }
             """;
 
-    public static void isJsonValidTest() throws ParseException {
+    public static void isJsonValidTest() {
 
         //init
         JsonParser.init(
@@ -98,15 +100,26 @@ public class TestJsonService {
 
         JsonObject parseObj = (JsonObject) jsonParser.parse(json);
 
-        System.out.println(parseObj);
-        JsonArray jsonArray = parseObj.getProperty("education")
-                .value()
-                .get(JsonArray.class);
+        Scanner scanner = new Scanner(System.in);;
+        String input;
+
+        while (true){
+            System.out.println("Write a path: ");
+            input = scanner.nextLine();
+            System.out.println(JsonNavigator.navigate(parseObj, input));
+
+            if(input.equals("stop")){
+                scanner.close();
+                break;
+            }
+        }
 
 
+//        System.out.println(JsonNavigator.navigate(parseObj, "address.street"));
+//        System.out.println(JsonNavigator.navigate(parseObj, "address.street"));
     }
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) {
         isJsonValidTest();
 //        valuesLocationInArrayTest();
     }

@@ -22,7 +22,7 @@ public class JsonObject implements JsonType, JsonIterator<JsonProperty> {
         properties = array;
     }
 
-    public JsonProperty getProperty(String name) {
+    public JsonProperty getProperty(String name) throws NoSuchJsonPropertyError{
         return Arrays.stream(get())
                 .filter(p -> p.key().get().equals(name))
                 .findFirst()
