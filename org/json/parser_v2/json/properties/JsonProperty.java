@@ -1,8 +1,9 @@
 package org.json.parser_v2.json.properties;
 
+import java.util.Map;
 import java.util.Objects;
 
-public class JsonProperty {
+public class JsonProperty implements JsonKeyValue<Map<JsonKey, JsonValue>>{
     private JsonKey key;
     private JsonValue value;
 
@@ -11,7 +12,7 @@ public class JsonProperty {
         this.value = value;
     }
 
-    public JsonKey getKey() {
+    public JsonKey key() {
         return key;
     }
 
@@ -19,7 +20,7 @@ public class JsonProperty {
         this.key = key;
     }
 
-    public JsonValue getValue() {
+    public JsonValue value() {
         return value;
     }
 
@@ -28,19 +29,25 @@ public class JsonProperty {
     }
 
     @Override
+    public Map<JsonKey, JsonValue> get() {
+        return Map.of(this.key, this.value);
+    }
+
+    @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         JsonProperty that = (JsonProperty) object;
-        return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
+        return Objects.equals(key(), that.key()) && Objects.equals(value(), that.value());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getKey(), getValue());
+        return Objects.hash(key(), value());
     }
 
     @Override
     public String toString() {
         return "\"" + key + "\": " + value;
     }
+
 }

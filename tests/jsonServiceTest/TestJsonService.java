@@ -1,17 +1,13 @@
 package tests.jsonServiceTest;
 
 import org.json.parser_v2.json.JsonFormat;
-import org.json.parser_v2.json.JsonValidator;
 import org.json.parser_v2.json.JsonParser;
+import org.json.parser_v2.json.JsonValidator;
 import org.json.parser_v2.json.properties.JsonValue;
 import org.json.parser_v2.json.types.JsonArray;
 import org.json.parser_v2.json.types.JsonObject;
-import org.json.parser_v2.json.types.JsonType;
 
-import java.awt.*;
-import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.*;
 
 public class TestJsonService {
 
@@ -33,13 +29,7 @@ public class TestJsonService {
                  {
                    "degree": "BSc",
                    "field": "Computer Science",
-                   "year": 2017,
-                   "preferences": {
-                         "darkMode": true,
-                         "fontSize": 14,
-                         "language": "en",
-                         "notifications": null
-                    }
+                   "year": 2017
                  },
                  {
                    "degree": "MSc",
@@ -109,15 +99,10 @@ public class TestJsonService {
 
         JsonObject parseObj = (JsonObject) jsonParser.parse(json);
 
-        System.out.println(parseObj.getProperty("education")
-                .getValue()
-                .get(JsonArray.class)
-                .getArray()[1]
-                .get(JsonValue.class)
-                .get(JsonObject.class)
-                .getProperty("degree")
-                .getValue()
-                .get(String.class));
+        System.out.println(parseObj);
+        JsonArray jsonArray = parseObj.getProperty("education")
+                .value()
+                .get(JsonArray.class);
 
 
     }

@@ -5,7 +5,7 @@ import org.json.parser_v2.json.properties.JsonProperty;
 
 import java.util.Arrays;
 
-public final class JsonObject implements JsonType {
+public class JsonObject implements JsonType, JsonIterator<JsonProperty> {
 
     private JsonProperty[] properties;
 
@@ -13,17 +13,18 @@ public final class JsonObject implements JsonType {
         this.properties = property;
     }
 
-    public JsonProperty[] getProperties() {
+    public JsonProperty[] get() {
         return properties;
     }
 
-    public void setProperties(JsonProperty[] properties) {
-        this.properties = properties;
+    @Override
+    public void set(JsonProperty[] array) {
+        properties = array;
     }
 
     public JsonProperty getProperty(String name) {
-        return Arrays.stream(getProperties())
-                .filter(p -> p.getKey().getName().equals(name))
+        return Arrays.stream(get())
+                .filter(p -> p.key().get().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new NoSuchJsonPropertyError("No property called: '" + name + "'"));
     }

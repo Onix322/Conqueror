@@ -186,8 +186,8 @@ public class JsonParser {
             JsonType value = entry.getValue();
 
             if (value instanceof JsonObject jsonObject) {
-                for (JsonProperty property : jsonObject.getProperties()) {
-                    JsonValue rawVal = property.getValue();
+                for (JsonProperty property : jsonObject.get()) {
+                    JsonValue rawVal = property.value();
                     if (rawVal.get() instanceof String strVal && strVal.matches("\"o-\\d+\"")) {
                         JsonType resolved = parseObj.get(strVal);
                         if (resolved != null) {
@@ -198,7 +198,7 @@ public class JsonParser {
             }
 
             if (value instanceof JsonArray jsonArray) {
-                for (JsonValue val : jsonArray.getArray()) {
+                for (JsonValue val : jsonArray.get()) {
                     Object rawVal = val.get();
                     if (rawVal instanceof String strVal && strVal.matches("\"o-\\d+\"")) {
                         JsonType resolved = parseObj.get(strVal);
@@ -210,7 +210,6 @@ public class JsonParser {
             }
         }
 
-        // Return the last inserted object (the root)
         List<String> keys = parseObj.keySet().stream().toList();
         return parseObj.get(keys.getLast());
     }

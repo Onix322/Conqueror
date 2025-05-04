@@ -1,6 +1,6 @@
 package org.json.parser_v2.json.properties;
 
-public class JsonValue {
+public class JsonValue implements JsonKeyValue<Object>{
     private Object value;
 
     public JsonValue(Object value) {
@@ -11,6 +11,7 @@ public class JsonValue {
         return type.cast(value);
     }
 
+    @Override
     public Object get() {
         return value;
     }

@@ -16,12 +16,45 @@ public class JsonFormat {
         return Init.INSTANCE;
     }
 
+    /**
+     * Main method that minifies the JSON input by removing spaces and new lines
+     * outside of strings, and adding a space after each ':' that is not within a string.
+     */
+
     public JsonString format(String string) {
 
-        String lineJson = string.replaceAll("\n\\s+", "")
-                .replaceAll("\r\n", "")
-                .replaceAll("\n", "");
+        StringBuilder result = new StringBuilder();
+        boolean inString = false;
 
-        return new JsonString(lineJson);
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
+
+            if (c == '"') {
+                boolean escaped = false;
+                int j = i - 1;
+                while (j >= 0 && string.charAt(j) == '\\') {
+                    escaped = !escaped;
+                    j--;
+                }
+                if (!escaped) {
+                    inString = !inString;
+                }
+            }
+
+            if (inString) {
+                result.append(c);
+            } else {
+                if (Character.isWhitespace(c)) {
+                    continue;
+                }
+                if (c == ':') {
+                    result.append(": ");
+                } else {
+                    result.append(c);
+                }
+            }
+        }
+
+        return new JsonString(result.toString());
     }
 }

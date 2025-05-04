@@ -5,35 +5,36 @@ import org.json.parser_v2.json.properties.JsonValue;
 import java.util.Arrays;
 import java.util.Objects;
 
-public final class JsonArray implements JsonType{
+public class JsonArray implements JsonType, JsonIterator<JsonValue> {
+
     private JsonValue[] array;
 
     public JsonArray(JsonValue[] array) {
         this.array = array;
     }
 
-    public JsonValue[] getArray() {
+    public JsonValue[] get() {
         return array;
     }
 
-    public void setArray(JsonValue[] array) {
+    public void set(JsonValue[] array) {
         this.array = array;
     }
 
     @Override
     public String toString() {
-        return  Arrays.toString(array);
+        return Arrays.toString(array);
     }
 
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         JsonArray jsonArray = (JsonArray) object;
-        return Objects.deepEquals(getArray(), jsonArray.getArray());
+        return Objects.deepEquals(get(), jsonArray.get());
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(getArray());
+        return Arrays.hashCode(get());
     }
 }
