@@ -1,6 +1,7 @@
 package org.json.parser_v2.json;
 
 import org.exepltions.JsonNotValid;
+import org.json.parser_v2.json.formatter.JsonFormatedString;
 
 public class JsonValidator {
 
@@ -14,7 +15,7 @@ public class JsonValidator {
         return Init.INSTANCE;
     }
 
-    public boolean isValidJsonValue(JsonString json) {
+    public boolean isValidJsonValue(JsonFormatedString json) {
 
         if(!this.hasAllBrackets(json)){
             throw new JsonNotValid("A bracket is missing or a key has invalid word characters!");
@@ -22,7 +23,7 @@ public class JsonValidator {
         return true;
     }
 
-    public boolean hasAllBrackets(JsonString json){
+    public boolean hasAllBrackets(JsonFormatedString json){
         int open = 0;
         int close = 0;
         boolean inStringChar = false;
@@ -41,12 +42,22 @@ public class JsonValidator {
         return open == close;
     }
 
-    public boolean toggleInString(char c, int index, String jsonLine, boolean currentState) {
-        if (c == '"' && index > 0) {
-            if (jsonLine.charAt(index - 1) != '\\') {
-                return !currentState;
+    public boolean toggleInString(char c, int i, String string, boolean inString) {
+        if (c == '"') {
+            boolean escaped = false;
+            int j = i - 1;
+            while (j >= 0 && string.charAt(j) == '\\') {
+                escaped = !escaped;
+                j--;
+            }
+            if (!escaped) {
+                inString = !inString;
             }
         }
-        return currentState;
+        if (!inString && (c == '{' || c == '}' || c == '[' || c == ']' || c == ',' || c == ':')) {
+            return inString;
+        }
+
+        return inString;
     }
 }

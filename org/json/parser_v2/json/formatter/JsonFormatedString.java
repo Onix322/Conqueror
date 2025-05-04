@@ -1,12 +1,12 @@
-package org.json.parser_v2.json;
+package org.json.parser_v2.json.formatter;
 
 import java.util.Objects;
 
-public class JsonString {
+public class JsonFormatedString {
 
     private String string;
 
-    public JsonString(String string){
+    JsonFormatedString(String string){
         this.string = string;
     }
 
@@ -21,7 +21,7 @@ public class JsonString {
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
-        JsonString that = (JsonString) object;
+        JsonFormatedString that = (JsonFormatedString) object;
         return Objects.equals(getString(), that.getString());
     }
 

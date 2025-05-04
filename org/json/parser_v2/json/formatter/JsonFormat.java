@@ -1,4 +1,4 @@
-package org.json.parser_v2.json;
+package org.json.parser_v2.json.formatter;
 
 /*
  *Its role is to transform a string into a json format.
@@ -21,7 +21,7 @@ public class JsonFormat {
      * outside of strings, and adding a space after each ':' that is not within a string.
      */
 
-    public JsonString format(String string) {
+    public JsonFormatedString format(String string) {
 
         StringBuilder result = new StringBuilder();
         boolean inString = false;
@@ -55,6 +55,6 @@ public class JsonFormat {
             }
         }
 
-        return new JsonString(result.toString());
+        return new JsonFormatedString(result.toString());
     }
 }

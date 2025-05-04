@@ -2,6 +2,8 @@ package org.json.parser_v2.json;
 
 import org.exepltions.JsonNotValid;
 import org.exepltions.JsonPropertyFormatError;
+import org.json.parser_v2.json.formatter.JsonFormat;
+import org.json.parser_v2.json.formatter.JsonFormatedString;
 import org.json.parser_v2.json.properties.JsonKey;
 import org.json.parser_v2.json.properties.JsonProperty;
 import org.json.parser_v2.json.properties.JsonValue;
@@ -40,15 +42,15 @@ public class JsonParser {
 
     public JsonType parse(String string) {
         //format
-        JsonString jsonString = JSON_FORMAT.format(string);
+        JsonFormatedString jsonFormatedString = JSON_FORMAT.format(string);
 
         //validate
-        if (!JSON_VALIDATOR.isValidJsonValue(jsonString)) {
+        if (!JSON_VALIDATOR.isValidJsonValue(jsonFormatedString)) {
             throw new JsonNotValid("Json is not valid!");
         }
 
         //parsing
-        Map<String, String> rawObjects = this.gatherRawObjects(jsonString);
+        Map<String, String> rawObjects = this.gatherRawObjects(jsonFormatedString);
         Map<String, JsonType> parsedObjects = this.parseTypes(rawObjects);
 
         //TODO Json Assembler
@@ -59,7 +61,7 @@ public class JsonParser {
     /*
      * With the help of coordinates will cut the objects and save them in a map (k= object id , v = object) witch will be the result
      */
-    private Map<String, String> gatherRawObjects(JsonString json) {
+    private Map<String, String> gatherRawObjects(JsonFormatedString json) {
 
         int numberOfObjects = this.countObjects(json);
         Map<String, String> rawObjects = new LinkedHashMap<>();
@@ -71,8 +73,8 @@ public class JsonParser {
             String value = lineJson.substring(objectLocation.getStartIndex(), objectLocation.getEndIndex() + 1);
             rawObjects.put(id, value);
             lineJson = lineJson.replace(value, id);
-            JsonString jsonString = JSON_FORMAT.format(lineJson);
-            objectLocation = this.findDeepestObjectBounds(jsonString);
+            JsonFormatedString jsonFormatedString = JSON_FORMAT.format(lineJson);
+            objectLocation = this.findDeepestObjectBounds(jsonFormatedString);
             numberOfObjects--;
         }
 
@@ -246,7 +248,7 @@ public class JsonParser {
     /*
      * Counting objects
      */
-    private Integer countObjects(JsonString json) {
+    private Integer countObjects(JsonFormatedString json) {
         int number = 0;
         String lineJson = json.getString();
         boolean inStringChar = false;
@@ -269,7 +271,7 @@ public class JsonParser {
      * This method finds the deepest object in the string and returns it's location (as coordinates)
      * Coordinates will be used to cut the object from string , add it in a map with k= object id , v = object
      */
-    private Coordinate findDeepestObjectBounds(JsonString json) {
+    private Coordinate findDeepestObjectBounds(JsonFormatedString json) {
         int maxDepth = 0;
         int currentDepth = 0;
         int startIndex = -1;

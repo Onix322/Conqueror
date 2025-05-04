@@ -1,9 +1,8 @@
 package tests.jsonServiceTest;
 
-import org.json.parser_v2.json.JsonFormat;
+import org.json.parser_v2.json.formatter.JsonFormat;
 import org.json.parser_v2.json.JsonParser;
 import org.json.parser_v2.json.JsonValidator;
-import org.json.parser_v2.json.properties.JsonValue;
 import org.json.parser_v2.json.types.JsonArray;
 import org.json.parser_v2.json.types.JsonObject;
 
