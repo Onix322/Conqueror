@@ -1,13 +1,12 @@
 package tests.jsonServiceTest;
 
-import org.json.parser_v2.json.JsonNavigator;
-import org.json.parser_v2.json.formatter.JsonFormat;
-import org.json.parser_v2.json.JsonParser;
-import org.json.parser_v2.json.JsonValidator;
-import org.json.parser_v2.json.types.JsonArray;
-import org.json.parser_v2.json.types.JsonObject;
+import org.services.jsonService.json.navigator.JsonNavigator;
+import org.services.jsonService.json.formatter.JsonFormat;
+import org.services.jsonService.json.objectMapper.ObjectMapper;
+import org.services.jsonService.json.parser.JsonParser;
+import org.services.jsonService.json.validator.JsonValidator;
+import org.services.jsonService.json.types.JsonObject;
 
-import java.text.ParseException;
 import java.util.Scanner;
 
 public class TestJsonService {
@@ -70,29 +69,13 @@ public class TestJsonService {
              }
             """;
 
-    public static String jsonSimple = """
-            {
-                "preferences": {
-                    "darkMode": true,
-                    "fontSize": 14,
-                    "language": "en",
-                    "notifications": null,
-                    "address": {
-                         "street": "Main Blvd.",
-                         "city": "Darmstadt",
-                         "country": "Germa{}[]\\"ny",
-                         "postalCode": 64285
-                   }
-                }
-            }
-            """;
-
     public static void isJsonValidTest() {
 
         //init
         JsonParser.init(
                 JsonValidator.getInstance(),
-                JsonFormat.getInstance()
+                JsonFormat.getInstance(),
+                ObjectMapper.getInstance()
         );
         JsonParser jsonParser = JsonParser.getInstance();
 
@@ -106,17 +89,12 @@ public class TestJsonService {
         while (true){
             System.out.println("Write a path: ");
             input = scanner.nextLine();
-            System.out.println(JsonNavigator.navigate(parseObj, input));
-
             if(input.equals("stop")){
                 scanner.close();
                 break;
             }
+            System.out.println(JsonNavigator.navigate(parseObj, input));
         }
-
-
-//        System.out.println(JsonNavigator.navigate(parseObj, "address.street"));
-//        System.out.println(JsonNavigator.navigate(parseObj, "address.street"));
     }
 
     public static void main(String[] args) {

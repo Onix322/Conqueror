@@ -1,7 +1,5 @@
 package org.httpServer.response.httpResponseBody;
 
-import org.json.parser.JsonServiceImpl;
-
 public class HttpResponseBody {
 
     private Object body;
@@ -16,10 +14,6 @@ public class HttpResponseBody {
 
     public void setBody(Object body) {
         this.body = body;
-    }
-
-    public String toJson(){
-        return JsonServiceImpl.getInstance().generate(this);
     }
 
     @Override

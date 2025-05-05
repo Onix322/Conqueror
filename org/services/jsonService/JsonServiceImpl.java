@@ -1,9 +1,7 @@
-package org.json.parser_v2;
+package org.services.jsonService;
 
-import org.json.parser_v2.json.JsonParser;
-
-import java.text.ParseException;
-import java.util.Map;
+import org.services.jsonService.json.parser.JsonParser;
+import org.services.jsonService.json.types.JsonObject;
 
 public class JsonServiceImpl implements JsonService {
 
@@ -31,20 +29,12 @@ public class JsonServiceImpl implements JsonService {
     }
 
     @Override
-    public String generate(Object object) {
-        return "";
-    }
-
-
-    @Override
-    public <T> T map(String stringLikeJson, Class<T> clazz) throws IllegalAccessException, ParseException {
-        //! de implementat
+    public <T> T map(JsonObject jsonObject, Class<T> clazz) {
         return null;
     }
 
     @Override
-    public Map<String, Object> getProperties(String stringLikeJson) {
-        return Map.of();
+    public JsonObject parse(String json) {
+        return null;
     }
-
 }

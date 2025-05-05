@@ -55,7 +55,7 @@ public class HttpResponse {
         return startLine.getStatusLineString() + "\r\n"
                 + header.getHeaderString() + "\r\n"
                 + "Connection: " + connection.getType() + "\r\n\n"
-                + body.toJson();
+                + body;
     }
 
     @Override

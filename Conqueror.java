@@ -4,13 +4,16 @@ import org.httpServer.HttpServer;
 import org.httpServer.HttpServerImpl;
 import org.configuration.Configuration;
 import org.configuration.ConfigurationImpl;
+import org.services.jsonService.JsonService;
+import org.services.jsonService.JsonServiceImpl;
+import org.services.jsonService.json.objectMapper.ObjectMapper;
+import org.services.jsonService.json.parser.JsonParser;
+import org.services.jsonService.json.validator.JsonValidator;
+import org.services.jsonService.json.formatter.JsonFormat;
 import utils.entities.TestObject;
 import org.entityManager.EntityManager;
 import org.entityManager.EntityManagerImpl;
-import org.json.parser.JsonService;
-import org.json.parser.JsonServiceImpl;
 
-import java.text.NumberFormat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -29,10 +32,12 @@ public class Conqueror {
 
         //*JsonParser Initialization
         //Asigura mappare de obiecte din json si invers
-        //TODO - support for arrays, objects and different json types
-        //TODO - annotations for classes
-        //TODO - annotations for fields
-        JsonServiceImpl.init(NumberFormat.getInstance());
+        JsonParser.init(
+                JsonValidator.getInstance(),
+                JsonFormat.getInstance(),
+                ObjectMapper.getInstance()
+        );
+        JsonServiceImpl.init(JsonParser.getInstance());
         JsonService JsonService = JsonServiceImpl.getInstance();
 
         //*EntityManager Initialization

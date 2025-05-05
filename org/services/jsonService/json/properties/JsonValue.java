@@ -1,4 +1,4 @@
-package org.json.parser_v2.json.properties;
+package org.services.jsonService.json.properties;
 
 public class JsonValue implements JsonKeyValue<Object>{
     private Object value;

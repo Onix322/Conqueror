@@ -1,9 +1,9 @@
-package org.json.parser_v2.json;
+package org.services.jsonService.json.navigator;
 
-import org.json.parser_v2.json.properties.JsonValue;
-import org.json.parser_v2.json.types.JsonArray;
-import org.json.parser_v2.json.types.JsonObject;
-import org.json.parser_v2.json.types.JsonType;
+import org.services.jsonService.json.properties.JsonValue;
+import org.services.jsonService.json.types.JsonArray;
+import org.services.jsonService.json.types.JsonObject;
+import org.services.jsonService.json.types.JsonType;
 
 public class JsonNavigator {
 

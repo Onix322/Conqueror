@@ -1,25 +1,31 @@
-package org.json.parser_v2.json;
+package org.services.jsonService.json.parser;
 
 import org.exepltions.JsonNotValid;
 import org.exepltions.JsonPropertyFormatError;
-import org.json.parser_v2.json.formatter.JsonFormat;
-import org.json.parser_v2.json.formatter.JsonFormatedString;
-import org.json.parser_v2.json.properties.JsonKey;
-import org.json.parser_v2.json.properties.JsonProperty;
-import org.json.parser_v2.json.properties.JsonValue;
-import org.json.parser_v2.json.types.JsonArray;
-import org.json.parser_v2.json.types.JsonObject;
-import org.json.parser_v2.json.types.JsonType;
+import org.services.jsonService.json.coordinate.Coordinate;
+import org.services.jsonService.json.objectMapper.JsonPrimitiveCast;
+import org.services.jsonService.json.validator.JsonValidator;
+import org.services.jsonService.json.formatter.JsonFormat;
+import org.services.jsonService.json.formatter.JsonFormatedString;
+import org.services.jsonService.json.objectMapper.ObjectMapper;
+import org.services.jsonService.json.properties.JsonKey;
+import org.services.jsonService.json.properties.JsonProperty;
+import org.services.jsonService.json.properties.JsonValue;
+import org.services.jsonService.json.types.JsonArray;
+import org.services.jsonService.json.types.JsonObject;
+import org.services.jsonService.json.types.JsonType;
 
 import java.util.*;
 
-public class JsonParser {
+public class JsonParser implements Parser{
 
     private final JsonValidator JSON_VALIDATOR;
     private final JsonFormat JSON_FORMAT;
+    private final ObjectMapper OBJECT_MAPPER;
 
-    private JsonParser(JsonValidator jsonValidator, JsonFormat jsonFormat) {
+    private JsonParser(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper) {
         this.JSON_FORMAT = jsonFormat;
+        this.OBJECT_MAPPER = objectMapper;
         this.JSON_VALIDATOR = jsonValidator;
     }
 
@@ -27,9 +33,9 @@ public class JsonParser {
         private static JsonParser INSTANCE = null;
     }
 
-    public synchronized static void init(JsonValidator jsonValidator, JsonFormat jsonFormat) {
+    public synchronized static void init(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper) {
         if (JsonParser.Init.INSTANCE == null) {
-            JsonParser.Init.INSTANCE = new JsonParser(jsonValidator, jsonFormat);
+            JsonParser.Init.INSTANCE = new JsonParser(jsonValidator, jsonFormat, objectMapper);
         }
     }
 
@@ -38,6 +44,10 @@ public class JsonParser {
             throw new IllegalStateException("JsonParser not initialized! call JsonServiceImpl.init()");
         }
         return JsonParser.Init.INSTANCE;
+    }
+
+    public <T> T map(JsonType jsonType, Class<T> clazz) throws NoSuchMethodException {
+        return this.OBJECT_MAPPER.map(jsonType, clazz);
     }
 
     public JsonType parse(String string) {
@@ -49,11 +59,9 @@ public class JsonParser {
             throw new JsonNotValid("Json is not valid!");
         }
 
-        //parsing
+        //parsing && assembling
         Map<String, String> rawObjects = this.gatherRawObjects(jsonFormatedString);
         Map<String, JsonType> parsedObjects = this.parseTypes(rawObjects);
-
-        //TODO Json Assembler
 
         return this.assembler(parsedObjects);
     }
@@ -132,10 +140,14 @@ public class JsonParser {
 
         for (Coordinate coordinate : coordinates) {
             String value = stringArray.substring(coordinate.getStartIndex() + 1, coordinate.getEndIndex());
-            JsonValue jsonValue = new JsonValue(value);
+            JsonValue jsonValue;
+            if(JsonPrimitiveCast.isJsonPrimitive(value)){
+                jsonValue = new JsonValue(JsonPrimitiveCast.cast(value));
+            } else {
+                jsonValue = new JsonValue(value);
+            }
             values.add(jsonValue);
         }
-
         return new JsonArray(values.toArray(new JsonValue[0]));
     }
 
@@ -163,6 +175,13 @@ public class JsonParser {
 
         if (keyValue[0] == null || keyValue[1] == null) {
             throw new JsonPropertyFormatError("Property format is invalid: " + stringProperty);
+        }
+
+        if(JsonPrimitiveCast.isJsonPrimitive(keyValue[1])){
+            return new JsonProperty(
+                    new JsonKey(keyValue[0]),
+                    new JsonValue(JsonPrimitiveCast.cast(keyValue[1]))
+            );
         }
         return new JsonProperty(
                 new JsonKey(keyValue[0]),

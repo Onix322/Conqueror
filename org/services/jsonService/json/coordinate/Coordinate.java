@@ -1,4 +1,4 @@
-package org.json.parser_v2.json;
+package org.services.jsonService.json.coordinate;
 
 public class Coordinate {
 

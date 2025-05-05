@@ -1,6 +1,6 @@
-package org.json.parser_v2.json.types;
+package org.services.jsonService.json.types;
 
-import org.json.parser_v2.json.properties.JsonValue;
+import org.services.jsonService.json.properties.JsonValue;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -15,6 +15,10 @@ public class JsonArray implements JsonType, JsonIterator<JsonValue> {
 
     public JsonValue[] get() {
         return array;
+    }
+
+    public JsonValue get(int index) {
+        return array[index];
     }
 
     public void set(JsonValue[] array) {

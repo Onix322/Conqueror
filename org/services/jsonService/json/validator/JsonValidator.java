@@ -1,7 +1,7 @@
-package org.json.parser_v2.json;
+package org.services.jsonService.json.validator;
 
 import org.exepltions.JsonNotValid;
-import org.json.parser_v2.json.formatter.JsonFormatedString;
+import org.services.jsonService.json.formatter.JsonFormatedString;
 
 public class JsonValidator {
 

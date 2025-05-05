@@ -1,4 +1,4 @@
-package org.json.parser_v2.json.types;
+package org.services.jsonService.json.types;
 
 public interface JsonIterator<T> {
     T[] get();

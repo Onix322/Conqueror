@@ -1,7 +1,7 @@
-package org.json.parser_v2.json.types;
+package org.services.jsonService.json.types;
 
 import org.exepltions.NoSuchJsonPropertyError;
-import org.json.parser_v2.json.properties.JsonProperty;
+import org.services.jsonService.json.properties.JsonProperty;
 
 import java.util.Arrays;
 

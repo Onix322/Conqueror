@@ -11,7 +11,7 @@ public class HttpResponseFactory {
 
         HttpResponseStartLine httpStatusLine = new HttpResponseStartLine(version, status);
         HttpResponseBody httpResponseBody = new HttpResponseBody(body);
-        HttpResponseHeader httpHeader = new HttpResponseHeader(httpResponseBody.toJson().length(), contentType);
+        HttpResponseHeader httpHeader = new HttpResponseHeader(httpResponseBody.toString().length(), contentType);
 
         return new HttpResponse(httpStatusLine, httpHeader,connectionType, httpResponseBody);
     }

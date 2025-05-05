@@ -14,7 +14,8 @@ import org.httpServer.response.HttpConnectionType;
 import org.httpServer.response.HttpStatus;
 import org.httpServer.response.httpResponse.HttpResponse;
 import org.httpServer.response.httpResponse.HttpResponseFactory;
-import org.json.parser.JsonService;
+import org.services.jsonService.JsonService;
+import utils.entities.TestObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -146,12 +147,9 @@ public class HttpServerImpl implements HttpServer {
             bodyBuilder.append(Character.toString(b));
         }
         //* VA trimite URI si clasa entitatii catre (baza de date) mai in detaliu
-        // ? ce va face controllerul??
-        // ? care e rolul acestuia? sa faca legatura dintre server si baza de date
-        // ? cum o va face ?
+
         if (!bodyBuilder.isEmpty()) {
-            Class<?> clazz = this.findEntityClass(ENTITY_MANAGER, JSON_PARSER.getProperties(bodyBuilder.toString()));
-            Object obj = JSON_PARSER.map(bodyBuilder.toString(), clazz);
+            Object obj = JSON_PARSER.map(JSON_PARSER.parse(bodyBuilder.toString()), TestObject.class);
             body.setBody(obj);
         } else {
             body.setBody("");
