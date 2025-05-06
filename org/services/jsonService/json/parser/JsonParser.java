@@ -3,7 +3,7 @@ package org.services.jsonService.json.parser;
 import org.exepltions.JsonNotValid;
 import org.exepltions.JsonPropertyFormatError;
 import org.services.jsonService.json.coordinate.Coordinate;
-import org.services.jsonService.json.objectMapper.JsonPrimitiveCast;
+import org.services.jsonService.json.objectMapper.JsonPrimitiveParser;
 import org.services.jsonService.json.validator.JsonValidator;
 import org.services.jsonService.json.formatter.JsonFormat;
 import org.services.jsonService.json.formatter.JsonFormatedString;
@@ -46,8 +46,11 @@ public class JsonParser implements Parser{
         return JsonParser.Init.INSTANCE;
     }
 
-    public <T> T map(JsonType jsonType, Class<T> clazz) throws NoSuchMethodException {
-        return this.OBJECT_MAPPER.map(jsonType, clazz);
+    public <T> T mapObject(JsonObject jsonType, Class<T> type) throws ReflectiveOperationException {
+        return this.OBJECT_MAPPER.mapObject(jsonType, type);
+    }
+    public <E> Collection<E> mapArray(JsonArray jsonType, Collection<E> collection, Class<E> elementType) throws ReflectiveOperationException {
+        return this.OBJECT_MAPPER.map(jsonType, collection, elementType);
     }
 
     public JsonType parse(String string) {
@@ -141,8 +144,8 @@ public class JsonParser implements Parser{
         for (Coordinate coordinate : coordinates) {
             String value = stringArray.substring(coordinate.getStartIndex() + 1, coordinate.getEndIndex());
             JsonValue jsonValue;
-            if(JsonPrimitiveCast.isJsonPrimitive(value)){
-                jsonValue = new JsonValue(JsonPrimitiveCast.cast(value));
+            if(JsonPrimitiveParser.isJsonPrimitive(value)){
+                jsonValue = new JsonValue(JsonPrimitiveParser.parse(value));
             } else {
                 jsonValue = new JsonValue(value);
             }
@@ -177,10 +180,10 @@ public class JsonParser implements Parser{
             throw new JsonPropertyFormatError("Property format is invalid: " + stringProperty);
         }
 
-        if(JsonPrimitiveCast.isJsonPrimitive(keyValue[1])){
+        if(JsonPrimitiveParser.isJsonPrimitive(keyValue[1])){
             return new JsonProperty(
                     new JsonKey(keyValue[0]),
-                    new JsonValue(JsonPrimitiveCast.cast(keyValue[1]))
+                    new JsonValue(JsonPrimitiveParser.parse(keyValue[1]))
             );
         }
         return new JsonProperty(

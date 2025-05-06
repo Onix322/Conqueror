@@ -4,7 +4,7 @@ public class DummyClass {
     private String name;
     private Integer age;
 
-    private DummyClass(){}
+    public DummyClass(){}
 
     public DummyClass(String name, Integer age) {
         this.name = name;

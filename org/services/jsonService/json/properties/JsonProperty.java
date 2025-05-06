@@ -1,9 +1,8 @@
 package org.services.jsonService.json.properties;
 
-import java.util.Map;
 import java.util.Objects;
 
-public class JsonProperty implements JsonKeyValue<Map<JsonKey, JsonValue>>{
+public class JsonProperty implements JsonKeyValue<JsonProperty> {
     private JsonKey key;
     private JsonValue value;
 
@@ -29,8 +28,8 @@ public class JsonProperty implements JsonKeyValue<Map<JsonKey, JsonValue>>{
     }
 
     @Override
-    public Map<JsonKey, JsonValue> get() {
-        return Map.of(this.key, this.value);
+    public JsonProperty get() {
+        return this;
     }
 
     @Override

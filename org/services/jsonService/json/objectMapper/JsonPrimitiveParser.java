@@ -1,7 +1,7 @@
 package org.services.jsonService.json.objectMapper;
 
-public class JsonPrimitiveCast {
-    public static Object cast(String input) {
+public class JsonPrimitiveParser {
+    public static Object parse(String input) {
 
         if (input.startsWith("\"") && input.endsWith("\"")) {
             input = input.substring(1, input.length() - 1);
