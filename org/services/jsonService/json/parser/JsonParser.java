@@ -49,8 +49,8 @@ public class JsonParser implements Parser{
     public <T> T mapObject(JsonObject jsonType, Class<T> type) throws ReflectiveOperationException {
         return this.OBJECT_MAPPER.mapObject(jsonType, type);
     }
-    public <E> Collection<E> mapArray(JsonArray jsonType, Collection<E> collection, Class<E> elementType) throws ReflectiveOperationException {
-        return this.OBJECT_MAPPER.map(jsonType, collection, elementType);
+    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException {
+        return this.OBJECT_MAPPER.mapArray(jsonArray, collectionClass);
     }
 
     public JsonType parse(String string) {

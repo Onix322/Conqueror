@@ -9,7 +9,6 @@ import org.services.jsonService.json.types.JsonType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class ObjectMapper {
@@ -38,12 +37,18 @@ public class ObjectMapper {
         return instance;
     }
 
-    public <E> Collection<E> map(JsonArray jsonArray, Collection<E> collection, Class<E> elementType) throws ReflectiveOperationException {
-        for(JsonValue value : jsonArray.get()){
-            collection.add(value.get(elementType));
+    @SuppressWarnings("unchecked")
+    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass)
+    throws ReflectiveOperationException {
+
+        Collection<E> instance = (Collection<E>) createInstance(collectionClass);
+        for (JsonValue value : jsonArray.get()) {
+            instance.add((E) value.get());
         }
-        return collection;
+
+        return instance;
     }
+
 
     private <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException{
         try{

@@ -10,10 +10,7 @@ import org.services.jsonService.json.types.JsonObject;
 import org.services.jsonService.json.types.JsonType;
 import org.services.jsonService.json.validator.JsonValidator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ObjectMapperTest {
@@ -73,11 +70,11 @@ public class ObjectMapperTest {
 
         JsonValue jsonValue = JsonNavigator.navigate(jsonType, "prefer");
         JsonArray jsonArray = jsonValue.get(JsonArray.class);
-        Collection<Integer> integers = jsonParser.mapArray(jsonArray, new ArrayList<>(), Integer.class);
+        Collection<Integer> integers = jsonParser.mapArray(jsonArray, LinkedList.class);
 
 
         System.out.println(integers.getClass().getTypeName());
-
+        System.out.println(integers);
         System.out.println(testObject);
     }
 }

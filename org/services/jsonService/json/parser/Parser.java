@@ -8,6 +8,6 @@ import java.util.Collection;
 
 public interface Parser {
     <T> T mapObject(JsonObject jsonType, Class<T> type) throws ReflectiveOperationException ;
-    <E> Collection<E> mapArray(JsonArray jsonType, Collection<E> collection, Class<E> elementType) throws ReflectiveOperationException;
+    <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException;
     JsonType parse(String string);
 }
