@@ -1,8 +1,9 @@
 package tests.jsonServiceTest.objectMapperTest;
 
 import org.services.jsonService.json.formatter.JsonFormat;
+import org.services.jsonService.json.mapper.JsonMapper;
 import org.services.jsonService.json.navigator.JsonNavigator;
-import org.services.jsonService.json.objectMapper.ObjectMapper;
+import org.services.jsonService.json.mapper.ObjectMapper;
 import org.services.jsonService.json.parser.JsonParser;
 import org.services.jsonService.json.properties.JsonValue;
 import org.services.jsonService.json.types.JsonArray;
@@ -15,44 +16,44 @@ import java.util.stream.Collectors;
 
 public class ObjectMapperTest {
     public static void main(String[] args) throws ReflectiveOperationException {
-        String jsonDummy =
+        String jsonDummyClass =
+                """
+                            {
+                                "name": "Alex",
+                                "age": 24
+                            }
+                        """;
+
+        String jsonDummyClassWithArray =
                 """
                             {
                                 "name": "Alex",
                                 "age": 24,
-                                "address": {
-                                    "street": "Bioengineering's",
-                                    "neighbors": [
-                                        "Alex",
-                                        "Marian"
-                                    ]
-                                },
-                                "prefer": [
-                                    "pp",
-                                    1,
-                                    2.23,
-                                    false
+                                "strings": [
+                                    "Dummy2",
+                                    "Dummy3"
                                 ]
                             }
                         """;
 
-        String jsonForInstance =
+        String jsonDummyClassWithObject =
                 """
                             {
-                                "name": "Alex",
-                                "age": 24,
-                                "address": {
-                                    "street": "Bioengineering's",
-                                    "neighbors": [
-                                        "Alex",
-                                        "Marian"
-                                    ]
+                                "name": "Ion",
+                                "age": 25,
+                                "isProgrammer": false,
+                                "dummyClass": {
+                                    "name": "Alex",
+                                    "age": 24
                                 },
-                                "prefer": [
-                                    1,
-                                    2,
-                                    3
-                                ]
+                                "object": {
+                                    "name": "Alex",
+                                    "age": 24,
+                                    "strings": [
+                                        "Dummy2",
+                                        "Dummy3"
+                                    ]
+                                }
                             }
                         """;
 
@@ -63,18 +64,31 @@ public class ObjectMapperTest {
                 ObjectMapper.getInstance()
         );
 
+        //* Test JSON -> Object
         JsonParser jsonParser = JsonParser.getInstance();
+        DummyClass dummyClassTemplate = new DummyClass("Alex", 24);
+        List<String> strings = new LinkedList<>();
+        strings.add("Dummy2");
+        strings.add("Dummy3");
+        DummyClassWithArray dummyClassWithArrayTemplate = new DummyClassWithArray("Alex", 24, strings);
+        DummyClassWithObject dummyClassWithObjectTemplate = new DummyClassWithObject("Ion", 25, false, dummyClassTemplate, dummyClassWithArrayTemplate);
 
-        JsonType jsonType = jsonParser.parse(jsonForInstance);
-        DummyClass testObject = jsonParser.mapObject((JsonObject) jsonType, DummyClass.class);
 
-        JsonValue jsonValue = JsonNavigator.navigate(jsonType, "prefer");
-        JsonArray jsonArray = jsonValue.get(JsonArray.class);
-        Collection<Integer> integers = jsonParser.mapArray(jsonArray, LinkedList.class);
+        JsonType jsonTypeDummyParsed = jsonParser.parse(jsonDummyClass);
+        DummyClass dummyClass = jsonParser.mapObject((JsonObject) jsonTypeDummyParsed, DummyClass.class);
+        System.out.println("TEST 1: " + (dummyClass.equals(dummyClassTemplate) ? "PASSED!" : "FAILED!"));
+
+        JsonType jsonTypeDummyClassWithArray = jsonParser.parse(jsonDummyClassWithArray);
+        JsonObject jsonObjectDCWA = (JsonObject) jsonTypeDummyClassWithArray;
+        DummyClassWithArray dummyClassWithArray = jsonParser.mapObject(jsonObjectDCWA, DummyClassWithArray.class);
+        System.out.println("TEST 2: " + (dummyClassWithArray.equals(dummyClassWithArrayTemplate) ? "PASSED!" : "FAILED!"));
 
 
-        System.out.println(integers.getClass().getTypeName());
-        System.out.println(integers);
-        System.out.println(testObject);
+        JsonType jsonTypeDummyClassWithObject = jsonParser.parse(jsonDummyClassWithObject);
+        JsonObject jsonObjectDCWO = (JsonObject) jsonTypeDummyClassWithObject;
+        DummyClassWithObject dummyClassWithObject = jsonParser.mapObject(jsonObjectDCWO, DummyClassWithObject.class);
+        System.out.println("TEST 3: " + (dummyClassWithObject.equals(dummyClassWithObjectTemplate) ? "PASSED!" : "FAILED!"));
+        //* Test Object -> JSON
+
     }
 }

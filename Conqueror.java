@@ -6,7 +6,7 @@ import org.configuration.Configuration;
 import org.configuration.ConfigurationImpl;
 import org.services.jsonService.JsonService;
 import org.services.jsonService.JsonServiceImpl;
-import org.services.jsonService.json.objectMapper.ObjectMapper;
+import org.services.jsonService.json.mapper.ObjectMapper;
 import org.services.jsonService.json.parser.JsonParser;
 import org.services.jsonService.json.validator.JsonValidator;
 import org.services.jsonService.json.formatter.JsonFormat;

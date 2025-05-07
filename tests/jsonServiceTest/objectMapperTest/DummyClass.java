@@ -1,5 +1,7 @@
 package tests.jsonServiceTest.objectMapperTest;
 
+import java.util.Objects;
+
 public class DummyClass {
     private String name;
     private Integer age;
@@ -33,5 +35,17 @@ public class DummyClass {
                 "name='" + name + '\'' +
                 ", age=" + age +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        DummyClass that = (DummyClass) object;
+        return Objects.equals(getName(), that.getName()) && Objects.equals(getAge(), that.getAge());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getAge());
     }
 }

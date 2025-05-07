@@ -2,7 +2,7 @@ package tests.jsonServiceTest;
 
 import org.services.jsonService.json.navigator.JsonNavigator;
 import org.services.jsonService.json.formatter.JsonFormat;
-import org.services.jsonService.json.objectMapper.ObjectMapper;
+import org.services.jsonService.json.mapper.ObjectMapper;
 import org.services.jsonService.json.parser.JsonParser;
 import org.services.jsonService.json.validator.JsonValidator;
 import org.services.jsonService.json.types.JsonObject;

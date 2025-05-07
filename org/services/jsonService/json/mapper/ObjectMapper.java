@@ -1,10 +1,9 @@
-package org.services.jsonService.json.objectMapper;
+package org.services.jsonService.json.mapper;
 
 import org.services.jsonService.json.properties.JsonProperty;
 import org.services.jsonService.json.properties.JsonValue;
 import org.services.jsonService.json.types.JsonArray;
 import org.services.jsonService.json.types.JsonObject;
-import org.services.jsonService.json.types.JsonType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -28,34 +27,50 @@ public class ObjectMapper {
         T instance = this.createInstance(clazz);
         Field[] fields = instance.getClass().getDeclaredFields();
 
+        if(fields.length != jsonObject.get().length){
+            throw new ClassCastException("JsonObject must have same properties as Class");
+        }
         for (Field field : fields){
             JsonProperty jsonProperty = jsonObject.getProperty(field.getName());
+            JsonValue jsonValue =  jsonProperty.value();
             field.setAccessible(true);
-            field.set(instance, jsonProperty.value().get(field.getType()));
+            if(jsonValue.get() instanceof JsonArray valueArray){
+                field.set(instance, this.mapToArray(valueArray, LinkedList.class));
+            } else if (jsonValue.get() instanceof JsonObject valueObject) {
+                field.set(instance, this.mapObject(valueObject, field.getType()));
+            } else {
+                field.set(instance, jsonValue.get(field.getType()));
+            }
         }
 
         return instance;
     }
 
     @SuppressWarnings("unchecked")
-    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass)
-    throws ReflectiveOperationException {
-
-        Collection<E> instance = (Collection<E>) createInstance(collectionClass);
+    private <T,E> Collection<E> mapToArray(JsonArray jsonArray, Class<T> clazz) throws ReflectiveOperationException {
+        Collection<E> instance = (Collection<E>) createInstance(clazz);
         for (JsonValue value : jsonArray.get()) {
-            instance.add((E) value.get());
+            if(value.get() instanceof JsonObject jsonObject){
+                instance.add((E) this.mapObject(jsonObject, value.get().getClass()));
+            } else {
+                instance.add((E) value.get());
+            }
         }
 
         return instance;
     }
 
+    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass)
+    throws ReflectiveOperationException {
+        return this.mapToArray(jsonArray, collectionClass);
+    }
 
     private <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException{
         try{
             Constructor<T> constructor = clazz.getDeclaredConstructor();
             return constructor.newInstance();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new ReflectiveOperationException(e.getMessage());
+            throw new ReflectiveOperationException(e.getLocalizedMessage());
         }
     }
 }

@@ -7,7 +7,9 @@ import org.services.jsonService.json.types.JsonType;
 import java.util.Collection;
 
 public interface Parser {
-    <T> T mapObject(JsonObject jsonType, Class<T> type) throws ReflectiveOperationException ;
+    <T> T mapObject(JsonObject jsonType, Class<T> type) throws ReflectiveOperationException;
+
     <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException;
+
     JsonType parse(String string);
 }

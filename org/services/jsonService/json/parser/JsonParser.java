@@ -3,11 +3,11 @@ package org.services.jsonService.json.parser;
 import org.exepltions.JsonNotValid;
 import org.exepltions.JsonPropertyFormatError;
 import org.services.jsonService.json.coordinate.Coordinate;
-import org.services.jsonService.json.objectMapper.JsonPrimitiveParser;
+import org.services.jsonService.json.mapper.JsonPrimitiveParser;
 import org.services.jsonService.json.validator.JsonValidator;
 import org.services.jsonService.json.formatter.JsonFormat;
 import org.services.jsonService.json.formatter.JsonFormatedString;
-import org.services.jsonService.json.objectMapper.ObjectMapper;
+import org.services.jsonService.json.mapper.ObjectMapper;
 import org.services.jsonService.json.properties.JsonKey;
 import org.services.jsonService.json.properties.JsonProperty;
 import org.services.jsonService.json.properties.JsonValue;
@@ -206,6 +206,7 @@ public class JsonParser implements Parser{
      * @return the root JsonType object (the last added entry), fully assembled with no remaining placeholders
      */
     private JsonType assembler(Map<String, JsonType> parseObj) {
+
         for (Map.Entry<String, JsonType> entry : parseObj.entrySet()) {
             JsonType value = entry.getValue();
 
