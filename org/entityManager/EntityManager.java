@@ -1,15 +1,17 @@
 package org.entityManager;
 
 
-import java.util.Map;
+import java.util.Set;
 
 public interface EntityManager {
 
-    Map<String, Class<?>> getEntities();
+    Set<Class<?>> getEntities();
 
-    <T> EntityManager registerEntityClass(String name, Class<T> entity);
+    <T> EntityManager registerEntityClass(Class<T> entity);
 
-    EntityManager removeEntityClass(String name);
+    <T> EntityManager removeEntityClass(Class<T> entity);
 
-    <T> Class<T> requestEntityClass(String name);
+    Class<?> askForClass(String[] fieldsNames);
+
+    <T> boolean contains(Class<T> clazz);
 }

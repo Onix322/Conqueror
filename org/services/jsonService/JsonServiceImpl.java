@@ -1,7 +1,11 @@
 package org.services.jsonService;
 
 import org.services.jsonService.json.parser.JsonParser;
+import org.services.jsonService.json.types.JsonArray;
 import org.services.jsonService.json.types.JsonObject;
+import org.services.jsonService.json.types.JsonType;
+
+import java.util.Collection;
 
 public class JsonServiceImpl implements JsonService {
 
@@ -23,18 +27,28 @@ public class JsonServiceImpl implements JsonService {
 
     public static JsonServiceImpl getInstance() {
         if (Init.INSTANCE == null) {
-            throw new IllegalStateException("JsonParser not initialized! call JsonServiceImpl.init()");
+            throw new IllegalStateException("JsonServiceImpl not initialized! call JsonServiceImpl.init()");
         }
         return Init.INSTANCE;
     }
 
     @Override
-    public <T> T map(JsonObject jsonObject, Class<T> clazz) {
-        return null;
+    public <T> T mapObject(JsonObject jsonType, Class<T> clazz) throws ReflectiveOperationException {
+        return this.JSON_PARSER.mapObject(jsonType, clazz);
     }
 
     @Override
-    public JsonObject parse(String json) {
-        return null;
+    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException {
+        return this.JSON_PARSER.mapArray(jsonArray, collectionClass);
+    }
+
+    @Override
+    public JsonType mapJson(Object o) throws IllegalAccessException {
+        return this.JSON_PARSER.mapJson(o);
+    }
+
+    @Override
+    public JsonType parse(String json) {
+        return this.JSON_PARSER.parse(json);
     }
 }

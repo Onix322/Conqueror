@@ -1,12 +1,20 @@
 package org.services.jsonService;
 
 
+import org.services.jsonService.json.types.JsonArray;
 import org.services.jsonService.json.types.JsonObject;
+import org.services.jsonService.json.types.JsonType;
+
+import java.util.Collection;
 
 //T is representing the class implementation
 public interface JsonService {
 
-    <T> T map(JsonObject jsonObject, Class<T> clazz);
+    <T> T mapObject(JsonObject jsonObject, Class<T> clazz) throws ReflectiveOperationException;
 
-    JsonObject parse(String json);
+    <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException;
+
+    JsonType mapJson(Object o) throws IllegalAccessException;
+
+    JsonType parse(String json);
 }

@@ -1,9 +1,8 @@
 package org.httpServer;
 
-import org.controller.ControllerManager;
 import org.configuration.Configuration;
+import org.controller.ControllerManager;
 import org.entityManager.EntityManager;
-import org.exepltions.NoEntityMatchesJson;
 import org.httpServer.request.httpRequest.HttpRequest;
 import org.httpServer.request.httpRequestBody.HttpRequestBody;
 import org.httpServer.request.httpRequestHeader.HttpRequestHeader;
@@ -15,27 +14,26 @@ import org.httpServer.response.HttpStatus;
 import org.httpServer.response.httpResponse.HttpResponse;
 import org.httpServer.response.httpResponse.HttpResponseFactory;
 import org.services.jsonService.JsonService;
-import utils.entities.TestObject;
+import org.services.jsonService.json.properties.JsonKey;
+import org.services.jsonService.json.properties.JsonProperty;
+import org.services.jsonService.json.types.JsonArray;
+import org.services.jsonService.json.types.JsonObject;
+import org.services.jsonService.json.types.JsonType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HttpServerImpl implements HttpServer {
 
@@ -71,6 +69,7 @@ public class HttpServerImpl implements HttpServer {
         return Init.instance;
     }
 
+    @Override
     public Configuration getConfig() {
         return CONFIGURATION;
     }
@@ -89,8 +88,8 @@ public class HttpServerImpl implements HttpServer {
             while (serverSocket.isBound() && !serverSocket.isClosed()) {
                 this.listen(serverSocket.accept());
             }
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            this.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -100,7 +99,7 @@ public class HttpServerImpl implements HttpServer {
         EXECUTOR_SERVICE.close();
     }
 
-    private void listen(Socket clientSocket) throws IOException, ExecutionException, InterruptedException {
+    private void listen(Socket clientSocket) {
         EXECUTOR_SERVICE.submit(() -> {
             try (clientSocket) {
                 //* STEP 1: handle request
@@ -111,14 +110,14 @@ public class HttpServerImpl implements HttpServer {
 
                 //* STEP 3: send response
                 this.sendResponse(clientSocket, response);
-            } catch (IOException | URISyntaxException | ParseException | IllegalAccessException e) {
-                this.stop();
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getLocalizedMessage());
             }
         });
     }
 
-    private HttpRequest handleRequest(Socket clientSocket) throws IOException, URISyntaxException, ParseException, IllegalAccessException {
+    private HttpRequest handleRequest(Socket clientSocket) throws Exception {
 
         HttpRequestStartLine startLine = null;
         List<HttpRequestHeader> headers = new ArrayList<>();
@@ -149,7 +148,23 @@ public class HttpServerImpl implements HttpServer {
         //* VA trimite URI si clasa entitatii catre (baza de date) mai in detaliu
 
         if (!bodyBuilder.isEmpty()) {
-            Object obj = JSON_PARSER.map(JSON_PARSER.parse(bodyBuilder.toString()), TestObject.class);
+            JsonType jsonType = JSON_PARSER.parse(bodyBuilder.toString());
+            Object obj;
+            if (jsonType instanceof JsonObject jsonObject) {
+                //ask for entity class from ENTITY_MANAGER
+                String[] fieldsNames = Stream.of(jsonObject.get())
+                        .map(JsonProperty::key)
+                        .map(JsonKey::get).distinct()
+                        .toArray(String[]::new);
+
+                Class<?> clazz = ENTITY_MANAGER.askForClass(fieldsNames);
+                obj = JSON_PARSER.mapObject(jsonObject, clazz);
+            } else if (jsonType instanceof JsonArray jsonArray) {
+                obj = JSON_PARSER.mapArray(jsonArray, LinkedList.class);
+            } else {
+                obj = null;
+            }
+
             body.setBody(obj);
         } else {
             body.setBody("");
@@ -163,24 +178,9 @@ public class HttpServerImpl implements HttpServer {
                 .build();
     }
 
-    private Class<?> findEntityClass(EntityManager entityManager, Map<String, Object> objectMap) throws NoEntityMatchesJson {
-
-        return entityManager.getEntities()
-                .values()
-                .stream()
-                .filter(entity -> Arrays.stream(entity.getDeclaredFields())
-                        .map(Field::getName)
-                        .collect(Collectors.toSet())
-                        .equals(objectMap.keySet())
-                )
-                .findAny()
-                .orElseThrow(NoEntityMatchesJson::new);
-    }
-
-
     //TODO CREATE THE RESPONSE
 
-    private HttpResponse handleResponse(HttpRequest httpRequest) {
+    private HttpResponse handleResponse(HttpRequest httpRequest) throws IllegalAccessException {
 
         HttpRequestStartLine startLine = httpRequest.getStartLine();
 
@@ -189,7 +189,7 @@ public class HttpServerImpl implements HttpServer {
                 HttpStatus.OK,
                 "application/json",
                 HttpConnectionType.CLOSED,
-                "RESPONSE TEST"
+                httpRequest.getHttpRequestBody().getBody()
         );
     }
 

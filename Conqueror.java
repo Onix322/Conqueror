@@ -34,6 +34,10 @@ public class Conqueror {
 
         //*JsonParser Initialization
         //Asigura mappare de obiecte din json si invers
+        JsonPrimitiveParser.init();
+        JsonMapper.init(
+                JsonPrimitiveParser.getInstance()
+        );
         JsonParser.init(
                 JsonValidator.getInstance(),
                 JsonFormat.getInstance(),
@@ -44,10 +48,10 @@ public class Conqueror {
         JsonServiceImpl.init(JsonParser.getInstance());
         JsonService JsonService = JsonServiceImpl.getInstance();
 
-        //*EntityManager Initialization
-        //Poate initializa clase in baza de date automat
+        //*EntityManager Initialization, Entities registering in DataBase
+
         EntityManager entityManager = EntityManagerImpl.getInstance();
-        entityManager.registerEntityClass("testObject", TestObject.class);
+        entityManager.registerEntityClass(TestObject.class);
 
         //*ControllerManager Initialization
         //Tine evitdenta tuturor controlarelor create

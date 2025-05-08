@@ -1,13 +1,18 @@
 package org.entityManager;
 
+import org.exepltions.NoEntityMatchesJson;
+
+import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EntityManagerImpl implements EntityManager {
 
-    private final Map<String, Class<?>> ENTITIES;
+    private final Set<Class<?>> ENTITIES;
 
     private EntityManagerImpl() {
-        this.ENTITIES = new HashMap<>();
+        this.ENTITIES = new HashSet<>();
     }
 
     private static class Init {
@@ -19,25 +24,42 @@ public class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public Map<String, Class<?>> getEntities() {
-        return Map.copyOf(ENTITIES);
+    public Set<Class<?>> getEntities() {
+        return Set.copyOf(ENTITIES);
     }
 
     @Override
-    public <T> EntityManager registerEntityClass(String name, Class<T> entity) {
-        ENTITIES.put(name, entity);
+    public <T> EntityManager registerEntityClass(Class<T> entity) {
+        ENTITIES.add(entity);
         return this;
     }
 
     @Override
-    public EntityManager removeEntityClass(String name) {
-        ENTITIES.remove(name);
+    public Class<?> askForClass(String[] fieldsNames){
+
+        Class<?> gotClass = null;
+
+        for(Class<?> entityClass : ENTITIES){
+            Set<String> fields = Stream.of(entityClass.getDeclaredFields())
+                    .map(Field::getName)
+                    .collect(Collectors.toSet());
+
+            if(fields.containsAll(List.of(fieldsNames))){
+                gotClass = entityClass;
+            }
+        }
+        if(gotClass == null) throw new NoEntityMatchesJson();
+        return gotClass;
+    }
+
+    @Override
+    public <T> EntityManager removeEntityClass(Class<T> clazz) {
+        ENTITIES.remove(clazz);
         return this;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> Class<T> requestEntityClass(String name) {
-        return (Class<T>) ENTITIES.get(name);
+    public <T> boolean contains(Class<T> clazz){
+        return ENTITIES.contains(clazz);
     }
 }

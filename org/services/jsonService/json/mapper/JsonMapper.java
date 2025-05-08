@@ -31,7 +31,7 @@ public class JsonMapper {
 
     public static JsonMapper getInstance() {
         if (JsonMapper.Init.INSTANCE == null) {
-            throw new IllegalStateException("JsonParser not initialized! call JsonMapper.init()");
+            throw new IllegalStateException("JsonMapper not initialized! call JsonMapper.init()");
         }
         return JsonMapper.Init.INSTANCE;
     }

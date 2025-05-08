@@ -3,19 +3,18 @@ package tests.jsonServiceTest.objectMapperTest;
 import org.services.jsonService.json.formatter.JsonFormat;
 import org.services.jsonService.json.mapper.JsonMapper;
 import org.services.jsonService.json.mapper.JsonPrimitiveParser;
-import org.services.jsonService.json.navigator.JsonNavigator;
 import org.services.jsonService.json.mapper.ObjectMapper;
 import org.services.jsonService.json.parser.JsonParser;
 import org.services.jsonService.json.properties.JsonKey;
 import org.services.jsonService.json.properties.JsonProperty;
 import org.services.jsonService.json.properties.JsonValue;
-import org.services.jsonService.json.types.JsonArray;
 import org.services.jsonService.json.types.JsonObject;
 import org.services.jsonService.json.types.JsonType;
 import org.services.jsonService.json.validator.JsonValidator;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ObjectMapperTest {
     public static void main(String[] args) throws ReflectiveOperationException {
