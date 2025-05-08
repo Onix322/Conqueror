@@ -13,14 +13,26 @@ import java.util.List;
 
 public class JsonMapper {
 
-    private JsonMapper() {
+    private final JsonPrimitiveParser PRIMITIVE_PARSER;
+
+    private JsonMapper(JsonPrimitiveParser primitiveParser) {
+        this.PRIMITIVE_PARSER = primitiveParser;
     }
 
     private static class Init {
-        private static final JsonMapper INSTANCE = new JsonMapper();
+        private static JsonMapper INSTANCE = null;
+    }
+
+    public synchronized static void init(JsonPrimitiveParser primitiveParser) {
+        if (JsonMapper.Init.INSTANCE == null) {
+            JsonMapper.Init.INSTANCE = new JsonMapper(primitiveParser);
+        }
     }
 
     public static JsonMapper getInstance() {
+        if (JsonMapper.Init.INSTANCE == null) {
+            throw new IllegalStateException("JsonParser not initialized! call JsonMapper.init()");
+        }
         return JsonMapper.Init.INSTANCE;
     }
 
@@ -34,12 +46,7 @@ public class JsonMapper {
             field.setAccessible(true);
             Object fieldValue = field.get(o);
             JsonKey jsonKey = new JsonKey(field.getName());
-            JsonValue jsonValue;
-            if (fieldValue instanceof Collection<?>) {
-                jsonValue = new JsonValue(this.toJsonArray((Collection<?>) o));
-            } else {
-                jsonValue = new JsonValue(fieldValue);
-            }
+            JsonValue jsonValue = this.getJsonValue(fieldValue);
             JsonProperty jsonProperty = new JsonProperty(jsonKey, jsonValue);
             properties.add(jsonProperty);
         }
@@ -52,15 +59,25 @@ public class JsonMapper {
         List<JsonValue> values = new LinkedList<>();
 
         for (Object v : o) {
-            JsonValue jsonValue;
-            if (!(v instanceof Number || v instanceof Boolean || v instanceof Character)) {
-                jsonValue = new JsonValue(this.toJsonObject(v));
-            } else {
-                jsonValue = new JsonValue(v);
-            }
+            System.out.println(v + " " + v.getClass());
+            JsonValue jsonValue = this.getJsonValue(v);
             values.add(new JsonValue(jsonValue));
         }
 
         return new JsonArray(values.toArray(new JsonValue[0]));
+    }
+
+    private JsonValue getJsonValue(Object o) throws IllegalAccessException {
+        JsonValue jsonValue;
+        if (this.PRIMITIVE_PARSER.isWrapperClass(o.getClass())){
+            jsonValue = new JsonValue(o);
+        } else if (o instanceof String) {
+            jsonValue = new JsonValue('"' + o.toString() + '"');
+        } else if (o instanceof Collection<?>) {
+            jsonValue = new JsonValue(this.toJsonArray((Collection<?>) o));
+        } else {
+            jsonValue = new JsonValue(this.toJsonObject(o));
+        }
+        return jsonValue;
     }
 }

@@ -4,6 +4,7 @@ import org.exepltions.NoSuchJsonPropertyError;
 import org.services.jsonService.json.properties.JsonProperty;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class JsonObject implements JsonType, JsonIterator<JsonProperty> {
 
@@ -27,6 +28,18 @@ public class JsonObject implements JsonType, JsonIterator<JsonProperty> {
                 .filter(p -> p.key().get().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new NoSuchJsonPropertyError("No property called: '" + name + "'"));
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        JsonObject that = (JsonObject) object;
+        return Objects.deepEquals(properties, that.properties);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(properties);
     }
 
     @Override

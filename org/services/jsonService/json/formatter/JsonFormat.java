@@ -20,7 +20,6 @@ public class JsonFormat {
      * Main method that minifies the JSON input by removing spaces and new lines
      * outside of strings, and adding a space after each ':' that is not within a string.
      */
-
     public JsonFormatedString format(String string) {
 
         StringBuilder result = new StringBuilder();

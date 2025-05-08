@@ -2,9 +2,12 @@ package tests.jsonServiceTest.objectMapperTest;
 
 import org.services.jsonService.json.formatter.JsonFormat;
 import org.services.jsonService.json.mapper.JsonMapper;
+import org.services.jsonService.json.mapper.JsonPrimitiveParser;
 import org.services.jsonService.json.navigator.JsonNavigator;
 import org.services.jsonService.json.mapper.ObjectMapper;
 import org.services.jsonService.json.parser.JsonParser;
+import org.services.jsonService.json.properties.JsonKey;
+import org.services.jsonService.json.properties.JsonProperty;
 import org.services.jsonService.json.properties.JsonValue;
 import org.services.jsonService.json.types.JsonArray;
 import org.services.jsonService.json.types.JsonObject;
@@ -57,11 +60,16 @@ public class ObjectMapperTest {
                             }
                         """;
 
-
+        JsonPrimitiveParser.init();
+        JsonMapper.init(
+                JsonPrimitiveParser.getInstance()
+        );
         JsonParser.init(
                 JsonValidator.getInstance(),
                 JsonFormat.getInstance(),
-                ObjectMapper.getInstance()
+                ObjectMapper.getInstance(),
+                JsonMapper.getInstance(),
+                JsonPrimitiveParser.getInstance()
         );
 
         //* Test JSON -> Object
@@ -88,7 +96,22 @@ public class ObjectMapperTest {
         JsonObject jsonObjectDCWO = (JsonObject) jsonTypeDummyClassWithObject;
         DummyClassWithObject dummyClassWithObject = jsonParser.mapObject(jsonObjectDCWO, DummyClassWithObject.class);
         System.out.println("TEST 3: " + (dummyClassWithObject.equals(dummyClassWithObjectTemplate) ? "PASSED!" : "FAILED!"));
-        //* Test Object -> JSON
 
+
+        //* Test Object -> JSON
+        List<JsonProperty> dummyClassProperties = new ArrayList<>();
+        dummyClassProperties.add(new JsonProperty(new JsonKey("name"), new JsonValue("\"Alex\"")));
+        dummyClassProperties.add(new JsonProperty(new JsonKey("age"), new JsonValue(24)));
+        JsonObject jsonObjectDummyClassTemplate = new JsonObject(dummyClassProperties.toArray(new JsonProperty[0]));
+
+
+        JsonType jsonObjectForm = jsonParser.mapJson(dummyClassTemplate);
+        System.out.println("TEST 4: " + (jsonObjectDummyClassTemplate.equals(jsonObjectForm) ? "PASSED!" : "FAILED!"));
+        System.out.println("TEST 4.1: " + (jsonObjectDummyClassTemplate.toString().equals(jsonObjectForm.toString()) ? "PASSED!" : "FAILED!"));
+        JsonType jsonObjectFormArray = jsonParser.mapJson(dummyClassWithArrayTemplate);
+        JsonType jsonObjectFormObject = jsonParser.mapJson(dummyClassWithObjectTemplate);
+        System.out.println(jsonObjectForm);
+        System.out.println(jsonObjectFormArray);
+        System.out.println(jsonObjectFormObject.toString());
     }
 }

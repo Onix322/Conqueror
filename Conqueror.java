@@ -6,6 +6,8 @@ import org.configuration.Configuration;
 import org.configuration.ConfigurationImpl;
 import org.services.jsonService.JsonService;
 import org.services.jsonService.JsonServiceImpl;
+import org.services.jsonService.json.mapper.JsonMapper;
+import org.services.jsonService.json.mapper.JsonPrimitiveParser;
 import org.services.jsonService.json.mapper.ObjectMapper;
 import org.services.jsonService.json.parser.JsonParser;
 import org.services.jsonService.json.validator.JsonValidator;
@@ -35,7 +37,9 @@ public class Conqueror {
         JsonParser.init(
                 JsonValidator.getInstance(),
                 JsonFormat.getInstance(),
-                ObjectMapper.getInstance()
+                ObjectMapper.getInstance(),
+                JsonMapper.getInstance(),
+                JsonPrimitiveParser.getInstance()
         );
         JsonServiceImpl.init(JsonParser.getInstance());
         JsonService JsonService = JsonServiceImpl.getInstance();

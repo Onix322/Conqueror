@@ -3,6 +3,7 @@ package org.services.jsonService.json.parser;
 import org.exepltions.JsonNotValid;
 import org.exepltions.JsonPropertyFormatError;
 import org.services.jsonService.json.coordinate.Coordinate;
+import org.services.jsonService.json.mapper.JsonMapper;
 import org.services.jsonService.json.mapper.JsonPrimitiveParser;
 import org.services.jsonService.json.validator.JsonValidator;
 import org.services.jsonService.json.formatter.JsonFormat;
@@ -22,20 +23,24 @@ public class JsonParser implements Parser{
     private final JsonValidator JSON_VALIDATOR;
     private final JsonFormat JSON_FORMAT;
     private final ObjectMapper OBJECT_MAPPER;
+    private final JsonPrimitiveParser JSON_PRIMITIVE_PARSER;
+    private final JsonMapper JSON_MAPPER;
 
-    private JsonParser(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper) {
+    private JsonParser(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper, JsonPrimitiveParser jsonPrimitiveParser) {
         this.JSON_FORMAT = jsonFormat;
         this.OBJECT_MAPPER = objectMapper;
         this.JSON_VALIDATOR = jsonValidator;
+        this.JSON_PRIMITIVE_PARSER = jsonPrimitiveParser;
+        this.JSON_MAPPER = jsonMapper;
     }
 
     private static class Init {
         private static JsonParser INSTANCE = null;
     }
 
-    public synchronized static void init(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper) {
+    public synchronized static void init(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper,JsonPrimitiveParser jsonPrimitiveParser) {
         if (JsonParser.Init.INSTANCE == null) {
-            JsonParser.Init.INSTANCE = new JsonParser(jsonValidator, jsonFormat, objectMapper);
+            JsonParser.Init.INSTANCE = new JsonParser(jsonValidator, jsonFormat, objectMapper, jsonMapper, jsonPrimitiveParser);
         }
     }
 
@@ -51,6 +56,14 @@ public class JsonParser implements Parser{
     }
     public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException {
         return this.OBJECT_MAPPER.mapArray(jsonArray, collectionClass);
+    }
+
+    public JsonType mapJson(Object o) throws IllegalAccessException {
+        if (o instanceof Collection<?>) {
+            return this.JSON_MAPPER.toJsonArray((Collection<?>) o);
+        } else {
+            return this.JSON_MAPPER.toJsonObject(o);
+        }
     }
 
     public JsonType parse(String string) {
@@ -144,8 +157,8 @@ public class JsonParser implements Parser{
         for (Coordinate coordinate : coordinates) {
             String value = stringArray.substring(coordinate.getStartIndex() + 1, coordinate.getEndIndex());
             JsonValue jsonValue;
-            if(JsonPrimitiveParser.isJsonPrimitive(value)){
-                jsonValue = new JsonValue(JsonPrimitiveParser.parse(value));
+            if(this.JSON_PRIMITIVE_PARSER.isJsonPrimitive(value)){
+                jsonValue = new JsonValue(this.JSON_PRIMITIVE_PARSER.parse(value));
             } else {
                 jsonValue = new JsonValue(value);
             }
@@ -180,10 +193,10 @@ public class JsonParser implements Parser{
             throw new JsonPropertyFormatError("Property format is invalid: " + stringProperty);
         }
 
-        if(JsonPrimitiveParser.isJsonPrimitive(keyValue[1])){
+        if(this.JSON_PRIMITIVE_PARSER.isJsonPrimitive(keyValue[1])){
             return new JsonProperty(
                     new JsonKey(keyValue[0]),
-                    new JsonValue(JsonPrimitiveParser.parse(keyValue[1]))
+                    new JsonValue(this.JSON_PRIMITIVE_PARSER.parse(keyValue[1]))
             );
         }
         return new JsonProperty(

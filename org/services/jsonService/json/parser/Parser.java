@@ -11,5 +11,7 @@ public interface Parser {
 
     <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException;
 
+    JsonType mapJson(Object o) throws IllegalAccessException;
+
     JsonType parse(String string);
 }
