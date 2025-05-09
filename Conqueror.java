@@ -1,20 +1,20 @@
-import org.utils.controller.ControllerManager;
-import org.utils.controller.ControllerManagerImpl;
-import org.utils.httpServer.HttpServer;
-import org.utils.httpServer.HttpServerImpl;
-import org.utils.configuration.Configuration;
-import org.utils.configuration.ConfigurationImpl;
-import org.utils.jsonService.JsonService;
-import org.utils.jsonService.JsonServiceImpl;
-import org.utils.jsonService.json.mapper.JsonMapper;
-import org.utils.jsonService.json.mapper.JsonPrimitiveParser;
-import org.utils.jsonService.json.mapper.ObjectMapper;
-import org.utils.jsonService.json.parser.JsonParser;
-import org.utils.jsonService.json.validator.JsonValidator;
-import org.utils.jsonService.json.formatter.JsonFormat;
+import org.server.controllerManager.ControllerManager;
+import org.server.controllerManager.ControllerManagerImpl;
+import org.server.httpServer.HttpServer;
+import org.server.httpServer.HttpServerImpl;
+import org.server.configuration.Configuration;
+import org.server.configuration.ConfigurationImpl;
+import org.server.jsonService.JsonService;
+import org.server.jsonService.JsonServiceImpl;
+import org.server.jsonService.json.mapper.JsonMapper;
+import org.server.jsonService.json.mapper.JsonPrimitiveParser;
+import org.server.jsonService.json.mapper.ObjectMapper;
+import org.server.jsonService.json.parser.JsonParser;
+import org.server.jsonService.json.validator.JsonValidator;
+import org.server.jsonService.json.formatter.JsonFormat;
 import org.entities.TestObject;
-import org.utils.entityManager.EntityManager;
-import org.utils.entityManager.EntityManagerImpl;
+import org.server.entityManager.EntityManager;
+import org.server.entityManager.EntityManagerImpl;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,12 +26,13 @@ public class Conqueror {
         System.out.println("Starting app...");
 
         //*HTTP SERVER Configuration
+        ConfigurationImpl.init();
         Configuration configuration = ConfigurationImpl.getInstance();
 
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
-        //*JsonParser Initialization
+        //*JsonService Initialization
         JsonPrimitiveParser.init();
         JsonMapper.init(
                 JsonPrimitiveParser.getInstance()
@@ -47,10 +48,12 @@ public class Conqueror {
         JsonService JsonService = JsonServiceImpl.getInstance();
 
         //*EntityManager Initialization, Entities registering in Database
+        EntityManagerImpl.init();
         EntityManager entityManager = EntityManagerImpl.getInstance();
         entityManager.registerEntityClass(TestObject.class);
 
         //*ControllerManager Initialization
+        ControllerManagerImpl.init();
         ControllerManager controllerManager = ControllerManagerImpl.getInstance();
 
         //*HTTP SERVER CREATE

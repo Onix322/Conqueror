@@ -1,16 +1,16 @@
 package tests.jsonServiceTest.objectMapperTest;
 
-import org.utils.jsonService.json.formatter.JsonFormat;
-import org.utils.jsonService.json.mapper.JsonMapper;
-import org.utils.jsonService.json.mapper.JsonPrimitiveParser;
-import org.utils.jsonService.json.mapper.ObjectMapper;
-import org.utils.jsonService.json.parser.JsonParser;
-import org.utils.jsonService.json.properties.JsonKey;
-import org.utils.jsonService.json.properties.JsonProperty;
-import org.utils.jsonService.json.properties.JsonValue;
-import org.utils.jsonService.json.types.JsonObject;
-import org.utils.jsonService.json.types.JsonType;
-import org.utils.jsonService.json.validator.JsonValidator;
+import org.server.jsonService.json.formatter.JsonFormat;
+import org.server.jsonService.json.mapper.JsonMapper;
+import org.server.jsonService.json.mapper.JsonPrimitiveParser;
+import org.server.jsonService.json.mapper.ObjectMapper;
+import org.server.jsonService.json.parser.JsonParser;
+import org.server.jsonService.json.properties.JsonKey;
+import org.server.jsonService.json.properties.JsonProperty;
+import org.server.jsonService.json.properties.JsonValue;
+import org.server.jsonService.json.types.JsonObject;
+import org.server.jsonService.json.types.JsonType;
+import org.server.jsonService.json.validator.JsonValidator;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

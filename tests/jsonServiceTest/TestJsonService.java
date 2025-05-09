@@ -1,13 +1,13 @@
 package tests.jsonServiceTest;
 
-import org.utils.jsonService.json.mapper.JsonMapper;
-import org.utils.jsonService.json.mapper.JsonPrimitiveParser;
-import org.utils.jsonService.json.navigator.JsonNavigator;
-import org.utils.jsonService.json.formatter.JsonFormat;
-import org.utils.jsonService.json.mapper.ObjectMapper;
-import org.utils.jsonService.json.parser.JsonParser;
-import org.utils.jsonService.json.validator.JsonValidator;
-import org.utils.jsonService.json.types.JsonObject;
+import org.server.jsonService.json.mapper.JsonMapper;
+import org.server.jsonService.json.mapper.JsonPrimitiveParser;
+import org.server.jsonService.json.navigator.JsonNavigator;
+import org.server.jsonService.json.formatter.JsonFormat;
+import org.server.jsonService.json.mapper.ObjectMapper;
+import org.server.jsonService.json.parser.JsonParser;
+import org.server.jsonService.json.validator.JsonValidator;
+import org.server.jsonService.json.types.JsonObject;
 
 import java.util.Scanner;
 

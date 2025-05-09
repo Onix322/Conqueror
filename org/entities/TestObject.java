@@ -1,6 +1,6 @@
 package org.entities;
 
-import org.utils.entityManager.Entity;
+import org.server.entityManager.Entity;
 
 public class TestObject implements Entity<TestObject> {
 
