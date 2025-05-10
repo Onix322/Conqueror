@@ -1,8 +1,8 @@
-package org.entities;
+package org.mvc.entities;
 
-import org.server.entityManager.Entity;
+import java.util.Objects;
 
-public class TestObject implements Entity<TestObject> {
+public class TestObject {
 
     private String hello;
     private Integer number;
@@ -40,12 +40,14 @@ public class TestObject implements Entity<TestObject> {
     }
 
     @Override
-    public Class<TestObject> classOf() {
-        return TestObject.class;
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        TestObject that = (TestObject) object;
+        return Objects.equals(getHello(), that.getHello()) && Objects.equals(getNumber(), that.getNumber());
     }
 
     @Override
-    public TestObject get(){
-        return this;
+    public int hashCode() {
+        return Objects.hash(getHello(), getNumber());
     }
 }

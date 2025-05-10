@@ -40,6 +40,8 @@ public class EntityManagerImpl implements EntityManager {
     @Override
     public <T> EntityManager registerEntityClass(Class<T> entity) {
         ENTITIES.add(entity);
+
+        //TODO when called automatically make an entity in DB
         return this;
     }
 

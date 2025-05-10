@@ -1,4 +1,4 @@
-package tests.jsonServiceTest.objectMapperTest;
+package test.jsonServiceTest.objectMapperTest;
 
 import java.util.Objects;
 

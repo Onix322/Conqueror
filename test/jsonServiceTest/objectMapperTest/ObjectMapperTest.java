@@ -1,4 +1,4 @@
-package tests.jsonServiceTest.objectMapperTest;
+package test.jsonServiceTest.objectMapperTest;
 
 import org.server.jsonService.json.formatter.JsonFormat;
 import org.server.jsonService.json.mapper.JsonMapper;

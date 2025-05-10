@@ -2,64 +2,56 @@ package org.server.httpServer;
 
 import org.server.configuration.Configuration;
 import org.server.controllerManager.ControllerManager;
+import org.server.controllerManager.ControllerTemplate;
+import org.server.controllerManager.MappingMethod;
 import org.server.entityManager.EntityManager;
+import org.server.httpServer.request.transformationHandler.TransformationHandler;
 import org.server.httpServer.request.httpRequest.HttpRequest;
-import org.server.httpServer.request.httpRequestBody.HttpRequestBody;
-import org.server.httpServer.request.httpRequestHeader.HttpRequestHeader;
-import org.server.httpServer.request.httpRequestHeader.HttpRequestHeaderFactory;
 import org.server.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
-import org.server.httpServer.request.httpRequestStartLine.HttpRequestStartLineFactory;
 import org.server.httpServer.response.HttpConnectionType;
 import org.server.httpServer.response.HttpStatus;
 import org.server.httpServer.response.httpResponse.HttpResponse;
 import org.server.httpServer.response.httpResponse.HttpResponseFactory;
-import org.server.jsonService.JsonService;
-import org.server.jsonService.json.properties.JsonKey;
-import org.server.jsonService.json.properties.JsonProperty;
-import org.server.jsonService.json.types.JsonArray;
-import org.server.jsonService.json.types.JsonObject;
-import org.server.jsonService.json.types.JsonType;
+import org.server.httpServer.route.Route;
+import org.server.httpServer.route.RouteHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 public class HttpServerImpl implements HttpServer {
 
     private final Configuration CONFIGURATION;
     private final ExecutorService EXECUTOR_SERVICE;
-    private final JsonService JSON_PARSER;
     private final EntityManager ENTITY_MANAGER;
     private final ControllerManager CONTROLLER_MANAGER;
+    private final TransformationHandler TRANSFORMATION_HANDLER;
+    private final RouteHandler ROUTE_HANDLER;
 
-    private HttpServerImpl(Configuration configuration, ExecutorService executorService, JsonService jsonParser, EntityManager entityManager, ControllerManager controllerManager) {
+    private HttpServerImpl(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
-        this.JSON_PARSER = jsonParser;
         this.ENTITY_MANAGER = entityManager;
         this.CONTROLLER_MANAGER = controllerManager;
+        this.TRANSFORMATION_HANDLER = transformationHandler;
+        this.ROUTE_HANDLER = routeHandler;
     }
 
     private static class Init {
         private static HttpServerImpl instance;
     }
 
-    public synchronized static void init(Configuration configuration, ExecutorService executorService, JsonService jsonParser, EntityManager entityManager, ControllerManager controllerManager) {
+    public synchronized static void init(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler) {
         if (Init.instance == null) {
             System.out.println("Setting up server configuration...");
-            Init.instance = new HttpServerImpl(configuration, executorService, jsonParser, entityManager, controllerManager);
+            Init.instance = new HttpServerImpl(configuration, executorService, entityManager, controllerManager, transformationHandler, routeHandler);
         }
     }
 
@@ -105,9 +97,9 @@ public class HttpServerImpl implements HttpServer {
             try (clientSocket) {
                 //* STEP 1: handle request
                 HttpRequest request = this.handleRequest(clientSocket);
-
+                Route route = this.ROUTE_HANDLER.createRoute(request);
                 //* STEP 2: handle response based on request
-                HttpResponse response = this.handleResponse(request);
+                HttpResponse response = this.handleResponse(route);
 
                 //* STEP 3: send response
                 this.sendResponse(clientSocket, response);
@@ -120,83 +112,37 @@ public class HttpServerImpl implements HttpServer {
 
     private HttpRequest handleRequest(Socket clientSocket) throws Exception {
 
-        HttpRequestStartLine startLine = null;
-        List<HttpRequestHeader> headers = new ArrayList<>();
-        StringBuilder bodyBuilder = new StringBuilder();
+        //*creating HttpRequest
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-
-        String line;
-        int b;
-
-        //read headers
-        while ((line = in.readLine()) != null && !line.isEmpty()) {
-            if (Pattern.compile("^(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH|TRACE)\\s/\\S*\\sHTTP/\\d\\.\\d$").matcher(line).find()) {
-                startLine = HttpRequestStartLineFactory.create(line);
-            }
-
-            if (Pattern.compile("\\w+:\\s").matcher(line).find()) {
-                headers.add(HttpRequestHeaderFactory.create(line));
-            }
-        }
-
-        //read body
-        while (in.ready() && (b = in.read()) != -1) {
-            bodyBuilder.append(Character.toString(b));
-        }
-        //* VA trimite URI si clasa entitatii catre (baza de date) mai in detaliu
+        HttpRequest httpRequest = this.TRANSFORMATION_HANDLER.transformToHttpRequest(in);
         clientSocket.shutdownInput();
 
-        return this.createHttpRequest(
-                startLine,
-                headers,
-                bodyBuilder.toString()
-        );
+        return httpRequest;
     }
 
-    private HttpRequest createHttpRequest(HttpRequestStartLine startLine, List<HttpRequestHeader> headers, String rawBody) throws ReflectiveOperationException, URISyntaxException {
-        HttpRequestBody body = new HttpRequestBody(null);
-        JsonType jsonType = JSON_PARSER.parse(rawBody);
-        Object obj;
-
-        if (jsonType instanceof JsonObject jsonObject) {
-            //ask for entity class from ENTITY_MANAGER
-            String[] fieldsNames = Stream.of(jsonObject.get())
-                    .map(JsonProperty::key)
-                    .map(JsonKey::get).distinct()
-                    .toArray(String[]::new);
-
-            Class<?> clazz = ENTITY_MANAGER.askForClass(fieldsNames);
-            obj = JSON_PARSER.mapObject(jsonObject, clazz);
-        } else if (jsonType instanceof JsonArray jsonArray) {
-            obj = JSON_PARSER.mapArray(jsonArray, LinkedList.class);
-        } else if(rawBody.isEmpty()){
-            obj = "";
-        } else {
-            obj = null;
-        }
-
-        body.setBody(obj);
-
-        return  HttpRequest.builder()
-                .setHttpRequestHeader(headers)
-                .setStartLine(startLine)
-                .setHttpRequestBody(body)
-                .build();
-    }
 
     //TODO CREATE THE RESPONSE
 
-    private HttpResponse handleResponse(HttpRequest httpRequest) throws IllegalAccessException {
+    private HttpResponse handleResponse(Route route) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        HttpRequestStartLine startLine = httpRequest.getStartLine();
+        ControllerTemplate controllerTemplate = this.CONTROLLER_MANAGER
+                .requestController(route.getControllerRoute());
+        MappingMethod mappingMethod = controllerTemplate.getMappingMethods()
+                .get(route.getMappedMethodRoute());
+
+        System.out.println(controllerTemplate);
+
+        Object responseBody = controllerTemplate.getControllerClass()
+                .getMethod(mappingMethod.getName())
+                .invoke(controllerTemplate.getControllerClass());
 
         return HttpResponseFactory.create(
                 "HTTP/1.1",
                 HttpStatus.OK,
                 "application/json",
                 HttpConnectionType.CLOSED,
-                httpRequest.getHttpRequestBody().getBody()
+                responseBody
         );
     }
 

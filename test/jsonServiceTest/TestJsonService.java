@@ -1,4 +1,4 @@
-package tests.jsonServiceTest;
+package test.jsonServiceTest;
 
 import org.server.jsonService.json.mapper.JsonMapper;
 import org.server.jsonService.json.mapper.JsonPrimitiveParser;
