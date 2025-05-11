@@ -7,13 +7,16 @@ import org.server.controllerManager.MappingMethod;
 import org.server.entityManager.EntityManager;
 import org.server.httpServer.request.transformationHandler.TransformationHandler;
 import org.server.httpServer.request.httpRequest.HttpRequest;
-import org.server.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
 import org.server.httpServer.response.HttpConnectionType;
 import org.server.httpServer.response.HttpStatus;
 import org.server.httpServer.response.httpResponse.HttpResponse;
 import org.server.httpServer.response.httpResponse.HttpResponseFactory;
 import org.server.httpServer.route.Route;
 import org.server.httpServer.route.RouteHandler;
+import org.server.jsonService.JsonService;
+import org.server.jsonService.json.parser.JsonParser;
+import org.server.jsonService.json.types.JsonType;
+import org.server.primitiveParser.PrimitiveParser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +27,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class HttpServerImpl implements HttpServer {
@@ -34,24 +39,28 @@ public class HttpServerImpl implements HttpServer {
     private final ControllerManager CONTROLLER_MANAGER;
     private final TransformationHandler TRANSFORMATION_HANDLER;
     private final RouteHandler ROUTE_HANDLER;
+    private final PrimitiveParser PRIMITIVE_PARSER;
+    private final JsonService JSON_SERVICE;
 
-    private HttpServerImpl(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler) {
+    private HttpServerImpl(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, PrimitiveParser primitiveParser, JsonService jsonService) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
         this.ENTITY_MANAGER = entityManager;
         this.CONTROLLER_MANAGER = controllerManager;
         this.TRANSFORMATION_HANDLER = transformationHandler;
         this.ROUTE_HANDLER = routeHandler;
+        this.PRIMITIVE_PARSER = primitiveParser;
+        this.JSON_SERVICE = jsonService;
     }
 
     private static class Init {
         private static HttpServerImpl instance;
     }
 
-    public synchronized static void init(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler) {
+    public synchronized static void init(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, PrimitiveParser primitiveParser, JsonService jsonService) {
         if (Init.instance == null) {
             System.out.println("Setting up server configuration...");
-            Init.instance = new HttpServerImpl(configuration, executorService, entityManager, controllerManager, transformationHandler, routeHandler);
+            Init.instance = new HttpServerImpl(configuration, executorService, entityManager, controllerManager, transformationHandler, routeHandler, primitiveParser, jsonService);
         }
     }
 
@@ -97,7 +106,8 @@ public class HttpServerImpl implements HttpServer {
             try (clientSocket) {
                 //* STEP 1: handle request
                 HttpRequest request = this.handleRequest(clientSocket);
-                Route route = this.ROUTE_HANDLER.createRoute(request);
+                Route route = this.ROUTE_HANDLER.handleRouting(request);
+
                 //* STEP 2: handle response based on request
                 HttpResponse response = this.handleResponse(route);
 
@@ -121,32 +131,37 @@ public class HttpServerImpl implements HttpServer {
         return httpRequest;
     }
 
-
-    //TODO CREATE THE RESPONSE
-
-    private HttpResponse handleResponse(Route route) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
+    private HttpResponse handleResponse(Route route) throws Exception {
         ControllerTemplate controllerTemplate = this.CONTROLLER_MANAGER
-                .requestController(route.getControllerRoute());
-        MappingMethod mappingMethod = controllerTemplate.getMappingMethods()
-                .get(route.getMappedMethodRoute());
+                .request(route.getControllerRoute().getRoute(), this.CONTROLLER_MANAGER.getControllers());
+        MappingMethod mappingMethod = this.CONTROLLER_MANAGER.request(route.getMappedMethodRoute().getRoute(), controllerTemplate.getMappingMethods());
+        Object responseBody;
 
-        System.out.println(controllerTemplate);
+        if(route.getPathVariables().length > 0){
 
-        Object responseBody = controllerTemplate.getControllerClass()
-                .getMethod(mappingMethod.getName())
-                .invoke(controllerTemplate.getControllerClass());
+            List<?> vars = Arrays.stream(route.getPathVariables())
+                    .map(pv -> this.PRIMITIVE_PARSER.parse(pv.value()))
+                    .toList();
+
+            responseBody = controllerTemplate.getControllerClass()
+                    .getMethod(mappingMethod.getName(), mappingMethod.getParameters())
+                    .invoke(controllerTemplate.getControllerClass(), vars.toArray(new Object[0]));
+        } else {
+            responseBody = controllerTemplate.getControllerClass()
+                    .getMethod(mappingMethod.getName())
+                    .invoke(controllerTemplate.getControllerClass());
+        }
 
         return HttpResponseFactory.create(
                 "HTTP/1.1",
                 HttpStatus.OK,
                 "application/json",
                 HttpConnectionType.CLOSED,
-                responseBody
+                this.JSON_SERVICE.mapJson(responseBody)
         );
     }
 
-    private void sendResponse(Socket clientSocket, HttpResponse httpResponse) throws IOException {
+    private void sendResponse(Socket clientSocket, HttpResponse httpResponse) throws Exception {
         System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
 
         clientSocket.getOutputStream()

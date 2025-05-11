@@ -1,4 +1,4 @@
-package org.server.annotations.mapping;
+package org.server.annotations.controller.mapping;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

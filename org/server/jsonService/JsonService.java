@@ -10,11 +10,11 @@ import java.util.Collection;
 //T is representing the class implementation
 public interface JsonService {
 
-    <T> T mapObject(JsonObject jsonObject, Class<T> clazz) throws ReflectiveOperationException;
+    <T> T mapObject(JsonObject jsonObject, Class<T> clazz) throws Exception;
 
-    <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException;
+    <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws Exception;
 
-    JsonType mapJson(Object o) throws IllegalAccessException;
+    JsonType mapJson(Object o) throws Exception;
 
     JsonType parse(String json);
 }

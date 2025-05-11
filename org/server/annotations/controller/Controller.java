@@ -1,4 +1,4 @@
-package org.server.annotations;
+package org.server.annotations.controller;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

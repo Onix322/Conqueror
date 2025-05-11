@@ -1,48 +1,114 @@
 package org.server.httpServer.route;
 
+import org.server.controllerManager.ControllerManager;
+import org.server.controllerManager.ControllerManagerImpl;
+import org.server.controllerManager.ControllerTemplate;
+import org.server.controllerManager.MappingMethod;
+import org.server.exepltions.HttpStartLineIncorrect;
 import org.server.httpServer.request.httpRequest.HttpRequest;
+import org.server.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class RouteHandler {
-    private RouteHandler() {
+
+    private final ControllerManager CONTROLLER_MANAGER;
+
+    private RouteHandler(ControllerManager controllerManager) {
+        this.CONTROLLER_MANAGER = controllerManager;
     }
 
     private static class Init {
         private static RouteHandler INSTANCE = null;
     }
 
-    public synchronized static void init() {
-        if (RouteHandler.Init.INSTANCE == null) {
-            RouteHandler.Init.INSTANCE = new RouteHandler();
+    public synchronized static void init(ControllerManager controllerManager) {
+        if (Init.INSTANCE == null) {
+            Init.INSTANCE = new RouteHandler(controllerManager);
         }
     }
 
     public static RouteHandler getInstance() {
-        if (RouteHandler.Init.INSTANCE == null) {
+        if (Init.INSTANCE == null) {
             throw new IllegalStateException("RouteHandler not initialized! Use RouteHandler.init()");
         }
-        return RouteHandler.Init.INSTANCE;
+        return Init.INSTANCE;
     }
 
-    public Route createRoute(HttpRequest request) {
-        String path = request.getStartLine().getPath().getRawPath();
-        List<String> fragments = Arrays.stream(path.split("/"))
+    /// /////
+    public Route handleRouting(HttpRequest request) {
+
+        System.out.println(request.getStartLine().getPath().getRawPath());
+        return switch (request.getStartLine().getMethod()) {
+            case GET -> this.getHandler(request);
+            case PUT, HEAD, POST, PATCH, DELETE, OPTIONS -> null;
+            default -> throw new HttpStartLineIncorrect();
+        };
+    }
+
+    public Route getHandler(HttpRequest request){
+        ControllerTemplate controllerTemplate = this.CONTROLLER_MANAGER.request(request.getStartLine().getPath().getRawPath(), this.CONTROLLER_MANAGER.getControllers());
+        MappingMethod mappingMethod = this.CONTROLLER_MANAGER.request(request.getStartLine().getPath().getRawPath(), controllerTemplate.getMappingMethods());
+        PathVariable[] variables = this.subtractPathVariables(request.getStartLine(), controllerTemplate.getPath() + mappingMethod.getPath());
+        List<String> fragments = Arrays.stream(this.subtractFragments(request.getStartLine())).toList();
+
+        ControllerRoute controllerRoute = new ControllerRoute(fragments.getFirst());
+        MappingMethodRoute mappedMethodRoute = new MappingMethodRoute(mappingMethod.getPath());
+
+        return Route.builder()
+                .setMappedMethodRoute(mappedMethodRoute)
+                .setControllerRoute(controllerRoute)
+                .setPathVariables(variables)
+                .build();
+    }
+
+    public String[] subtractFragments(HttpRequestStartLine startLine) {
+        String path = startLine.getPath().getRawPath();
+        return this.subtractFragments(path);
+    }
+
+    public String[] subtractFragments(String path) {
+        return Stream.of(path.split("/"))
                 .filter(fragment -> !fragment.isEmpty())
                 .map(fragment -> "/" + fragment)
-                .toList();
+                .toArray(String[]::new);
+    }
 
-        String controllerRoute = fragments.getFirst();
-        String mappedMethodRoute = String.join("/", fragments.subList(1, fragments.size()));
+    public PathVariable[] subtractPathVariables(HttpRequestStartLine startLine, String fullPath) {
+        List<String> fragmentsStartLine = Arrays.stream(this.subtractFragments(startLine)).toList();
+        List<String> fragmentsMappingMethod = Arrays.stream(subtractFragments(fullPath)).toList();
+        List<PathVariable> pathVariables = new LinkedList<>();
 
-        if (mappedMethodRoute.isEmpty()) {
-            mappedMethodRoute = "/" + request.getStartLine()
-                    .getMethod()
-                    .name()
-                    .toLowerCase(Locale.ROOT);
+        if(fragmentsStartLine.size() != fragmentsMappingMethod.size()){
+            throw new IllegalArgumentException(
+                            "Size of arguments: "
+                            + Arrays.toString(fragmentsMappingMethod.toArray(String[]::new))
+                            + " incompatible with: "
+                            + Arrays.toString(fragmentsStartLine.toArray(String[]::new))
+            );
         }
-        return new Route(controllerRoute, mappedMethodRoute);
+
+        for (int i = 0; i < fragmentsMappingMethod.size(); i++) {
+            String mapMetFrag = fragmentsMappingMethod.get(i);
+            String startLinePath = fragmentsStartLine.get(i);
+            if(mapMetFrag.matches("/\\{([^}]+)}")){
+                PathVariable pathVariable = new PathVariable(
+                        mapMetFrag.substring(1),
+                        startLinePath.substring(1)
+                );
+                pathVariables.add(pathVariable);
+            }
+        }
+
+        return pathVariables.toArray(PathVariable[]::new);
+    }
+
+    public PathVariable[] getVariables(HttpRequest request){
+        ControllerTemplate controllerTemplate = this.CONTROLLER_MANAGER.request(request.getStartLine().getPath().getRawPath(), this.CONTROLLER_MANAGER.getControllers());
+        MappingMethod mappingMethod = this.CONTROLLER_MANAGER.request(request.getStartLine().getPath().getRawPath(), controllerTemplate.getMappingMethods());
+
+        return this.subtractPathVariables(request.getStartLine(), controllerTemplate.getPath() + mappingMethod.getPath());
     }
 }

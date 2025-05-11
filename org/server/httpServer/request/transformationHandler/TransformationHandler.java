@@ -52,7 +52,7 @@ public class TransformationHandler {
         return Init.INSTANCE;
     }
 
-    public HttpRequest transformToHttpRequest(BufferedReader in) throws IOException, ReflectiveOperationException, URISyntaxException {
+    public HttpRequest transformToHttpRequest(BufferedReader in) throws Exception {
 
         HttpRequestStartLine startLine = null;
         List<HttpRequestHeader> headers = new ArrayList<>();
@@ -95,7 +95,7 @@ public class TransformationHandler {
         );
     }
 
-    private HttpRequest createHttpRequestBody(HttpRequestStartLine startLine, List<HttpRequestHeader> headers, String rawBody) throws ReflectiveOperationException, URISyntaxException {
+    private HttpRequest createHttpRequestBody(HttpRequestStartLine startLine, List<HttpRequestHeader> headers, String rawBody) throws Exception {
         HttpRequestBody body = new HttpRequestBody(null);
         JsonType jsonType = JSON_SERVICE.parse(rawBody);
         Object obj;

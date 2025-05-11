@@ -5,17 +5,20 @@ import org.server.jsonService.json.properties.JsonProperty;
 import org.server.jsonService.json.properties.JsonValue;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
+import org.server.primitiveParser.PrimitiveParser;
 
+import javax.swing.*;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 public class JsonMapper {
 
-    private final JsonPrimitiveParser PRIMITIVE_PARSER;
+    private final PrimitiveParser PRIMITIVE_PARSER;
 
-    private JsonMapper(JsonPrimitiveParser primitiveParser) {
+    private JsonMapper(PrimitiveParser primitiveParser) {
         this.PRIMITIVE_PARSER = primitiveParser;
     }
 
@@ -23,24 +26,23 @@ public class JsonMapper {
         private static JsonMapper INSTANCE = null;
     }
 
-    public synchronized static void init(JsonPrimitiveParser primitiveParser) {
-        if (JsonMapper.Init.INSTANCE == null) {
-            JsonMapper.Init.INSTANCE = new JsonMapper(primitiveParser);
+    public synchronized static void init(PrimitiveParser primitiveParser) {
+        if (Init.INSTANCE == null) {
+            Init.INSTANCE = new JsonMapper(primitiveParser);
         }
     }
 
     public static JsonMapper getInstance() {
-        if (JsonMapper.Init.INSTANCE == null) {
+        if (Init.INSTANCE == null) {
             throw new IllegalStateException("JsonMapper not initialized! call JsonMapper.init()");
         }
-        return JsonMapper.Init.INSTANCE;
+        return Init.INSTANCE;
     }
 
-    public JsonObject toJsonObject(Object o) throws IllegalAccessException {
-
-        Field[] fields = o.getClass().getDeclaredFields();
-
+    public JsonObject toJsonObject(Object o) throws Exception {
         List<JsonProperty> properties = new LinkedList<>();
+        System.out.println("DEBUG" + o);
+        Field[] fields = o.getClass().getDeclaredFields();
 
         for (Field field : fields) {
             field.setAccessible(true);
@@ -54,7 +56,7 @@ public class JsonMapper {
         return new JsonObject(properties.toArray(new JsonProperty[0]));
     }
 
-    public JsonArray toJsonArray(Collection<?> o) throws IllegalAccessException {
+    public JsonArray toJsonArray(Collection<?> o) throws Exception {
 
         List<JsonValue> values = new LinkedList<>();
 
@@ -67,7 +69,7 @@ public class JsonMapper {
         return new JsonArray(values.toArray(new JsonValue[0]));
     }
 
-    private JsonValue getJsonValue(Object o) throws IllegalAccessException {
+    private JsonValue getJsonValue(Object o) throws Exception {
         JsonValue jsonValue;
         if (this.PRIMITIVE_PARSER.isWrapperClass(o.getClass())){
             jsonValue = new JsonValue(o);

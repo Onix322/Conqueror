@@ -7,11 +7,11 @@ import org.server.jsonService.json.types.JsonType;
 import java.util.Collection;
 
 public interface Parser {
-    <T> T mapObject(JsonObject jsonType, Class<T> type) throws ReflectiveOperationException;
+    <T> T mapObject(JsonObject jsonType, Class<T> type) throws Exception;
 
-    <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException;
+    <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws Exception;
 
-    JsonType mapJson(Object o) throws IllegalAccessException;
+    JsonType mapJson(Object o) throws Exception;
 
     JsonType parse(String string);
 }

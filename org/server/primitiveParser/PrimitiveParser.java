@@ -1,8 +1,8 @@
-package org.server.jsonService.json.mapper;
+package org.server.primitiveParser;
 
 import java.util.Map;
 
-public class JsonPrimitiveParser {
+public class PrimitiveParser {
 
     private final Map<Class<?>, Class<?>> WRAPPERS_AND_PRIMITIVES = Map.ofEntries(
             Map.entry(Integer.class, int.class),
@@ -16,22 +16,22 @@ public class JsonPrimitiveParser {
             Map.entry(Void.class, void.class)
     );
 
-    private JsonPrimitiveParser() {
+    private PrimitiveParser() {
     }
 
     private static class Init {
-        private static JsonPrimitiveParser INSTANCE = null;
+        private static PrimitiveParser INSTANCE = null;
     }
 
     public synchronized static void init() {
-        if (JsonPrimitiveParser.Init.INSTANCE == null) {
-            JsonPrimitiveParser.Init.INSTANCE = new JsonPrimitiveParser();
+        if (PrimitiveParser.Init.INSTANCE == null) {
+            PrimitiveParser.Init.INSTANCE = new PrimitiveParser();
         }
     }
 
-    public static JsonPrimitiveParser getInstance() {
+    public static PrimitiveParser getInstance() {
         if (Init.INSTANCE == null) {
-            throw new IllegalStateException("JsonPrimitiveParser not initialized! call JsonPrimitiveParser.init()");
+            throw new IllegalStateException("PrimitiveParser not initialized! call PrimitiveParser.init()");
         }
         return Init.INSTANCE;
     }
@@ -58,7 +58,7 @@ public class JsonPrimitiveParser {
         return input;
     }
 
-    public boolean isJsonPrimitive(String input) {
+    public boolean isPrimitive(String input) {
         return input.matches("-?\\d+|(-?\\d*\\.\\d+([eE][-+]?\\d+)?)|true|false|null|\"\\w+\"");
     }
 

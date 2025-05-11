@@ -33,17 +33,17 @@ public class JsonServiceImpl implements JsonService {
     }
 
     @Override
-    public <T> T mapObject(JsonObject jsonType, Class<T> clazz) throws ReflectiveOperationException {
+    public <T> T mapObject(JsonObject jsonType, Class<T> clazz) throws Exception {
         return this.JSON_PARSER.mapObject(jsonType, clazz);
     }
 
     @Override
-    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException {
+    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws Exception {
         return this.JSON_PARSER.mapArray(jsonArray, collectionClass);
     }
 
     @Override
-    public JsonType mapJson(Object o) throws IllegalAccessException {
+    public JsonType mapJson(Object o) throws Exception {
         return this.JSON_PARSER.mapJson(o);
     }
 

@@ -1,7 +1,7 @@
 package org.server.controllerManager;
 
-import org.server.annotations.Controller;
-import org.server.annotations.mapping.Mapping;
+import org.server.annotations.controller.Controller;
+import org.server.annotations.controller.mapping.Mapping;
 import org.server.exepltions.DuplicateMappingMethod;
 import org.server.httpServer.HttpMethod;
 
@@ -48,6 +48,17 @@ public class ControllerManagerImpl implements ControllerManager {
     @Override
     public ControllerTemplate requestController(String path) {
         return this.CONTROLLERS.get(path);
+    }
+
+    public <E, T extends Map<String, E>> E request(String path, T map){
+        String key = "";
+        for (String cKey : map.keySet()) {
+            String cleanKey = cKey.replaceAll("/\\{[A-z0-9]+}", "");
+            if (path.contains(cleanKey) && cKey.length() >= key.length()) {
+                key = cKey;
+            }
+        }
+        return map.get(key);
     }
 
     @Override

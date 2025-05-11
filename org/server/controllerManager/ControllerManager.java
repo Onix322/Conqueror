@@ -10,5 +10,7 @@ public interface ControllerManager {
 
     ControllerTemplate requestController(String path);
 
+    <E, T extends Map<String, E>> E request(String path, T map);
+
     ControllerManager registerController(Class<?> clazz) throws Exception;
 }

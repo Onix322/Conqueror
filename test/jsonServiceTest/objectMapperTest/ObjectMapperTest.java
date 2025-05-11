@@ -2,7 +2,7 @@ package test.jsonServiceTest.objectMapperTest;
 
 import org.server.jsonService.json.formatter.JsonFormat;
 import org.server.jsonService.json.mapper.JsonMapper;
-import org.server.jsonService.json.mapper.JsonPrimitiveParser;
+import org.server.primitiveParser.PrimitiveParser;
 import org.server.jsonService.json.mapper.ObjectMapper;
 import org.server.jsonService.json.parser.JsonParser;
 import org.server.jsonService.json.properties.JsonKey;
@@ -17,7 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ObjectMapperTest {
-    public static void main(String[] args) throws ReflectiveOperationException {
+    public static void main(String[] args) throws Exception {
         String jsonDummyClass =
                 """
                             {
@@ -59,16 +59,16 @@ public class ObjectMapperTest {
                             }
                         """;
 
-        JsonPrimitiveParser.init();
+        PrimitiveParser.init();
         JsonMapper.init(
-                JsonPrimitiveParser.getInstance()
+                PrimitiveParser.getInstance()
         );
         JsonParser.init(
                 JsonValidator.getInstance(),
                 JsonFormat.getInstance(),
                 ObjectMapper.getInstance(),
                 JsonMapper.getInstance(),
-                JsonPrimitiveParser.getInstance()
+                PrimitiveParser.getInstance()
         );
 
         //* Test JSON -> Object

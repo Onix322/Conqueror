@@ -1,7 +1,7 @@
 package test.jsonServiceTest;
 
 import org.server.jsonService.json.mapper.JsonMapper;
-import org.server.jsonService.json.mapper.JsonPrimitiveParser;
+import org.server.primitiveParser.PrimitiveParser;
 import org.server.jsonService.json.navigator.JsonNavigator;
 import org.server.jsonService.json.formatter.JsonFormat;
 import org.server.jsonService.json.mapper.ObjectMapper;
@@ -79,7 +79,7 @@ public class TestJsonService {
                 JsonFormat.getInstance(),
                 ObjectMapper.getInstance(),
                 JsonMapper.getInstance(),
-                JsonPrimitiveParser.getInstance()
+                PrimitiveParser.getInstance()
         );
         JsonParser jsonParser = JsonParser.getInstance();
 

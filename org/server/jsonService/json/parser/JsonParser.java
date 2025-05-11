@@ -4,7 +4,7 @@ import org.server.exepltions.JsonNotValid;
 import org.server.exepltions.JsonPropertyFormatError;
 import org.server.jsonService.json.coordinate.Coordinate;
 import org.server.jsonService.json.mapper.JsonMapper;
-import org.server.jsonService.json.mapper.JsonPrimitiveParser;
+import org.server.primitiveParser.PrimitiveParser;
 import org.server.jsonService.json.validator.JsonValidator;
 import org.server.jsonService.json.formatter.JsonFormat;
 import org.server.jsonService.json.formatter.JsonFormatedString;
@@ -23,14 +23,14 @@ public class JsonParser implements Parser{
     private final JsonValidator JSON_VALIDATOR;
     private final JsonFormat JSON_FORMAT;
     private final ObjectMapper OBJECT_MAPPER;
-    private final JsonPrimitiveParser JSON_PRIMITIVE_PARSER;
+    private final PrimitiveParser PRIMITIVE_PARSER;
     private final JsonMapper JSON_MAPPER;
 
-    private JsonParser(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper, JsonPrimitiveParser jsonPrimitiveParser) {
+    private JsonParser(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper, PrimitiveParser primitiveParser) {
         this.JSON_FORMAT = jsonFormat;
         this.OBJECT_MAPPER = objectMapper;
         this.JSON_VALIDATOR = jsonValidator;
-        this.JSON_PRIMITIVE_PARSER = jsonPrimitiveParser;
+        this.PRIMITIVE_PARSER = primitiveParser;
         this.JSON_MAPPER = jsonMapper;
     }
 
@@ -38,9 +38,9 @@ public class JsonParser implements Parser{
         private static JsonParser INSTANCE = null;
     }
 
-    public synchronized static void init(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper,JsonPrimitiveParser jsonPrimitiveParser) {
+    public synchronized static void init(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper, PrimitiveParser primitiveParser) {
         if (JsonParser.Init.INSTANCE == null) {
-            JsonParser.Init.INSTANCE = new JsonParser(jsonValidator, jsonFormat, objectMapper, jsonMapper, jsonPrimitiveParser);
+            JsonParser.Init.INSTANCE = new JsonParser(jsonValidator, jsonFormat, objectMapper, jsonMapper, primitiveParser);
         }
     }
 
@@ -51,14 +51,14 @@ public class JsonParser implements Parser{
         return JsonParser.Init.INSTANCE;
     }
 
-    public <T> T mapObject(JsonObject jsonType, Class<T> type) throws ReflectiveOperationException {
+    public <T> T mapObject(JsonObject jsonType, Class<T> type) throws Exception {
         return this.OBJECT_MAPPER.mapObject(jsonType, type);
     }
-    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws ReflectiveOperationException {
+    public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws Exception {
         return this.OBJECT_MAPPER.mapArray(jsonArray, collectionClass);
     }
 
-    public JsonType mapJson(Object o) throws IllegalAccessException {
+    public JsonType mapJson(Object o) throws Exception {
         if (o instanceof Collection<?>) {
             return this.JSON_MAPPER.toJsonArray((Collection<?>) o);
         } else {
@@ -157,8 +157,8 @@ public class JsonParser implements Parser{
         for (Coordinate coordinate : coordinates) {
             String value = stringArray.substring(coordinate.getStartIndex() + 1, coordinate.getEndIndex());
             JsonValue jsonValue;
-            if(this.JSON_PRIMITIVE_PARSER.isJsonPrimitive(value)){
-                jsonValue = new JsonValue(this.JSON_PRIMITIVE_PARSER.parse(value));
+            if(this.PRIMITIVE_PARSER.isPrimitive(value)){
+                jsonValue = new JsonValue(this.PRIMITIVE_PARSER.parse(value));
             } else {
                 jsonValue = new JsonValue(value);
             }
@@ -193,10 +193,10 @@ public class JsonParser implements Parser{
             throw new JsonPropertyFormatError("Property format is invalid: " + stringProperty);
         }
 
-        if(this.JSON_PRIMITIVE_PARSER.isJsonPrimitive(keyValue[1])){
+        if(this.PRIMITIVE_PARSER.isPrimitive(keyValue[1])){
             return new JsonProperty(
                     new JsonKey(keyValue[0]),
-                    new JsonValue(this.JSON_PRIMITIVE_PARSER.parse(keyValue[1]))
+                    new JsonValue(this.PRIMITIVE_PARSER.parse(keyValue[1]))
             );
         }
         return new JsonProperty(

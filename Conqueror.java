@@ -10,7 +10,7 @@ import org.server.httpServer.route.RouteHandler;
 import org.server.jsonService.JsonService;
 import org.server.jsonService.JsonServiceImpl;
 import org.server.jsonService.json.mapper.JsonMapper;
-import org.server.jsonService.json.mapper.JsonPrimitiveParser;
+import org.server.primitiveParser.PrimitiveParser;
 import org.server.jsonService.json.mapper.ObjectMapper;
 import org.server.jsonService.json.parser.JsonParser;
 import org.server.jsonService.json.validator.JsonValidator;
@@ -35,17 +35,20 @@ public class Conqueror {
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
+        //*PrimitiveParser Initialization
+        PrimitiveParser.init();
+        PrimitiveParser primitiveParser = PrimitiveParser.getInstance();
+
         //*JsonService Initialization
-        JsonPrimitiveParser.init();
         JsonMapper.init(
-                JsonPrimitiveParser.getInstance()
+                primitiveParser
         );
         JsonParser.init(
                 JsonValidator.getInstance(),
                 JsonFormat.getInstance(),
                 ObjectMapper.getInstance(),
                 JsonMapper.getInstance(),
-                JsonPrimitiveParser.getInstance()
+                primitiveParser
         );
         JsonServiceImpl.init(JsonParser.getInstance());
         JsonService jsonService = JsonServiceImpl.getInstance();
@@ -68,7 +71,9 @@ public class Conqueror {
         TransformationHandler transformationHandler = TransformationHandler.getInstance();
 
         //*RouteHandler Initialization
-        RouteHandler.init();
+        RouteHandler.init(
+                controllerManager
+        );
         RouteHandler routeHandler = RouteHandler.getInstance();
 
         //*HTTP SERVER CREATE
@@ -80,7 +85,9 @@ public class Conqueror {
                 entityManager,
                 controllerManager,
                 transformationHandler,
-                routeHandler
+                routeHandler,
+                primitiveParser,
+                jsonService
         );
         HttpServer httpServer = HttpServerImpl.getInstance();
 
