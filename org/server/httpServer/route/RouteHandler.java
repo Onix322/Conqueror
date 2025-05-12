@@ -1,15 +1,15 @@
 package org.server.httpServer.route;
 
 import org.server.controllerManager.ControllerManager;
-import org.server.controllerManager.ControllerManagerImpl;
-import org.server.controllerManager.ControllerTemplate;
-import org.server.controllerManager.MappingMethod;
+import org.server.metadata.ClassMetaData;
+import org.server.metadata.MethodMetaData;
 import org.server.exepltions.HttpStartLineIncorrect;
 import org.server.httpServer.request.httpRequest.HttpRequest;
 import org.server.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
 
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class RouteHandler {
@@ -39,8 +39,6 @@ public class RouteHandler {
 
     /// /////
     public Route handleRouting(HttpRequest request) {
-
-        System.out.println(request.getStartLine().getPath().getRawPath());
         return switch (request.getStartLine().getMethod()) {
             case GET -> this.getHandler(request);
             case PUT, HEAD, POST, PATCH, DELETE, OPTIONS -> null;
@@ -48,14 +46,15 @@ public class RouteHandler {
         };
     }
 
-    public Route getHandler(HttpRequest request){
-        ControllerTemplate controllerTemplate = this.CONTROLLER_MANAGER.request(request.getStartLine().getPath().getRawPath(), this.CONTROLLER_MANAGER.getControllers());
-        MappingMethod mappingMethod = this.CONTROLLER_MANAGER.request(request.getStartLine().getPath().getRawPath(), controllerTemplate.getMappingMethods());
-        PathVariable[] variables = this.subtractPathVariables(request.getStartLine(), controllerTemplate.getPath() + mappingMethod.getPath());
+    public Route getHandler(HttpRequest request) {
+        String path = request.getStartLine().getPath().getRawPath();
+        ClassMetaData classMetadata = this.CONTROLLER_MANAGER.request(path, this.CONTROLLER_MANAGER.getControllers());
+        MethodMetaData methodMetadata = this.CONTROLLER_MANAGER.request(path, classMetadata.getMethodsMetaData());
+        PathVariable[] variables = this.subtractPathVariables(request.getStartLine(), classMetadata.getPath() + methodMetadata.getPath());
         List<String> fragments = Arrays.stream(this.subtractFragments(request.getStartLine())).toList();
 
         ControllerRoute controllerRoute = new ControllerRoute(fragments.getFirst());
-        MappingMethodRoute mappedMethodRoute = new MappingMethodRoute(mappingMethod.getPath());
+        MappingMethodRoute mappedMethodRoute = new MappingMethodRoute(methodMetadata.getPath());
 
         return Route.builder()
                 .setMappedMethodRoute(mappedMethodRoute)
@@ -76,14 +75,14 @@ public class RouteHandler {
                 .toArray(String[]::new);
     }
 
-    public PathVariable[] subtractPathVariables(HttpRequestStartLine startLine, String fullPath) {
+    public PathVariable[] subtractPathVariables(HttpRequestStartLine startLine, String fullPathFromMetaData) {
         List<String> fragmentsStartLine = Arrays.stream(this.subtractFragments(startLine)).toList();
-        List<String> fragmentsMappingMethod = Arrays.stream(subtractFragments(fullPath)).toList();
+        List<String> fragmentsMappingMethod = Arrays.stream(subtractFragments(fullPathFromMetaData)).toList();
         List<PathVariable> pathVariables = new LinkedList<>();
 
-        if(fragmentsStartLine.size() != fragmentsMappingMethod.size()){
+        if (fragmentsStartLine.size() != fragmentsMappingMethod.size()) {
             throw new IllegalArgumentException(
-                            "Size of arguments: "
+                    "Size of arguments: "
                             + Arrays.toString(fragmentsMappingMethod.toArray(String[]::new))
                             + " incompatible with: "
                             + Arrays.toString(fragmentsStartLine.toArray(String[]::new))
@@ -93,7 +92,7 @@ public class RouteHandler {
         for (int i = 0; i < fragmentsMappingMethod.size(); i++) {
             String mapMetFrag = fragmentsMappingMethod.get(i);
             String startLinePath = fragmentsStartLine.get(i);
-            if(mapMetFrag.matches("/\\{([^}]+)}")){
+            if (mapMetFrag.matches("/\\{([^}]+)}")) {
                 PathVariable pathVariable = new PathVariable(
                         mapMetFrag.substring(1),
                         startLinePath.substring(1)
@@ -105,10 +104,16 @@ public class RouteHandler {
         return pathVariables.toArray(PathVariable[]::new);
     }
 
-    public PathVariable[] getVariables(HttpRequest request){
-        ControllerTemplate controllerTemplate = this.CONTROLLER_MANAGER.request(request.getStartLine().getPath().getRawPath(), this.CONTROLLER_MANAGER.getControllers());
-        MappingMethod mappingMethod = this.CONTROLLER_MANAGER.request(request.getStartLine().getPath().getRawPath(), controllerTemplate.getMappingMethods());
+    public String subtractFullPath(ClassMetaData classMetaData, MethodMetaData methodMetaData){
+        return classMetaData.getPath() + methodMetaData.getPath();
+    }
 
-        return this.subtractPathVariables(request.getStartLine(), controllerTemplate.getPath() + mappingMethod.getPath());
+    public PathVariable[] getVariables(HttpRequest request) {
+        String path = request.getStartLine().getPath().getRawPath();
+        ClassMetaData classMetadata = this.CONTROLLER_MANAGER.request(path, this.CONTROLLER_MANAGER.getControllers());
+        MethodMetaData methodMetadata = this.CONTROLLER_MANAGER.request(path, classMetadata.getMethodsMetaData());
+        String fullPathFromMetadata = this.subtractFullPath(classMetadata, methodMetadata);
+
+        return this.subtractPathVariables(request.getStartLine(), fullPathFromMetadata);
     }
 }

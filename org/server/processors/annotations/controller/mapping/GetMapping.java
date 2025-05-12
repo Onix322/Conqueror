@@ -1,4 +1,4 @@
-package org.server.annotations.controller.mapping;
+package org.server.processors.annotations.controller.mapping;
 
 import org.server.httpServer.HttpMethod;
 

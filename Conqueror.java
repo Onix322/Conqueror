@@ -18,6 +18,8 @@ import org.server.jsonService.json.formatter.JsonFormat;
 import org.mvc.entities.TestObject;
 import org.server.entityManager.EntityManager;
 import org.server.entityManager.EntityManagerImpl;
+import org.server.processors.ClassProcessor;
+import org.server.processors.MethodProcessor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +52,9 @@ public class Conqueror {
                 JsonMapper.getInstance(),
                 primitiveParser
         );
-        JsonServiceImpl.init(JsonParser.getInstance());
+        JsonServiceImpl.init(
+                JsonParser.getInstance()
+        );
         JsonService jsonService = JsonServiceImpl.getInstance();
 
         //*EntityManager Initialization, Entities registering in Database
@@ -58,8 +62,18 @@ public class Conqueror {
         EntityManager entityManager = EntityManagerImpl.getInstance();
         entityManager.registerEntityClass(TestObject.class);
 
+        //*Method, ClassProcessors initialization
+        MethodProcessor.init();
+        MethodProcessor methodProcessor = MethodProcessor.getInstance();
+        ClassProcessor.init(
+                methodProcessor
+        );
+        ClassProcessor classProcessor = ClassProcessor.getInstance();
+
         //*ControllerManager Initialization
-        ControllerManagerImpl.init();
+        ControllerManagerImpl.init(
+                classProcessor
+        );
         ControllerManager controllerManager = ControllerManagerImpl.getInstance();
         controllerManager.registerController(TestObjectController.class);
 

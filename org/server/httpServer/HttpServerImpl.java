@@ -2,8 +2,8 @@ package org.server.httpServer;
 
 import org.server.configuration.Configuration;
 import org.server.controllerManager.ControllerManager;
-import org.server.controllerManager.ControllerTemplate;
-import org.server.controllerManager.MappingMethod;
+import org.server.metadata.ClassMetaData;
+import org.server.metadata.MethodMetaData;
 import org.server.entityManager.EntityManager;
 import org.server.httpServer.request.transformationHandler.TransformationHandler;
 import org.server.httpServer.request.httpRequest.HttpRequest;
@@ -14,15 +14,11 @@ import org.server.httpServer.response.httpResponse.HttpResponseFactory;
 import org.server.httpServer.route.Route;
 import org.server.httpServer.route.RouteHandler;
 import org.server.jsonService.JsonService;
-import org.server.jsonService.json.parser.JsonParser;
-import org.server.jsonService.json.types.JsonType;
 import org.server.primitiveParser.PrimitiveParser;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -132,9 +128,9 @@ public class HttpServerImpl implements HttpServer {
     }
 
     private HttpResponse handleResponse(Route route) throws Exception {
-        ControllerTemplate controllerTemplate = this.CONTROLLER_MANAGER
+        ClassMetaData classMetadata = this.CONTROLLER_MANAGER
                 .request(route.getControllerRoute().getRoute(), this.CONTROLLER_MANAGER.getControllers());
-        MappingMethod mappingMethod = this.CONTROLLER_MANAGER.request(route.getMappedMethodRoute().getRoute(), controllerTemplate.getMappingMethods());
+        MethodMetaData methodMetadata = this.CONTROLLER_MANAGER.request(route.getMappedMethodRoute().getRoute(), classMetadata.getMethodsMetaData());
         Object responseBody;
 
         if(route.getPathVariables().length > 0){
@@ -143,13 +139,13 @@ public class HttpServerImpl implements HttpServer {
                     .map(pv -> this.PRIMITIVE_PARSER.parse(pv.value()))
                     .toList();
 
-            responseBody = controllerTemplate.getControllerClass()
-                    .getMethod(mappingMethod.getName(), mappingMethod.getParameters())
-                    .invoke(controllerTemplate.getControllerClass(), vars.toArray(new Object[0]));
+            responseBody = classMetadata.getClassOf()
+                    .getMethod(methodMetadata.getName(), methodMetadata.getParameters())
+                    .invoke(classMetadata.getClassOf(), vars.toArray(new Object[0]));
         } else {
-            responseBody = controllerTemplate.getControllerClass()
-                    .getMethod(mappingMethod.getName())
-                    .invoke(controllerTemplate.getControllerClass());
+            responseBody = classMetadata.getClassOf()
+                    .getMethod(methodMetadata.getName())
+                    .invoke(classMetadata.getClassOf());
         }
 
         return HttpResponseFactory.create(

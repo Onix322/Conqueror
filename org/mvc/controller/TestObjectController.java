@@ -1,8 +1,8 @@
 package org.mvc.controller;
 
 import org.mvc.entities.TestObject;
-import org.server.annotations.controller.Controller;
-import org.server.annotations.controller.mapping.GetMapping;
+import org.server.processors.annotations.controller.Controller;
+import org.server.processors.annotations.controller.mapping.GetMapping;
 import org.server.httpServer.response.HttpStatus;
 import org.server.responseEntity.ResponseEntity;
 

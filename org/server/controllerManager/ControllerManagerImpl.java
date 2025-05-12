@@ -1,25 +1,20 @@
 package org.server.controllerManager;
 
-import org.server.annotations.controller.Controller;
-import org.server.annotations.controller.mapping.Mapping;
-import org.server.exepltions.DuplicateMappingMethod;
-import org.server.httpServer.HttpMethod;
+import org.server.processors.ClassProcessor;
+import org.server.processors.annotations.controller.Controller;
+import org.server.metadata.ClassMetaData;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ControllerManagerImpl implements ControllerManager {
 
-    private final Map<String, ControllerTemplate> CONTROLLERS;
+    private final Map<String, ClassMetaData> CONTROLLERS;
+    private final ClassProcessor PROCESSOR;
 
-    private ControllerManagerImpl() {
+    private ControllerManagerImpl(ClassProcessor processor) {
+        this.PROCESSOR = processor;
         this.CONTROLLERS = new LinkedHashMap<>();
     }
 
@@ -27,9 +22,9 @@ public class ControllerManagerImpl implements ControllerManager {
         private static ControllerManagerImpl INSTANCE = null;
     }
 
-    public static synchronized void init() {
+    public static synchronized void init(ClassProcessor processor) {
         if (Init.INSTANCE == null) {
-            Init.INSTANCE = new ControllerManagerImpl();
+            Init.INSTANCE = new ControllerManagerImpl(processor);
         }
     }
 
@@ -41,15 +36,16 @@ public class ControllerManagerImpl implements ControllerManager {
     }
 
     @Override
-    public Map<String, ControllerTemplate> getControllers() {
+    public Map<String, ClassMetaData> getControllers() {
         return Map.copyOf(this.CONTROLLERS);
     }
 
     @Override
-    public ControllerTemplate requestController(String path) {
+    public ClassMetaData requestController(String path) {
         return this.CONTROLLERS.get(path);
     }
 
+    @Override
     public <E, T extends Map<String, E>> E request(String path, T map){
         String key = "";
         for (String cKey : map.keySet()) {
@@ -61,54 +57,17 @@ public class ControllerManagerImpl implements ControllerManager {
         return map.get(key);
     }
 
-    @Override
-    public ControllerManager registerController(Class<?> clazz) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public <T> ControllerManager registerController(Class<T> clazz) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if (!clazz.isAnnotationPresent(Controller.class)) {
             throw new IllegalArgumentException(clazz + " doesn't have a @Controller(value = String) annotation");
         }
+        ClassMetaData classMetaData = this.PROCESSOR.process(clazz, Controller.class);
 
-        Annotation annotation = clazz.getAnnotation(Controller.class);
-        Method valueMethod = annotation.getClass().getDeclaredMethod("value");
-        String value = (String) valueMethod.invoke(annotation);
+        this.CONTROLLERS.put(
+                classMetaData.getPath(),
+                classMetaData
+        );
 
-        ControllerTemplate controllerTemplate = new ControllerTemplate(value, clazz, this.getMappedMethods(clazz));
-        this.CONTROLLERS.put(value, controllerTemplate);
         return this;
-    }
-
-    private Map<String, MappingMethod> getMappedMethods(Class<?> clazz) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        Map<String, MappingMethod> mappedMethods = new LinkedHashMap<>();
-        Method[] methods = clazz.getDeclaredMethods();
-        for (Method method : methods) {
-            if (!Modifier.isPublic(method.getModifiers())) continue;
-            Set<Annotation> annotations = Arrays.stream(method.getDeclaredAnnotations())
-                    .filter(a -> a.annotationType().isAnnotationPresent(Mapping.class))
-                    .collect(Collectors.toSet());
-            if (annotations.isEmpty()) continue;
-
-            this.getMappedMethods(annotations, method, mappedMethods, clazz);
-        }
-        return mappedMethods;
-    }
-
-    private void getMappedMethods(Set<Annotation> annotations, Method method, Map<String, MappingMethod> mappedMethods, Class<?> clazz) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-        Class<?>[] parameters = method.getParameterTypes();
-        Class<?> returnType = method.getReturnType();
-
-        for (Annotation annotation : annotations) {
-
-            Method valueMethod = annotation.annotationType().getDeclaredMethod("value");
-            String value = (String) valueMethod.invoke(annotation);
-
-            Method gotHttpMethod = annotation.annotationType().getDeclaredMethod("httpMethod");
-            HttpMethod httpMethod = (HttpMethod) gotHttpMethod.invoke(annotation);
-
-            MappingMethod mappingMethod = new MappingMethod(value, method.getName(), parameters, returnType, httpMethod);
-            if (mappedMethods.containsKey(value)) {
-                throw new DuplicateMappingMethod(clazz + " has duplicated mapping annotation: " + annotation);
-            }
-            mappedMethods.put(value, mappingMethod);
-        }
     }
 }

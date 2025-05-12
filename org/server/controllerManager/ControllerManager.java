@@ -1,16 +1,15 @@
 package org.server.controllerManager;
 
-import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
+import org.server.metadata.ClassMetaData;
+
 import java.util.Map;
-import java.util.Set;
 
 public interface ControllerManager {
-    Map<String, ControllerTemplate> getControllers();
+    Map<String, ClassMetaData> getControllers();
 
-    ControllerTemplate requestController(String path);
+    ClassMetaData requestController(String path);
 
     <E, T extends Map<String, E>> E request(String path, T map);
 
-    ControllerManager registerController(Class<?> clazz) throws Exception;
+    <T> ControllerManager registerController(Class<T> clazz) throws Exception;
 }

@@ -1,17 +1,17 @@
-package org.server.controllerManager;
+package org.server.metadata;
 
 import org.server.httpServer.HttpMethod;
 
 import java.util.Arrays;
 
-public class MappingMethod {
+public class MethodMetaData implements MetaData<MethodMetaData> {
     private String path;
     private String name;
     private Class<?>[] parameters;
     private Class<?> returnType;
     private HttpMethod httpMethod;
 
-    public MappingMethod(String path, String name, Class<?>[] parameters, Class<?> returnType, HttpMethod httpMethod) {
+    public MethodMetaData(String path, String name, Class<?>[] parameters, Class<?> returnType, HttpMethod httpMethod) {
         this.path = path;
         this.name = name;
         this.parameters = parameters;
@@ -68,5 +68,10 @@ public class MappingMethod {
                 ", returnType=" + returnType +
                 ", httpMethod=" + httpMethod +
                 '}';
+    }
+
+    @Override
+    public MethodMetaData getMetaData() {
+        return this;
     }
 }

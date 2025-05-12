@@ -1,13 +1,11 @@
-package org.server.annotations.controller;
+package org.server.processors.annotations.controller.mapping;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-
-public @interface Controller {
-    String value();
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface Mapping {
 }
