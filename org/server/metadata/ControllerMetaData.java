@@ -1,23 +1,25 @@
 package org.server.metadata;
 
+import org.server.httpServer.route.ControllerRoute;
+
 import java.util.Map;
 
-public class ClassMetaData implements MetaData<ClassMetaData> {
-    private String path;
+public class ControllerMetaData implements MetaData<ControllerMetaData> {
+    private ControllerRoute path;
     private Class<?> clazz;
     private Map<String, MethodMetaData> mappingMethods;
 
-    public ClassMetaData(String path, Class<?> clazz, Map<String, MethodMetaData> mappingMethods) {
+    public ControllerMetaData(ControllerRoute path, Class<?> clazz, Map<String, MethodMetaData> mappingMethods) {
         this.path = path;
         this.clazz = clazz;
         this.mappingMethods = mappingMethods;
     }
 
-    public String getPath() {
+    public ControllerRoute getPath() {
         return path;
     }
 
-    public void setPath(String path) {
+    public void setPath(ControllerRoute path) {
         this.path = path;
     }
 
@@ -55,7 +57,7 @@ public class ClassMetaData implements MetaData<ClassMetaData> {
     }
 
     @Override
-    public ClassMetaData getMetaData() {
+    public ControllerMetaData getMetaData() {
         return this;
     }
 }

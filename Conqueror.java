@@ -10,6 +10,7 @@ import org.server.httpServer.route.RouteHandler;
 import org.server.jsonService.JsonService;
 import org.server.jsonService.JsonServiceImpl;
 import org.server.jsonService.json.mapper.JsonMapper;
+import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
 import org.server.jsonService.json.mapper.ObjectMapper;
 import org.server.jsonService.json.parser.JsonParser;
@@ -20,6 +21,7 @@ import org.server.entityManager.EntityManager;
 import org.server.entityManager.EntityManagerImpl;
 import org.server.processors.ClassProcessor;
 import org.server.processors.MethodProcessor;
+import org.server.processors.RouteProcessor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,10 +87,15 @@ public class Conqueror {
         TransformationHandler transformationHandler = TransformationHandler.getInstance();
 
         //*RouteHandler Initialization
-        RouteHandler.init(
-                controllerManager
-        );
+        RouteHandler.init();
         RouteHandler routeHandler = RouteHandler.getInstance();
+
+        //*RouteProcessor Initialization
+        RouteProcessor.init(
+                controllerManager,
+                primitiveParser
+        );
+        RouteProcessor routeProcessor = RouteProcessor.getInstance();
 
         //*HTTP SERVER CREATE
         //TODO - annotations for Controllers
@@ -101,7 +108,8 @@ public class Conqueror {
                 transformationHandler,
                 routeHandler,
                 primitiveParser,
-                jsonService
+                jsonService,
+                routeProcessor
         );
         HttpServer httpServer = HttpServerImpl.getInstance();
 

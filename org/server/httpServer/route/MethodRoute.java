@@ -1,9 +1,9 @@
 package org.server.httpServer.route;
 
-public class MappingMethodRoute {
+public class MethodRoute {
     private String route;
 
-    public MappingMethodRoute(String route) {
+    public MethodRoute(String route) {
         this.route = route;
     }
 
@@ -17,7 +17,7 @@ public class MappingMethodRoute {
 
     @Override
     public String toString() {
-        return "MappingMethodRoute{" +
+        return "MethodRoute{" +
                 "route='" + route + '\'' +
                 '}';
     }

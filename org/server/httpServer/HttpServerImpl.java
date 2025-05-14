@@ -2,7 +2,8 @@ package org.server.httpServer;
 
 import org.server.configuration.Configuration;
 import org.server.controllerManager.ControllerManager;
-import org.server.metadata.ClassMetaData;
+import org.server.httpServer.route.PathVariable;
+import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
 import org.server.entityManager.EntityManager;
 import org.server.httpServer.request.transformationHandler.TransformationHandler;
@@ -11,10 +12,11 @@ import org.server.httpServer.response.HttpConnectionType;
 import org.server.httpServer.response.HttpStatus;
 import org.server.httpServer.response.httpResponse.HttpResponse;
 import org.server.httpServer.response.httpResponse.HttpResponseFactory;
-import org.server.httpServer.route.Route;
 import org.server.httpServer.route.RouteHandler;
 import org.server.jsonService.JsonService;
+import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
+import org.server.processors.RouteProcessor;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -37,8 +39,9 @@ public class HttpServerImpl implements HttpServer {
     private final RouteHandler ROUTE_HANDLER;
     private final PrimitiveParser PRIMITIVE_PARSER;
     private final JsonService JSON_SERVICE;
+    private final RouteProcessor ROUTE_PROCESSOR;
 
-    private HttpServerImpl(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, PrimitiveParser primitiveParser, JsonService jsonService) {
+    private HttpServerImpl(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, PrimitiveParser primitiveParser, JsonService jsonService, RouteProcessor routeProcessor) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
         this.ENTITY_MANAGER = entityManager;
@@ -47,16 +50,17 @@ public class HttpServerImpl implements HttpServer {
         this.ROUTE_HANDLER = routeHandler;
         this.PRIMITIVE_PARSER = primitiveParser;
         this.JSON_SERVICE = jsonService;
+        this.ROUTE_PROCESSOR = routeProcessor;
     }
 
     private static class Init {
         private static HttpServerImpl instance;
     }
 
-    public synchronized static void init(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, PrimitiveParser primitiveParser, JsonService jsonService) {
+    public synchronized static void init(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, PrimitiveParser primitiveParser, JsonService jsonService, RouteProcessor routeProcessor) {
         if (Init.instance == null) {
             System.out.println("Setting up server configuration...");
-            Init.instance = new HttpServerImpl(configuration, executorService, entityManager, controllerManager, transformationHandler, routeHandler, primitiveParser, jsonService);
+            Init.instance = new HttpServerImpl(configuration, executorService, entityManager, controllerManager, transformationHandler, routeHandler, primitiveParser, jsonService, routeProcessor);
         }
     }
 
@@ -102,10 +106,10 @@ public class HttpServerImpl implements HttpServer {
             try (clientSocket) {
                 //* STEP 1: handle request
                 HttpRequest request = this.handleRequest(clientSocket);
-                Route route = this.ROUTE_HANDLER.handleRouting(request);
-
+                RouteMetaData routeMetaData = this.ROUTE_PROCESSOR.process(request);
+                System.out.println(routeMetaData);
                 //* STEP 2: handle response based on request
-                HttpResponse response = this.handleResponse(route);
+                HttpResponse response = this.handleResponse(routeMetaData);
 
                 //* STEP 3: send response
                 this.sendResponse(clientSocket, response);
@@ -127,25 +131,24 @@ public class HttpServerImpl implements HttpServer {
         return httpRequest;
     }
 
-    private HttpResponse handleResponse(Route route) throws Exception {
-        ClassMetaData classMetadata = this.CONTROLLER_MANAGER
-                .request(route.getControllerRoute().getRoute(), this.CONTROLLER_MANAGER.getControllers());
-        MethodMetaData methodMetadata = this.CONTROLLER_MANAGER.request(route.getMappedMethodRoute().getRoute(), classMetadata.getMethodsMetaData());
+    private HttpResponse handleResponse(RouteMetaData route) throws Exception {
+        ControllerMetaData controllerMetadata = route.getControllerMetaData();
+        MethodMetaData methodMetadata = route.getMethodMetaData();
         Object responseBody;
 
         if(route.getPathVariables().length > 0){
 
-            List<?> vars = Arrays.stream(route.getPathVariables())
-                    .map(pv -> this.PRIMITIVE_PARSER.parse(pv.value()))
+            List<Object> vars = Arrays.stream(route.getPathVariables())
+                    .map(PathVariable::value)
                     .toList();
 
-            responseBody = classMetadata.getClassOf()
+            responseBody = controllerMetadata.getClassOf()
                     .getMethod(methodMetadata.getName(), methodMetadata.getParameters())
-                    .invoke(classMetadata.getClassOf(), vars.toArray(new Object[0]));
+                    .invoke(controllerMetadata.getClassOf(), vars.toArray(new Object[0]));
         } else {
-            responseBody = classMetadata.getClassOf()
+            responseBody = controllerMetadata.getClassOf()
                     .getMethod(methodMetadata.getName())
-                    .invoke(classMetadata.getClassOf());
+                    .invoke(controllerMetadata.getClassOf());
         }
 
         return HttpResponseFactory.create(

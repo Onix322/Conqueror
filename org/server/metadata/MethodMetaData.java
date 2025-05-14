@@ -1,17 +1,18 @@
 package org.server.metadata;
 
 import org.server.httpServer.HttpMethod;
+import org.server.httpServer.route.MethodRoute;
 
 import java.util.Arrays;
 
 public class MethodMetaData implements MetaData<MethodMetaData> {
-    private String path;
+    private MethodRoute path;
     private String name;
     private Class<?>[] parameters;
     private Class<?> returnType;
     private HttpMethod httpMethod;
 
-    public MethodMetaData(String path, String name, Class<?>[] parameters, Class<?> returnType, HttpMethod httpMethod) {
+    public MethodMetaData(MethodRoute path, String name, Class<?>[] parameters, Class<?> returnType, HttpMethod httpMethod) {
         this.path = path;
         this.name = name;
         this.parameters = parameters;
@@ -19,11 +20,11 @@ public class MethodMetaData implements MetaData<MethodMetaData> {
         this.httpMethod = httpMethod;
     }
 
-    public String getPath() {
+    public MethodRoute getPath() {
         return path;
     }
 
-    public void setPath(String path) {
+    public void setPath(MethodRoute path) {
         this.path = path;
     }
 
@@ -62,7 +63,7 @@ public class MethodMetaData implements MetaData<MethodMetaData> {
     @Override
     public String toString() {
         return "MappingMethod{" +
-                "path='" + path + '\'' +
+                "MethodRoute='" + path+ '\'' +
                 ", name='" + name + '\'' +
                 ", parameters=" + Arrays.toString(parameters) +
                 ", returnType=" + returnType +

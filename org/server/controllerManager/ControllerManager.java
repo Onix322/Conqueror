@@ -1,13 +1,14 @@
 package org.server.controllerManager;
 
-import org.server.metadata.ClassMetaData;
+import org.server.httpServer.route.ControllerRoute;
+import org.server.metadata.ControllerMetaData;
 
 import java.util.Map;
 
 public interface ControllerManager {
-    Map<String, ClassMetaData> getControllers();
+    Map<String, ControllerMetaData> getControllers();
 
-    ClassMetaData requestController(String path);
+    ControllerMetaData requestController(ControllerRoute route);
 
     <E, T extends Map<String, E>> E request(String path, T map);
 

@@ -1,8 +1,9 @@
 package org.server.controllerManager;
 
+import org.server.httpServer.route.ControllerRoute;
 import org.server.processors.ClassProcessor;
 import org.server.processors.annotations.controller.Controller;
-import org.server.metadata.ClassMetaData;
+import org.server.metadata.ControllerMetaData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 public class ControllerManagerImpl implements ControllerManager {
 
-    private final Map<String, ClassMetaData> CONTROLLERS;
+    private final Map<String, ControllerMetaData> CONTROLLERS;
     private final ClassProcessor PROCESSOR;
 
     private ControllerManagerImpl(ClassProcessor processor) {
@@ -36,13 +37,13 @@ public class ControllerManagerImpl implements ControllerManager {
     }
 
     @Override
-    public Map<String, ClassMetaData> getControllers() {
+    public Map<String, ControllerMetaData> getControllers() {
         return Map.copyOf(this.CONTROLLERS);
     }
 
     @Override
-    public ClassMetaData requestController(String path) {
-        return this.CONTROLLERS.get(path);
+    public ControllerMetaData requestController(ControllerRoute route) {
+        return this.CONTROLLERS.get(route.getRoute());
     }
 
     @Override
@@ -61,11 +62,11 @@ public class ControllerManagerImpl implements ControllerManager {
         if (!clazz.isAnnotationPresent(Controller.class)) {
             throw new IllegalArgumentException(clazz + " doesn't have a @Controller(value = String) annotation");
         }
-        ClassMetaData classMetaData = this.PROCESSOR.process(clazz, Controller.class);
+        ControllerMetaData controllerMetaData = this.PROCESSOR.process(clazz, Controller.class);
 
         this.CONTROLLERS.put(
-                classMetaData.getPath(),
-                classMetaData
+                controllerMetaData.getPath().getRoute(),
+                controllerMetaData
         );
 
         return this;

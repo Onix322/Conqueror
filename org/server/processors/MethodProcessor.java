@@ -2,6 +2,8 @@ package org.server.processors;
 
 import org.server.exepltions.DuplicateMappingMethod;
 import org.server.httpServer.HttpMethod;
+import org.server.httpServer.route.MethodRoute;
+import org.server.metadata.MetaData;
 import org.server.metadata.MethodMetaData;
 
 import java.lang.annotation.Annotation;
@@ -54,11 +56,11 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>>{
 
                 Method valueMethod = annotation.annotationType().getDeclaredMethod("value");
                 String value = (String) valueMethod.invoke(annotation);
-
+                MethodRoute methodRoute = new MethodRoute(value);
                 Method gotHttpMethod = annotation.annotationType().getDeclaredMethod("httpMethod");
                 HttpMethod httpMethod = (HttpMethod) gotHttpMethod.invoke(annotation);
 
-                MethodMetaData methodMetadata = new MethodMetaData(value, method.getName(), parameters, returnType, httpMethod);
+                MethodMetaData methodMetadata = new MethodMetaData(methodRoute, method.getName(), parameters, returnType, httpMethod);
                 if (mappedMethods.containsKey(value)) {
                     throw new DuplicateMappingMethod(clazz + " has duplicated mapping annotation: " + annotation);
                 }

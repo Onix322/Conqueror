@@ -1,4 +1,4 @@
 package org.server.httpServer.route;
 
-public record PathVariable(String name, String value) {
+public record PathVariable(String name, Object value) {
 }

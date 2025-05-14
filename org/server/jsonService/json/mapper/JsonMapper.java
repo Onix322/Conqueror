@@ -41,7 +41,6 @@ public class JsonMapper {
 
     public JsonObject toJsonObject(Object o) throws Exception {
         List<JsonProperty> properties = new LinkedList<>();
-        System.out.println("DEBUG" + o);
         Field[] fields = o.getClass().getDeclaredFields();
 
         for (Field field : fields) {
