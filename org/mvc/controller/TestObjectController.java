@@ -14,7 +14,7 @@ public class TestObjectController {
         return ResponseEntity.<String>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData("This is the second message")
+                .setData("This is the first message")
                 .build();
     }
 
