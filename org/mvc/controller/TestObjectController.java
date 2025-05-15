@@ -35,4 +35,13 @@ public class TestObjectController {
                 .setData(new TestObject(name, integer))
                 .build();
     }
+
+    @GetMapping("/get-var-doi/{integer}/{string}")
+    public static ResponseEntity<TestObject> getWithVarDoi(Integer index, String name) {
+        return ResponseEntity.<TestObject>builder()
+                .setHttpStatus(HttpStatus.OK.getCode())
+                .setMessage(HttpStatus.OK.getMessage())
+                .setData(new TestObject(name, index))
+                .build();
+    }
 }

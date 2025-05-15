@@ -30,7 +30,6 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>>{
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static MethodProcessor getInstance(){
         if(Init.INSTANCE == null){
             throw new IllegalStateException("ClassProcessor not initialized. Use ClassProcessor.init()");
@@ -53,12 +52,9 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>>{
             Class<?> returnType = method.getReturnType();
 
             for (Annotation annotation : annotations) {
-
-                Method valueMethod = annotation.annotationType().getDeclaredMethod("value");
-                String value = (String) valueMethod.invoke(annotation);
+                String value = this.getAnnotationValue(annotation, "value", String.class);
                 MethodRoute methodRoute = new MethodRoute(value);
-                Method gotHttpMethod = annotation.annotationType().getDeclaredMethod("httpMethod");
-                HttpMethod httpMethod = (HttpMethod) gotHttpMethod.invoke(annotation);
+                HttpMethod httpMethod = this.getAnnotationValue(annotation, "httpMethod", HttpMethod.class);
 
                 MethodMetaData methodMetadata = new MethodMetaData(methodRoute, method.getName(), parameters, returnType, httpMethod);
                 if (mappedMethods.containsKey(value)) {
@@ -69,4 +65,11 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>>{
         }
         return mappedMethods;
     }
+
+    private <T> T getAnnotationValue(Annotation annotation, String methodName, Class<T> methodReturnType) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        Method gotMethod = annotation.annotationType().getDeclaredMethod(methodName);
+        Object value = gotMethod.invoke(annotation);
+
+        return methodReturnType.cast(value);
+    };
 }
