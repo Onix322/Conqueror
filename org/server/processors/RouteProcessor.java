@@ -88,8 +88,6 @@ public class RouteProcessor {
                     .toLowerCase(Locale.ROOT);
         }
 
-        System.out.println(path);
-
         Map<String, MethodMetaData> methods = controllerMetaData.getMethodsMetaData();
 
         List<String> fragments = new ArrayList<>(Arrays.stream(this.pathFragments(path)).toList());
@@ -128,19 +126,26 @@ public class RouteProcessor {
         List<String> stFragments = Arrays.stream(this.pathFragments(startLine.getPath().getRawPath())).toList();
         List<String> rFragments = Arrays.stream(this.pathFragments(route)).toList();
 
+        System.out.println(stFragments);
+        System.out.println(rFragments);
+
         Queue<PathVariable> variables = new ArrayDeque<>();
 
         for (int i = 0; i < rFragments.size(); i++) {
-            String rv = rFragments.get(i).replaceAll("[/{}]", "");
-            String stv = stFragments.get(i).replaceAll("/", "");
+            String rv = rFragments.get(i);
+            String stv = stFragments.get(i);
 
             if (!rv.equals(stv)) {
-                Object parsedVar = this.PRIMITIVE_PARSER.parse(stv);
-                PathVariable pathVariable = new PathVariable(rv, parsedVar);
+                Object parsedVar = this.PRIMITIVE_PARSER.parse(stv.replaceAll("/", ""));
+                PathVariable pathVariable = new PathVariable(
+                        rv.replaceAll("[/{}]", ""),
+                        parsedVar
+                );
                 variables.add(pathVariable);
             }
         }
 
+        System.out.println(variables);
         return variables.toArray(PathVariable[]::new);
     }
 

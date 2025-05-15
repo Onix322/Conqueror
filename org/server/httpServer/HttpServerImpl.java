@@ -107,7 +107,7 @@ public class HttpServerImpl implements HttpServer {
                 //* STEP 1: handle request
                 HttpRequest request = this.handleRequest(clientSocket);
                 RouteMetaData routeMetaData = this.ROUTE_PROCESSOR.process(request);
-                System.out.println(routeMetaData);
+//                System.out.println(routeMetaData);
                 //* STEP 2: handle response based on request
                 HttpResponse response = this.handleResponse(routeMetaData);
 

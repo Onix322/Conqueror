@@ -36,6 +36,8 @@ public class TestObjectController {
                 .build();
     }
 
+    //TODO Make mapping annotations to take Types form methods e.g:
+    //TODO @GetMapping("/get-var-doi", Integer.class, String.class)
     @GetMapping("/get-var-doi/{integer}/{string}")
     public static ResponseEntity<TestObject> getWithVarDoi(Integer index, String name) {
         return ResponseEntity.<TestObject>builder()
