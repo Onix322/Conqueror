@@ -3,7 +3,6 @@ package org.server.processors;
 import org.server.exepltions.DuplicateMappingMethod;
 import org.server.httpServer.HttpMethod;
 import org.server.httpServer.route.MethodRoute;
-import org.server.metadata.MetaData;
 import org.server.metadata.MethodMetaData;
 
 import java.lang.annotation.Annotation;
@@ -16,22 +15,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MethodProcessor implements Processor<Map<String, MethodMetaData>>{
+public class MethodProcessor implements Processor<Map<String, MethodMetaData>> {
 
-    private MethodProcessor(){};
+    private MethodProcessor() {
+    }
 
-    private static class Init{
+    ;
+
+    private static class Init {
         private static MethodProcessor INSTANCE = null;
     }
 
-    public synchronized static void init(){
-        if(Init.INSTANCE == null){
+    public synchronized static void init() {
+        if (Init.INSTANCE == null) {
             Init.INSTANCE = new MethodProcessor();
         }
     }
 
-    public static MethodProcessor getInstance(){
-        if(Init.INSTANCE == null){
+    public static MethodProcessor getInstance() {
+        if (Init.INSTANCE == null) {
             throw new IllegalStateException("ClassProcessor not initialized. Use ClassProcessor.init()");
         }
         return Init.INSTANCE;
@@ -71,5 +73,7 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>>{
         Object value = gotMethod.invoke(annotation);
 
         return methodReturnType.cast(value);
-    };
+    }
+
+    ;
 }

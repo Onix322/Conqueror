@@ -1,16 +1,15 @@
 import org.mvc.controller.TestObjectController;
 import org.server.controllerManager.ControllerManager;
 import org.server.controllerManager.ControllerManagerImpl;
+import org.server.handlers.RouteHandler;
 import org.server.httpServer.HttpServer;
 import org.server.httpServer.HttpServerImpl;
 import org.server.configuration.Configuration;
 import org.server.configuration.ConfigurationImpl;
 import org.server.httpServer.request.transformationHandler.TransformationHandler;
-import org.server.httpServer.route.RouteHandler;
 import org.server.jsonService.JsonService;
 import org.server.jsonService.JsonServiceImpl;
 import org.server.jsonService.json.mapper.JsonMapper;
-import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
 import org.server.jsonService.json.mapper.ObjectMapper;
 import org.server.jsonService.json.parser.JsonParser;

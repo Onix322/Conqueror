@@ -4,6 +4,7 @@ import org.mvc.entities.TestObject;
 import org.server.processors.annotations.controller.Controller;
 import org.server.processors.annotations.controller.mapping.GetMapping;
 import org.server.httpServer.response.HttpStatus;
+import org.server.processors.annotations.controller.mapping.PostMapping;
 import org.server.responseEntity.ResponseEntity;
 
 @Controller("/test-object")
@@ -27,7 +28,7 @@ public class TestObjectController {
                 .build();
     }
 
-    @GetMapping("/get-var/{integer}/{string}")
+    @GetMapping("/get/{integer}/{string}")
     public static ResponseEntity<TestObject> getWithVar(Integer integer, String name) {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
@@ -36,14 +37,12 @@ public class TestObjectController {
                 .build();
     }
 
-    //TODO Make mapping annotations to take Types form methods e.g:
-    //TODO @GetMapping("/get-var-doi", Integer.class, String.class)
-    @GetMapping("/get-var-doi/{integer}/{string}")
-    public static ResponseEntity<TestObject> getWithVarDoi(Integer index, String name) {
+    @PostMapping
+    public static ResponseEntity<TestObject> create(TestObject testObject) {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData(new TestObject(name, index))
+                .setData(testObject)
                 .build();
     }
 }

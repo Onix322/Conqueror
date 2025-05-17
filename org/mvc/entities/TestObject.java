@@ -7,7 +7,7 @@ public class TestObject {
     private String hello;
     private Integer number;
 
-    private TestObject() {
+    public TestObject() {
     }
 
     public TestObject(String hello, Integer number) {

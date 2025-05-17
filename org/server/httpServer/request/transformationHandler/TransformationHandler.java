@@ -75,6 +75,7 @@ public class TransformationHandler {
             throw new MissingHttpStartLine("No StartLine found in http request");
         }
 
+        //if HttpMethod == GET jump over body
         if(startLine.getMethod().equals(HttpMethod.GET)){
             return HttpRequest.builder()
                     .setHttpRequestHeader(headers)

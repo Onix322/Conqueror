@@ -2,18 +2,16 @@ package org.server.httpServer;
 
 import org.server.configuration.Configuration;
 import org.server.controllerManager.ControllerManager;
-import org.server.httpServer.route.PathVariable;
-import org.server.metadata.ControllerMetaData;
-import org.server.metadata.MethodMetaData;
 import org.server.entityManager.EntityManager;
-import org.server.httpServer.request.transformationHandler.TransformationHandler;
+import org.server.handlers.RouteHandler;
 import org.server.httpServer.request.httpRequest.HttpRequest;
+import org.server.httpServer.request.transformationHandler.TransformationHandler;
 import org.server.httpServer.response.HttpConnectionType;
 import org.server.httpServer.response.HttpStatus;
 import org.server.httpServer.response.httpResponse.HttpResponse;
 import org.server.httpServer.response.httpResponse.HttpResponseFactory;
-import org.server.httpServer.route.RouteHandler;
 import org.server.jsonService.JsonService;
+import org.server.jsonService.json.types.JsonType;
 import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
 import org.server.processors.RouteProcessor;
@@ -25,8 +23,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class HttpServerImpl implements HttpServer {
@@ -109,7 +105,7 @@ public class HttpServerImpl implements HttpServer {
                 RouteMetaData routeMetaData = this.ROUTE_PROCESSOR.process(request);
 //                System.out.println(routeMetaData);
                 //* STEP 2: handle response based on request
-                HttpResponse response = this.handleResponse(routeMetaData);
+                HttpResponse response = this.handleResponse(routeMetaData, request);
 
                 //* STEP 3: send response
                 this.sendResponse(clientSocket, response);
@@ -131,32 +127,20 @@ public class HttpServerImpl implements HttpServer {
         return httpRequest;
     }
 
-    private HttpResponse handleResponse(RouteMetaData route) throws Exception {
-        ControllerMetaData controllerMetadata = route.getControllerMetaData();
-        MethodMetaData methodMetadata = route.getMethodMetaData();
-        Object responseBody;
-
-        if(route.getPathVariables().length > 0){
-
-            List<Object> vars = Arrays.stream(route.getPathVariables())
-                    .map(PathVariable::value)
-                    .toList();
-
-            responseBody = controllerMetadata.getClassOf()
-                    .getMethod(methodMetadata.getName(), methodMetadata.getParameters())
-                    .invoke(controllerMetadata.getClassOf(), vars.toArray(new Object[0]));
-        } else {
-            responseBody = controllerMetadata.getClassOf()
-                    .getMethod(methodMetadata.getName())
-                    .invoke(controllerMetadata.getClassOf());
+    private HttpResponse handleResponse(RouteMetaData route, HttpRequest request) throws Exception {
+        Object responseBody = this.ROUTE_HANDLER.handleRoute(route, request);
+        JsonType jsonResponse = null;
+        if(responseBody != null){
+            jsonResponse = this.JSON_SERVICE.mapJson(responseBody);
         }
 
+        System.out.println(jsonResponse);
         return HttpResponseFactory.create(
                 "HTTP/1.1",
                 HttpStatus.OK,
                 "application/json",
                 HttpConnectionType.CLOSED,
-                this.JSON_SERVICE.mapJson(responseBody)
+                jsonResponse
         );
     }
 
