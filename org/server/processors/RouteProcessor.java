@@ -126,9 +126,6 @@ public class RouteProcessor {
         List<String> stFragments = Arrays.stream(this.pathFragments(startLine.getPath().getRawPath())).toList();
         List<String> rFragments = Arrays.stream(this.pathFragments(route)).toList();
 
-        System.out.println(stFragments);
-        System.out.println(rFragments);
-
         Queue<PathVariable> variables = new ArrayDeque<>();
 
         for (int i = 0; i < rFragments.size(); i++) {
@@ -136,16 +133,13 @@ public class RouteProcessor {
             String stv = stFragments.get(i);
 
             if (!rv.equals(stv)) {
-                Object parsedVar = this.PRIMITIVE_PARSER.parse(stv.replaceAll("/", ""));
-                PathVariable pathVariable = new PathVariable(
-                        rv.replaceAll("[/{}]", ""),
-                        parsedVar
-                );
+                rv = rv.replaceAll("[/{}]", "");
+                stv = stv.replaceAll("/", "");
+                Object parsedVar = this.PRIMITIVE_PARSER.parse(stv);
+                PathVariable pathVariable = new PathVariable(rv, parsedVar);
                 variables.add(pathVariable);
             }
         }
-
-        System.out.println(variables);
         return variables.toArray(PathVariable[]::new);
     }
 
