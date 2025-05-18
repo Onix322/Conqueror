@@ -97,8 +97,6 @@ public class Conqueror {
         RouteProcessor routeProcessor = RouteProcessor.getInstance();
 
         //*HTTP SERVER CREATE
-        //TODO - annotations for Controllers
-        //TODO - annotations for HttpMethods
         HttpServerImpl.init(
                 configuration,
                 executorService,
@@ -106,7 +104,6 @@ public class Conqueror {
                 controllerManager,
                 transformationHandler,
                 routeHandler,
-                primitiveParser,
                 jsonService,
                 routeProcessor
         );

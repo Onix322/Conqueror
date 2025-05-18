@@ -20,8 +20,6 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>> {
     private MethodProcessor() {
     }
 
-    ;
-
     private static class Init {
         private static MethodProcessor INSTANCE = null;
     }

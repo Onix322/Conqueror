@@ -13,7 +13,6 @@ import org.server.httpServer.response.httpResponse.HttpResponseFactory;
 import org.server.jsonService.JsonService;
 import org.server.jsonService.json.types.JsonType;
 import org.server.metadata.RouteMetaData;
-import org.server.primitiveParser.PrimitiveParser;
 import org.server.processors.RouteProcessor;
 
 import java.io.BufferedReader;
@@ -33,18 +32,16 @@ public class HttpServerImpl implements HttpServer {
     private final ControllerManager CONTROLLER_MANAGER;
     private final TransformationHandler TRANSFORMATION_HANDLER;
     private final RouteHandler ROUTE_HANDLER;
-    private final PrimitiveParser PRIMITIVE_PARSER;
     private final JsonService JSON_SERVICE;
     private final RouteProcessor ROUTE_PROCESSOR;
 
-    private HttpServerImpl(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, PrimitiveParser primitiveParser, JsonService jsonService, RouteProcessor routeProcessor) {
+    private HttpServerImpl(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, JsonService jsonService, RouteProcessor routeProcessor) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
         this.ENTITY_MANAGER = entityManager;
         this.CONTROLLER_MANAGER = controllerManager;
         this.TRANSFORMATION_HANDLER = transformationHandler;
         this.ROUTE_HANDLER = routeHandler;
-        this.PRIMITIVE_PARSER = primitiveParser;
         this.JSON_SERVICE = jsonService;
         this.ROUTE_PROCESSOR = routeProcessor;
     }
@@ -53,10 +50,10 @@ public class HttpServerImpl implements HttpServer {
         private static HttpServerImpl instance;
     }
 
-    public synchronized static void init(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, PrimitiveParser primitiveParser, JsonService jsonService, RouteProcessor routeProcessor) {
+    public synchronized static void init(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, JsonService jsonService, RouteProcessor routeProcessor) {
         if (Init.instance == null) {
             System.out.println("Setting up server configuration...");
-            Init.instance = new HttpServerImpl(configuration, executorService, entityManager, controllerManager, transformationHandler, routeHandler, primitiveParser, jsonService, routeProcessor);
+            Init.instance = new HttpServerImpl(configuration, executorService, entityManager, controllerManager, transformationHandler, routeHandler, jsonService, routeProcessor);
         }
     }
 
@@ -130,7 +127,7 @@ public class HttpServerImpl implements HttpServer {
     private HttpResponse handleResponse(RouteMetaData route, HttpRequest request) throws Exception {
         Object responseBody = this.ROUTE_HANDLER.handleRoute(route, request);
         JsonType jsonResponse = null;
-        if(responseBody != null){
+        if (responseBody != null) {
             jsonResponse = this.JSON_SERVICE.mapJson(responseBody);
         }
 
