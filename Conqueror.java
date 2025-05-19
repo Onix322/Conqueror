@@ -1,26 +1,27 @@
 import org.mvc.controller.TestObjectController;
+import org.mvc.entities.TestObject;
+import org.server.configuration.Configuration;
+import org.server.configuration.ConfigurationImpl;
 import org.server.controllerManager.ControllerManager;
 import org.server.controllerManager.ControllerManagerImpl;
+import org.server.entityManager.EntityManager;
+import org.server.entityManager.EntityManagerImpl;
 import org.server.handlers.RouteHandler;
 import org.server.httpServer.HttpServer;
 import org.server.httpServer.HttpServerImpl;
-import org.server.configuration.Configuration;
-import org.server.configuration.ConfigurationImpl;
 import org.server.httpServer.request.transformationHandler.TransformationHandler;
 import org.server.jsonService.JsonService;
 import org.server.jsonService.JsonServiceImpl;
+import org.server.jsonService.json.formatter.JsonFormat;
 import org.server.jsonService.json.mapper.JsonMapper;
-import org.server.primitiveParser.PrimitiveParser;
 import org.server.jsonService.json.mapper.ObjectMapper;
 import org.server.jsonService.json.parser.JsonParser;
 import org.server.jsonService.json.validator.JsonValidator;
-import org.server.jsonService.json.formatter.JsonFormat;
-import org.mvc.entities.TestObject;
-import org.server.entityManager.EntityManager;
-import org.server.entityManager.EntityManagerImpl;
+import org.server.primitiveParser.PrimitiveParser;
 import org.server.processors.ClassProcessor;
 import org.server.processors.MethodProcessor;
 import org.server.processors.RouteProcessor;
+import org.server.processors.SingletonProcessor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +38,10 @@ public class Conqueror {
 
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
+
+        //*SingletonProcessor Initialization
+        SingletonProcessor singletonProcessor = new SingletonProcessor(configuration);
+        singletonProcessor.applicationContextInit();
 
         //*PrimitiveParser Initialization
         PrimitiveParser.init();
