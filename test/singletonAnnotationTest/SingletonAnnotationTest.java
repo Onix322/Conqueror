@@ -75,7 +75,7 @@ public class SingletonAnnotationTest {
                 String fn = f.getName();
                 if (!fn.endsWith(".class")) continue;
                 Class<?> classTest = classLoader.loadClass(packageName + fn.substring(0, fn.length() - 6));
-                if (!classTest.isAnnotationPresent(Singleton.class)) continue;
+                if (!classTest.isAnnotationPresent(TestSingleton.class)) continue;
                 allSingletons.add(classTest);
             }
             return allSingletons;

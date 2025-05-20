@@ -1,6 +1,6 @@
 package test.singletonAnnotationTest;
 
-@Singleton
+@TestSingleton
 public class AnotherTestClass {
     private String name = "Class test AnotherTestClass";
     private SingletonClassTest singletonClassTest;

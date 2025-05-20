@@ -1,8 +1,8 @@
 package test.singletonAnnotationTest.stiu;
 
-import test.singletonAnnotationTest.Singleton;
+import test.singletonAnnotationTest.TestSingleton;
 
-@Singleton
+@TestSingleton
 public class SingletonClassTest {
     private String name = "Class test Singleton din stiu";
     public SingletonClassTest(test.singletonAnnotationTest.SingletonClassTest singletonClassTest) {
