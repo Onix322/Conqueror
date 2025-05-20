@@ -2,6 +2,7 @@ package org.server.controllerManager;
 
 import org.server.httpServer.route.ControllerRoute;
 import org.server.processors.ClassProcessor;
+import org.server.processors.annotations.Singleton;
 import org.server.processors.annotations.controller.Controller;
 import org.server.metadata.ControllerMetaData;
 
@@ -9,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Singleton
 public class ControllerManagerImpl implements ControllerManager {
 
     private final Map<String, ControllerMetaData> CONTROLLERS;
@@ -70,5 +72,9 @@ public class ControllerManagerImpl implements ControllerManager {
         );
 
         return this;
+    }
+
+    public ClassProcessor getClassProcessor(){
+        return PROCESSOR;
     }
 }

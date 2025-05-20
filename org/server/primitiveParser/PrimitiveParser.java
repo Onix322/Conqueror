@@ -1,7 +1,10 @@
 package org.server.primitiveParser;
 
+import org.server.processors.annotations.Singleton;
+
 import java.util.Map;
 
+@Singleton
 public class PrimitiveParser {
 
     private final Map<Class<?>, Class<?>> WRAPPERS_AND_PRIMITIVES = Map.ofEntries(

@@ -4,9 +4,11 @@ import org.server.jsonService.json.parser.JsonParser;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
 import org.server.jsonService.json.types.JsonType;
+import org.server.processors.annotations.Singleton;
 
 import java.util.Collection;
 
+@Singleton
 public class JsonServiceImpl implements JsonService {
 
     private final JsonParser JSON_PARSER;

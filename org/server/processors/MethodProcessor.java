@@ -4,6 +4,7 @@ import org.server.exepltions.DuplicateMappingMethod;
 import org.server.httpServer.HttpMethod;
 import org.server.httpServer.route.MethodRoute;
 import org.server.metadata.MethodMetaData;
+import org.server.processors.annotations.Singleton;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Singleton
 public class MethodProcessor implements Processor<Map<String, MethodMetaData>> {
 
     private MethodProcessor() {
@@ -63,6 +65,7 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>> {
                 mappedMethods.put(value, methodMetadata);
             }
         }
+
         return mappedMethods;
     }
 

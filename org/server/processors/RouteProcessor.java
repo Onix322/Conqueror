@@ -9,10 +9,12 @@ import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
 import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
+import org.server.processors.annotations.Singleton;
 
 import java.util.*;
 import java.util.stream.Stream;
 
+@Singleton
 public class RouteProcessor {
 
     private final ControllerManager CONTROLLER_MANAGER;
@@ -89,7 +91,6 @@ public class RouteProcessor {
         }
 
         Map<String, MethodMetaData> methods = controllerMetaData.getMethodsMetaData();
-
         List<String> fragments = new ArrayList<>(Arrays.stream(this.pathFragments(path)).toList());
 
         //first try raw fragments
@@ -101,7 +102,7 @@ public class RouteProcessor {
             }
         }
 
-        //second try with processed fragments e.g /1 -> /{integer}
+        //second try with processed fragments e.g /1/name -> /{integer}/{string}
         for (int i = fragments.size() - 1; i >= 0; i--) {
             String fragment = this.handleVariable(fragments.get(i));
             fragments.set(i, fragment);

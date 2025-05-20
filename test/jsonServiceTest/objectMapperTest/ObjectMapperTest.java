@@ -67,8 +67,7 @@ public class ObjectMapperTest {
                 JsonValidator.getInstance(),
                 JsonFormat.getInstance(),
                 ObjectMapper.getInstance(),
-                JsonMapper.getInstance(),
-                PrimitiveParser.getInstance()
+                JsonMapper.getInstance()
         );
 
         //* Test JSON -> Object

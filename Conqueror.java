@@ -10,6 +10,7 @@ import org.server.handlers.RouteHandler;
 import org.server.httpServer.HttpServer;
 import org.server.httpServer.HttpServerImpl;
 import org.server.httpServer.request.transformationHandler.TransformationHandler;
+import org.server.httpServer.route.ControllerRoute;
 import org.server.jsonService.JsonService;
 import org.server.jsonService.JsonServiceImpl;
 import org.server.jsonService.json.formatter.JsonFormat;
@@ -41,81 +42,86 @@ public class Conqueror {
 
         //*SingletonProcessor Initialization
         SingletonProcessor singletonProcessor = new SingletonProcessor(configuration);
+        singletonProcessor.force(executorService.getClass(), executorService);
         singletonProcessor.applicationContextInit();
 
-        //*PrimitiveParser Initialization
-        PrimitiveParser.init();
-        PrimitiveParser primitiveParser = PrimitiveParser.getInstance();
+        singletonProcessor.requestInstance(EntityManager.class).registerEntityClass(TestObject.class);
+        singletonProcessor.requestInstance(ControllerManager.class).registerController(TestObjectController.class);
 
-        //*JsonService Initialization
-        JsonMapper.init(
-                primitiveParser
-        );
-        JsonParser.init(
-                JsonValidator.getInstance(),
-                JsonFormat.getInstance(),
-                ObjectMapper.getInstance(),
-                JsonMapper.getInstance(),
-                primitiveParser
-        );
-        JsonServiceImpl.init(
-                JsonParser.getInstance()
-        );
-        JsonService jsonService = JsonServiceImpl.getInstance();
+        singletonProcessor.requestInstance(HttpServerImpl.class).start();
 
-        //*EntityManager Initialization, Entities registering in Database
-        EntityManagerImpl.init();
-        EntityManager entityManager = EntityManagerImpl.getInstance();
-        entityManager.registerEntityClass(TestObject.class);
-
-        //*Method, ClassProcessors initialization
-        MethodProcessor.init();
-        MethodProcessor methodProcessor = MethodProcessor.getInstance();
-        ClassProcessor.init(
-                methodProcessor
-        );
-        ClassProcessor classProcessor = ClassProcessor.getInstance();
-
-        //*ControllerManager Initialization
-        ControllerManagerImpl.init(
-                classProcessor
-        );
-        ControllerManager controllerManager = ControllerManagerImpl.getInstance();
-        controllerManager.registerController(TestObjectController.class);
-
-        //*TransformationHandler Initialization
-        TransformationHandler.init(
-                jsonService,
-                entityManager
-        );
-        TransformationHandler transformationHandler = TransformationHandler.getInstance();
-
-        //*RouteHandler Initialization
-        RouteHandler.init();
-        RouteHandler routeHandler = RouteHandler.getInstance();
-
-        //*RouteProcessor Initialization
-        RouteProcessor.init(
-                controllerManager,
-                primitiveParser
-        );
-        RouteProcessor routeProcessor = RouteProcessor.getInstance();
-
-        //*HTTP SERVER CREATE
-        HttpServerImpl.init(
-                configuration,
-                executorService,
-                entityManager,
-                controllerManager,
-                transformationHandler,
-                routeHandler,
-                jsonService,
-                routeProcessor
-        );
-        HttpServer httpServer = HttpServerImpl.getInstance();
-
-        //*HTTP SERVER START
-        httpServer.start();
+//        //*PrimitiveParser Initialization
+//        PrimitiveParser.init();
+//        PrimitiveParser primitiveParser = PrimitiveParser.getInstance();
+//
+//        //*JsonService Initialization
+//        JsonMapper.init(
+//                primitiveParser
+//        );
+//        JsonParser.init(
+//                JsonValidator.getInstance(),
+//                JsonFormat.getInstance(),
+//                ObjectMapper.getInstance(),
+//                JsonMapper.getInstance()
+//        );
+//        JsonServiceImpl.init(
+//                JsonParser.getInstance()
+//        );
+//        JsonService jsonService = JsonServiceImpl.getInstance();
+//
+//        //*EntityManager Initialization, Entities registering in Database
+//        EntityManagerImpl.init();
+//        EntityManager entityManager = EntityManagerImpl.getInstance();
+//        entityManager.registerEntityClass(TestObject.class);
+//
+//        //*Method, ClassProcessors initialization
+//        MethodProcessor.init();
+//        MethodProcessor methodProcessor = MethodProcessor.getInstance();
+//        ClassProcessor.init(
+//                methodProcessor
+//        );
+//        ClassProcessor classProcessor = ClassProcessor.getInstance();
+//
+//        //*ControllerManager Initialization
+//        ControllerManagerImpl.init(
+//                classProcessor
+//        );
+//        ControllerManager controllerManager = ControllerManagerImpl.getInstance();
+//        controllerManager.registerController(TestObjectController.class);
+//
+//        //*TransformationHandler Initialization
+//        TransformationHandler.init(
+//                jsonService,
+//                entityManager
+//        );
+//        TransformationHandler transformationHandler = TransformationHandler.getInstance();
+//
+//        //*RouteHandler Initialization
+//        RouteHandler.init();
+//        RouteHandler routeHandler = RouteHandler.getInstance();
+//
+//        //*RouteProcessor Initialization
+//        RouteProcessor.init(
+//                controllerManager,
+//                primitiveParser
+//        );
+//        RouteProcessor routeProcessor = RouteProcessor.getInstance();
+//
+//        //*HTTP SERVER CREATE
+//        HttpServerImpl.init(
+//                configuration,
+//                executorService,
+//                entityManager,
+//                controllerManager,
+//                transformationHandler,
+//                routeHandler,
+//                jsonService,
+//                routeProcessor
+//        );
+//        HttpServer httpServer = HttpServerImpl.getInstance();
+//
+//        //*HTTP SERVER START
+//        httpServer.start();
 
     }
 }

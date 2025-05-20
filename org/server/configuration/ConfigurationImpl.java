@@ -1,12 +1,14 @@
 package org.server.configuration;
 
 import org.server.exepltions.ConfigPropertyNonExistent;
+import org.server.processors.annotations.Singleton;
 
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+@Singleton
 public class ConfigurationImpl implements Configuration {
 
     private static final Properties PROPERTIES = new Properties();

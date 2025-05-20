@@ -28,7 +28,7 @@ public class TestObjectController {
                 .build();
     }
 
-    @GetMapping("/get/{integer}/{string}")
+    @GetMapping("/get-var/{integer}/{string}")
     public static ResponseEntity<TestObject> getWithVar(Integer integer, String name) {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())

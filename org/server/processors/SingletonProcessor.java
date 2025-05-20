@@ -1,7 +1,6 @@
 package org.server.processors;
 
 import org.server.configuration.Configuration;
-import org.server.configuration.ConfigurationImpl;
 import org.server.exepltions.CircularDependencyException;
 import org.server.processors.annotations.Singleton;
 
@@ -12,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SingletonProcessor {
 
@@ -21,24 +21,41 @@ public class SingletonProcessor {
     private final File FILE;
     private final Map<Class<?>, Object> APPLICATION_CONTEXT = new LinkedHashMap<>();
 
-    public SingletonProcessor(Configuration configuration){
+    public SingletonProcessor(Configuration configuration) {
         this.CONFIGURATION = configuration;
         this.PATH = CONFIGURATION.readProperty("project.path");
         this.FILE = new File(PATH);
-        this.PACKAGE = CONFIGURATION.readProperty("project.package");;
+        this.PACKAGE = CONFIGURATION.readProperty("project.package");
     }
 
-    public <T> T requestInstance(Class<T> clazz){
-        return clazz.cast(this.APPLICATION_CONTEXT.get(clazz));
+    @SuppressWarnings("unchecked")
+    public <T> T requestInstance(Class<T> clazz) {
+        Object instance = APPLICATION_CONTEXT.get(clazz);
+
+        if (instance != null) {
+            return (T) instance;
+        }
+
+        if (clazz.isInterface()) {
+            for (Map.Entry<Class<?>, Object> entry : APPLICATION_CONTEXT.entrySet()) {
+                Class<?> candidateClass = entry.getKey();
+                if (clazz.isAssignableFrom(candidateClass)) {
+                    return (T) entry.getValue();
+                }
+            }
+        }
+
+        return null;
     }
 
-    public Map<Class<?>, Object> getContext(){
+    public Map<Class<?>, Object> getContext() {
         return Map.copyOf(this.APPLICATION_CONTEXT);
     }
 
     public void applicationContextInit() throws IOException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<File> files = Arrays.asList(Objects.requireNonNull(this.FILE.listFiles()));
         List<Class<?>> allSingletons = getAllSingletons(files, PACKAGE);
+        List<String> argsNamesForError = null; //in case there is an error for debugging
 
         Iterator<Class<?>> iteratorAllSingletons = allSingletons.listIterator();
 
@@ -58,11 +75,11 @@ public class SingletonProcessor {
             if (constructor.getParameterTypes().length < 1) {
                 instance = constructor.newInstance();
             } else {
-                List<Object> args = Arrays.stream(constructor.getParameterTypes())
-                        .map(APPLICATION_CONTEXT::get)
-                        .toList();
-
+                List<Object> args = this.rezolveConstructorArgs(constructor);
                 if (args.stream().anyMatch(Objects::isNull)) {
+                    argsNamesForError = args.stream()
+                            .map(a -> a == null ? null : a.getClass().getName())
+                            .toList();
                     continue;
                 }
                 instance = constructor.newInstance(args.toArray());
@@ -76,8 +93,31 @@ public class SingletonProcessor {
         }
 
         if (!allSingletons.isEmpty()) {
+            List<String> finalArgsForError = argsNamesForError;
+            allSingletons.forEach(s -> {
+                System.err.println(s);
+                System.err.println(finalArgsForError);
+            });
             throw new CircularDependencyException("Circular dependency or missing @Singleton: " + allSingletons);
         }
+    }
+
+    private List<Object> rezolveConstructorArgs(Constructor<?> constructor){
+        return Arrays.stream(constructor.getParameterTypes())
+                .map(p -> {
+                    AtomicReference<Object> arg = new AtomicReference<>();
+                    if (p.isInterface()) {
+                        APPLICATION_CONTEXT.forEach((key, value) -> {
+                            if (Arrays.stream(key.getInterfaces()).toList().contains(p)) {
+                                arg.set(value);
+                            }
+                        });
+                    } else {
+                        arg.set(APPLICATION_CONTEXT.get(p));
+                    }
+                    return arg.get();
+                })
+                .toList();
     }
 
     private List<Class<?>> getAllSingletons(List<File> files, String packageName) throws ClassNotFoundException, IOException {
@@ -91,11 +131,17 @@ public class SingletonProcessor {
                 String fn = f.getName();
                 if (!fn.endsWith(".class")) continue;
                 Class<?> classTest = classLoader.loadClass(packageName + fn.substring(0, fn.length() - 6));
-                if (!classTest.isAnnotationPresent(Singleton.class)) continue;
+                if (!classTest.isAnnotationPresent(Singleton.class)) {
+                    continue;
+                }
                 allSingletons.add(classTest);
             }
             return allSingletons;
         }
+    }
+
+    public void force(Class<?> clazz, Object instance) {
+        APPLICATION_CONTEXT.put(clazz, instance);
     }
 
     private Constructor<?> getConstructor(Class<?> clazz) {

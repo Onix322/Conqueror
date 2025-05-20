@@ -78,8 +78,7 @@ public class TestJsonService {
                 JsonValidator.getInstance(),
                 JsonFormat.getInstance(),
                 ObjectMapper.getInstance(),
-                JsonMapper.getInstance(),
-                PrimitiveParser.getInstance()
+                JsonMapper.getInstance()
         );
         JsonParser jsonParser = JsonParser.getInstance();
 

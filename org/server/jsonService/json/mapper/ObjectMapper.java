@@ -4,12 +4,14 @@ import org.server.jsonService.json.properties.JsonProperty;
 import org.server.jsonService.json.properties.JsonValue;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
+import org.server.processors.annotations.Singleton;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+@Singleton
 public class ObjectMapper {
 
     private ObjectMapper() {

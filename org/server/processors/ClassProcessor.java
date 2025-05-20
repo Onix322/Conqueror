@@ -1,6 +1,7 @@
 package org.server.processors;
 
 import org.server.httpServer.route.ControllerRoute;
+import org.server.processors.annotations.Singleton;
 import org.server.processors.annotations.controller.mapping.Mapping;
 import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
@@ -10,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+@Singleton
 public class ClassProcessor implements Processor<ControllerMetaData> {
 
     private final MethodProcessor METHOD_PROCESSOR;
@@ -44,5 +46,9 @@ public class ClassProcessor implements Processor<ControllerMetaData> {
         Map<String, MethodMetaData> methodMetaData = this.METHOD_PROCESSOR.process(clazz, Mapping.class);
 
         return new ControllerMetaData(controllerRoute, clazz, methodMetaData);
+    }
+
+    public MethodProcessor getMethodProcessor() {
+        return METHOD_PROCESSOR;
     }
 }

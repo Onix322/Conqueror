@@ -1,8 +1,11 @@
 package org.server.jsonService.json.formatter;
 
+import org.server.processors.annotations.Singleton;
+
 /*
  *Its role is to transform a string into a json format.
  */
+@Singleton
 public class JsonFormat {
 
     private JsonFormat() {

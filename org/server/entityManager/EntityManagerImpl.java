@@ -1,12 +1,14 @@
 package org.server.entityManager;
 
 import org.server.exepltions.NoEntityMatchesJson;
+import org.server.processors.annotations.Singleton;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Singleton
 public class EntityManagerImpl implements EntityManager {
 
     private final Set<Class<?>> ENTITIES;

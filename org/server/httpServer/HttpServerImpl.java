@@ -14,6 +14,7 @@ import org.server.jsonService.JsonService;
 import org.server.jsonService.json.types.JsonType;
 import org.server.metadata.RouteMetaData;
 import org.server.processors.RouteProcessor;
+import org.server.processors.annotations.Singleton;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -24,6 +25,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 
+@Singleton
 public class HttpServerImpl implements HttpServer {
 
     private final Configuration CONFIGURATION;
