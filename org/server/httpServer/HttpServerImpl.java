@@ -30,18 +30,19 @@ public final class HttpServerImpl implements HttpServer {
 
     private final Configuration CONFIGURATION;
     private final ExecutorService EXECUTOR_SERVICE;
-    private final EntityManager ENTITY_MANAGER;
-    private final ControllerManager CONTROLLER_MANAGER;
     private final TransformationHandler TRANSFORMATION_HANDLER;
     private final RouteHandler ROUTE_HANDLER;
     private final JsonService JSON_SERVICE;
     private final RouteProcessor ROUTE_PROCESSOR;
 
-    private HttpServerImpl(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, JsonService jsonService, RouteProcessor routeProcessor) {
+    private HttpServerImpl(Configuration configuration,
+                           ExecutorService executorService,
+                           TransformationHandler transformationHandler,
+                           RouteHandler routeHandler,
+                           JsonService jsonService,
+                           RouteProcessor routeProcessor) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
-        this.ENTITY_MANAGER = entityManager;
-        this.CONTROLLER_MANAGER = controllerManager;
         this.TRANSFORMATION_HANDLER = transformationHandler;
         this.ROUTE_HANDLER = routeHandler;
         this.JSON_SERVICE = jsonService;
@@ -84,7 +85,7 @@ public final class HttpServerImpl implements HttpServer {
                 //* STEP 1: handle request
                 HttpRequest request = this.handleRequest(clientSocket);
                 RouteMetaData routeMetaData = this.ROUTE_PROCESSOR.process(request);
-//                System.out.println(routeMetaData);
+
                 //* STEP 2: handle response based on request
                 HttpResponse response = this.handleResponse(routeMetaData, request);
 

@@ -10,6 +10,9 @@ import org.server.responseEntity.ResponseEntity;
 @Controller("/test-object")
 public class TestObjectController {
 
+    private TestObjectController(){
+    }
+
     @GetMapping
     public static ResponseEntity<String> get() {
         return ResponseEntity.<String>builder()

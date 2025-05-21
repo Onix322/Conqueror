@@ -1,47 +1,36 @@
 package org.server.controllerManager;
 
 import org.server.httpServer.route.ControllerRoute;
-import org.server.processors.metadata.ControllerMetaDataProcessor;
+import org.server.metadata.ControllerMetaData;
+import org.server.processors.components.ContextProcessor;
 import org.server.processors.components.annotations.Component;
 import org.server.processors.components.annotations.controller.Controller;
-import org.server.metadata.ControllerMetaData;
+import org.server.processors.metadata.ControllerMetaDataProcessor;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Component
 public final class ControllerManagerImpl implements ControllerManager {
 
-    private final Map<String, ControllerMetaData> CONTROLLERS;
     private final ControllerMetaDataProcessor PROCESSOR;
+    private final ContextProcessor COMPONENT_PROCESSOR;
 
-    private ControllerManagerImpl(ControllerMetaDataProcessor processor) {
+    private ControllerManagerImpl(ControllerMetaDataProcessor processor, ContextProcessor contextProcessor) {
         this.PROCESSOR = processor;
-        this.CONTROLLERS = new LinkedHashMap<>();
+        this.COMPONENT_PROCESSOR = contextProcessor;
     }
 
-    @Override
-    public Map<String, ControllerMetaData> getControllers() {
-        return Map.copyOf(this.CONTROLLERS);
-    }
+    public ControllerMetaData requestController(ControllerRoute route) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
-    @Override
-    public ControllerMetaData requestController(ControllerRoute route) {
-        return this.CONTROLLERS.get(route.getRoute());
-    }
+        Class<?> controllerClazz = this.COMPONENT_PROCESSOR.getContext()
+                .keySet()
+                .stream()
+                .filter(k -> k.isAnnotationPresent(Controller.class))
+                .filter(k -> k.getAnnotation(Controller.class).value().equals(route.getRoute()))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("No controller registered with route: " + route));
 
-    public <T> ControllerManager registerController(Class<T> clazz) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-        if (!clazz.isAnnotationPresent(Controller.class)) {
-            throw new IllegalArgumentException(clazz + " doesn't have a @Controller(value = String) annotation");
-        }
-        ControllerMetaData controllerMetaData = this.PROCESSOR.process(clazz, Controller.class);
-
-        this.CONTROLLERS.put(
-                controllerMetaData.getPath().getRoute(),
-                controllerMetaData
-        );
-
-        return this;
+        return this.PROCESSOR.process(controllerClazz, Controller.class);
     }
 }

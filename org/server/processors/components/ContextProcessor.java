@@ -3,6 +3,7 @@ package org.server.processors.components;
 import org.server.configuration.Configuration;
 import org.server.exepltions.CircularDependencyException;
 import org.server.processors.components.annotations.Component;
+import org.server.processors.components.annotations.controller.Controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,15 +15,16 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
-public final class ComponentProcessor {
+public final class ContextProcessor {
 
     private final String PACKAGE;
     private final File FILE;
     private final Map<Class<?>, Object> APPLICATION_CONTEXT = new LinkedHashMap<>();
 
-    public ComponentProcessor(Configuration configuration, ExecutorService executorService) {
+    public ContextProcessor(Configuration configuration, ExecutorService executorService) {
         this.force(configuration.getClass(), configuration);
         this.force(executorService.getClass(), executorService);
+        this.force(this.getClass(), this);
         String path = configuration.readProperty("project.path");
         this.FILE = new File(path);
         this.PACKAGE = configuration.readProperty("project.package");
@@ -55,8 +57,7 @@ public final class ComponentProcessor {
     public void applicationContextInit() throws IOException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<File> files = Arrays.asList(Objects.requireNonNull(this.FILE.listFiles()));
         List<Class<?>> allComponents = getAllComponents(files, PACKAGE);
-        List<String> argsNamesForError = null; //in case there is an error for debugging
-
+        Object circularDependency = null; // in case is circular
         Iterator<Class<?>> iteratorAllComponents = allComponents.listIterator();
 
         while (iteratorAllComponents.hasNext()) {
@@ -77,9 +78,6 @@ public final class ComponentProcessor {
             } else {
                 List<Object> args = this.rezolveConstructorArgs(constructor);
                 if (args.stream().anyMatch(Objects::isNull)) {
-                    argsNamesForError = args.stream()
-                            .map(a -> a == null ? null : a.getClass().getName())
-                            .toList();
                     continue;
                 }
                 instance = constructor.newInstance(args.toArray());
@@ -88,16 +86,13 @@ public final class ComponentProcessor {
             System.out.println("[" + this.getClass().getSimpleName() + "] Initialization -> " + component.getName());
             APPLICATION_CONTEXT.put(component, instance);
             iteratorAllComponents.remove();
-
+            circularDependency = component;
             iteratorAllComponents = allComponents.listIterator(); //Reset
         }
 
         if (!allComponents.isEmpty()) {
-            List<String> finalArgsForError = argsNamesForError;
-            allComponents.forEach(s -> {
-                System.err.println(s);
-                System.err.println(finalArgsForError);
-            });
+            allComponents.forEach(System.err::println);
+            System.err.println(circularDependency);
             throw new CircularDependencyException("Circular dependency or missing @Component: " + allComponents);
         }
     }
@@ -131,7 +126,7 @@ public final class ComponentProcessor {
                 String fn = f.getName();
                 if (!fn.endsWith(".class")) continue;
                 Class<?> classTest = classLoader.loadClass(packageName + fn.substring(0, fn.length() - 6));
-                if (!classTest.isAnnotationPresent(Component.class)) {
+                if (!(classTest.isAnnotationPresent(Component.class) || classTest.isAnnotationPresent(Controller.class))) {
                     continue;
                 }
                 allComponents.add(classTest);

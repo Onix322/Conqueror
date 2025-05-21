@@ -3,12 +3,8 @@ package org.server.controllerManager;
 import org.server.httpServer.route.ControllerRoute;
 import org.server.metadata.ControllerMetaData;
 
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
 
 public sealed interface ControllerManager permits ControllerManagerImpl{
-    Map<String, ControllerMetaData> getControllers();
-
-    ControllerMetaData requestController(ControllerRoute route);
-
-    <T> ControllerManager registerController(Class<T> clazz) throws Exception;
+    ControllerMetaData requestController(ControllerRoute route) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException;
 }
