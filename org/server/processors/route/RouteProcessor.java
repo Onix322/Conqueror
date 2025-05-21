@@ -11,6 +11,7 @@ import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
 import org.server.processors.components.annotations.Component;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -25,7 +26,7 @@ public final class RouteProcessor {
         this.PRIMITIVE_PARSER = primitiveParser;
     }
 
-    public RouteMetaData process(HttpRequest request) {
+    public RouteMetaData process(HttpRequest request) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
         ControllerMetaData controllerMetaData = this.processControllerMetaData(request.getStartLine());
         MethodMetaData methodMetaData = this.processMethodMetaData(controllerMetaData, request.getStartLine());
@@ -40,7 +41,7 @@ public final class RouteProcessor {
         return new RouteMetaData(controllerMetaData, methodMetaData, new PathVariable[0]);
     }
 
-    private ControllerMetaData processControllerMetaData(HttpRequestStartLine startLine) {
+    private ControllerMetaData processControllerMetaData(HttpRequestStartLine startLine) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         String path = startLine.getPath().getRawPath();
         String[] fragments = this.pathFragments(path);
         StringBuilder controllerPathBuilder = new StringBuilder();
