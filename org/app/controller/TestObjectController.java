@@ -1,6 +1,6 @@
-package org.mvc.controller;
+package org.app.controller;
 
-import org.mvc.entities.TestObject;
+import org.app.entity.TestObject;
 import org.server.processors.components.annotations.controller.Controller;
 import org.server.processors.components.annotations.controller.mapping.GetMapping;
 import org.server.httpServer.response.HttpStatus;

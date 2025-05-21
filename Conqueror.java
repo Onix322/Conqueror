@@ -1,5 +1,5 @@
-import org.mvc.controller.TestObjectController;
-import org.mvc.entities.TestObject;
+import org.app.controller.TestObjectController;
+import org.app.entity.TestObject;
 import org.server.configuration.Configuration;
 import org.server.configuration.ConfigurationImpl;
 import org.server.controllerManager.ControllerManager;

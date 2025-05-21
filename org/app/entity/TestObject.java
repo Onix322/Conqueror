@@ -1,4 +1,4 @@
-package org.mvc.entities;
+package org.app.entity;
 
 import java.util.Objects;
 
