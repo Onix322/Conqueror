@@ -1,4 +1,4 @@
-package org.server.processors;
+package org.server.processors.route;
 
 import org.server.controllerManager.ControllerManager;
 import org.server.httpServer.request.httpRequest.HttpRequest;
@@ -9,7 +9,7 @@ import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
 import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
-import org.server.processors.annotations.Singleton;
+import org.server.processors.components.annotations.Singleton;
 
 import java.util.*;
 import java.util.stream.Stream;

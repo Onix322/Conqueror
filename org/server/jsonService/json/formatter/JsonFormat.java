@@ -1,6 +1,6 @@
 package org.server.jsonService.json.formatter;
 
-import org.server.processors.annotations.Singleton;
+import org.server.processors.components.annotations.Singleton;
 
 /*
  *Its role is to transform a string into a json format.

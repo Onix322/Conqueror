@@ -1,10 +1,10 @@
-package org.server.processors;
+package org.server.processors.metadata;
 
 import org.server.exepltions.DuplicateMappingMethod;
 import org.server.httpServer.HttpMethod;
 import org.server.httpServer.route.MethodRoute;
 import org.server.metadata.MethodMetaData;
-import org.server.processors.annotations.Singleton;
+import org.server.processors.components.annotations.Singleton;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -17,9 +17,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Singleton
-public class MethodProcessor implements Processor<Map<String, MethodMetaData>> {
+public class MethodMetaDataProcessor implements MetaDataProcessor<Map<String, MethodMetaData>> {
 
-    private MethodProcessor() {
+    private MethodMetaDataProcessor() {
     }
 
     @Override

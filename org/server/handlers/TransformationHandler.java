@@ -15,7 +15,7 @@ import org.server.jsonService.json.properties.JsonProperty;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
 import org.server.jsonService.json.types.JsonType;
-import org.server.processors.annotations.Singleton;
+import org.server.processors.components.annotations.Singleton;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;

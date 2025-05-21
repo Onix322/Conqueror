@@ -1,6 +1,6 @@
 package org.server.primitiveParser;
 
-import org.server.processors.annotations.Singleton;
+import org.server.processors.components.annotations.Singleton;
 
 import java.util.Map;
 
@@ -19,8 +19,7 @@ public class PrimitiveParser {
             Map.entry(Void.class, void.class)
     );
 
-    private PrimitiveParser() {
-    }
+    private PrimitiveParser() {}
 
     public Object parse(String input) {
 

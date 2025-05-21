@@ -1,8 +1,8 @@
-package org.server.processors;
+package org.server.processors.components;
 
 import org.server.configuration.Configuration;
 import org.server.exepltions.CircularDependencyException;
-import org.server.processors.annotations.Singleton;
+import org.server.processors.components.annotations.Singleton;
 
 import java.io.File;
 import java.io.IOException;

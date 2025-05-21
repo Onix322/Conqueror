@@ -6,11 +6,9 @@ import org.server.jsonService.json.properties.JsonValue;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
 import org.server.primitiveParser.PrimitiveParser;
-import org.server.processors.annotations.Singleton;
+import org.server.processors.components.annotations.Singleton;
 
-import javax.swing.*;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;

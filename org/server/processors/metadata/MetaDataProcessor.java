@@ -1,8 +1,8 @@
-package org.server.processors;
+package org.server.processors.metadata;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 
-public interface Processor<R> {
+public interface MetaDataProcessor<R> {
     <A extends Annotation> R process(Class<?> clazz, Class<A> annotationType) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException;
 }

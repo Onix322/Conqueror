@@ -5,7 +5,7 @@ import org.server.configuration.ConfigurationImpl;
 import org.server.controllerManager.ControllerManager;
 import org.server.entityManager.EntityManager;
 import org.server.httpServer.HttpServerImpl;
-import org.server.processors.SingletonProcessor;
+import org.server.processors.components.SingletonProcessor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

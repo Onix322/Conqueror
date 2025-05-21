@@ -13,8 +13,8 @@ import org.server.httpServer.response.httpResponse.HttpResponseFactory;
 import org.server.jsonService.JsonService;
 import org.server.jsonService.json.types.JsonType;
 import org.server.metadata.RouteMetaData;
-import org.server.processors.RouteProcessor;
-import org.server.processors.annotations.Singleton;
+import org.server.processors.route.RouteProcessor;
+import org.server.processors.components.annotations.Singleton;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

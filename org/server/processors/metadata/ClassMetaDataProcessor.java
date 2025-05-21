@@ -1,8 +1,8 @@
-package org.server.processors;
+package org.server.processors.metadata;
 
 import org.server.httpServer.route.ControllerRoute;
-import org.server.processors.annotations.Singleton;
-import org.server.processors.annotations.controller.mapping.Mapping;
+import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.controller.mapping.Mapping;
 import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
 
@@ -12,11 +12,11 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 @Singleton
-public class ClassProcessor implements Processor<ControllerMetaData> {
+public class ClassMetaDataProcessor implements MetaDataProcessor<ControllerMetaData> {
 
-    private final MethodProcessor METHOD_PROCESSOR;
+    private final MethodMetaDataProcessor METHOD_PROCESSOR;
 
-    private ClassProcessor(MethodProcessor methodProcessor){
+    private ClassMetaDataProcessor(MethodMetaDataProcessor methodProcessor){
         this.METHOD_PROCESSOR = methodProcessor;
     }
 

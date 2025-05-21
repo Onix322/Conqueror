@@ -1,4 +1,4 @@
-package org.server.processors.annotations.controller;
+package org.server.processors.components.annotations.controller;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

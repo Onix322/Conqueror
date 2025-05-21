@@ -1,9 +1,9 @@
 package org.server.controllerManager;
 
 import org.server.httpServer.route.ControllerRoute;
-import org.server.processors.ClassProcessor;
-import org.server.processors.annotations.Singleton;
-import org.server.processors.annotations.controller.Controller;
+import org.server.processors.metadata.ClassMetaDataProcessor;
+import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.controller.Controller;
 import org.server.metadata.ControllerMetaData;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,9 +14,9 @@ import java.util.Map;
 public class ControllerManagerImpl implements ControllerManager {
 
     private final Map<String, ControllerMetaData> CONTROLLERS;
-    private final ClassProcessor PROCESSOR;
+    private final ClassMetaDataProcessor PROCESSOR;
 
-    private ControllerManagerImpl(ClassProcessor processor) {
+    private ControllerManagerImpl(ClassMetaDataProcessor processor) {
         this.PROCESSOR = processor;
         this.CONTROLLERS = new LinkedHashMap<>();
     }

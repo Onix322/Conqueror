@@ -1,7 +1,7 @@
 package org.server.entityManager;
 
 import org.server.exepltions.NoEntityMatchesJson;
-import org.server.processors.annotations.Singleton;
+import org.server.processors.components.annotations.Singleton;
 
 import java.lang.reflect.Field;
 import java.util.*;
