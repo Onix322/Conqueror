@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-@Singleton
 public final class ConfigurationImpl implements Configuration {
 
     private static final Properties PROPERTIES = new Properties();

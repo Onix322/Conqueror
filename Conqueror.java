@@ -4,6 +4,7 @@ import org.server.configuration.Configuration;
 import org.server.configuration.ConfigurationImpl;
 import org.server.controllerManager.ControllerManager;
 import org.server.entityManager.EntityManager;
+import org.server.httpServer.HttpServer;
 import org.server.httpServer.HttpServerImpl;
 import org.server.processors.components.SingletonProcessor;
 
@@ -24,14 +25,16 @@ public class Conqueror {
         ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
         //* SingletonProcessor Initialization
-        SingletonProcessor singletonProcessor = new SingletonProcessor(configuration);
-        singletonProcessor.force(executorService.getClass(), executorService);
+        SingletonProcessor singletonProcessor = new SingletonProcessor(configuration, executorService);
         singletonProcessor.applicationContextInit();
 
-        singletonProcessor.requestInstance(EntityManager.class).registerEntityClass(TestObject.class);
-        singletonProcessor.requestInstance(ControllerManager.class).registerController(TestObjectController.class);
+        singletonProcessor.requestInstance(EntityManager.class)
+                .registerEntityClass(TestObject.class);
+        singletonProcessor.requestInstance(ControllerManager.class)
+                .registerController(TestObjectController.class);
 
         //* Server start
-        singletonProcessor.requestInstance(HttpServerImpl.class).start();
+        singletonProcessor.requestInstance(HttpServer.class)
+                .start();
     }
 }

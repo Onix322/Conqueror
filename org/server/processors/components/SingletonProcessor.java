@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class SingletonProcessor {
@@ -19,7 +20,9 @@ public final class SingletonProcessor {
     private final File FILE;
     private final Map<Class<?>, Object> APPLICATION_CONTEXT = new LinkedHashMap<>();
 
-    public SingletonProcessor(Configuration configuration) {
+    public SingletonProcessor(Configuration configuration, ExecutorService executorService) {
+        this.force(configuration.getClass(), configuration);
+        this.force(executorService.getClass(), executorService);
         String path = configuration.readProperty("project.path");
         this.FILE = new File(path);
         this.PACKAGE = configuration.readProperty("project.package");
@@ -42,7 +45,7 @@ public final class SingletonProcessor {
             }
         }
 
-        return null;
+        throw new NoSuchElementException(clazz.getName() + " not registered in Application Context.");
     }
 
     public Map<Class<?>, Object> getContext() {
@@ -82,7 +85,7 @@ public final class SingletonProcessor {
                 instance = constructor.newInstance(args.toArray());
             }
 
-            System.out.println("[Initialization] -> " + singleton.getName());
+            System.out.println("[" + this.getClass().getSimpleName() + "] Initialization -> " + singleton.getName());
             APPLICATION_CONTEXT.put(singleton, instance);
             iteratorAllSingletons.remove();
 

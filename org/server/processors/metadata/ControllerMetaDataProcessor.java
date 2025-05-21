@@ -12,11 +12,11 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 @Singleton
-public final class ClassMetaDataProcessor implements MetaDataProcessor<ControllerMetaData> {
+public final class ControllerMetaDataProcessor implements MetaDataProcessor<ControllerMetaData> {
 
     private final MethodMetaDataProcessor METHOD_PROCESSOR;
 
-    private ClassMetaDataProcessor(MethodMetaDataProcessor methodProcessor){
+    private ControllerMetaDataProcessor(MethodMetaDataProcessor methodProcessor){
         this.METHOD_PROCESSOR = methodProcessor;
     }
 
