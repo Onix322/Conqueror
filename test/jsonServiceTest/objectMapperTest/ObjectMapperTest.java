@@ -59,19 +59,9 @@ public class ObjectMapperTest {
                             }
                         """;
 
-        PrimitiveParser.init();
-        JsonMapper.init(
-                PrimitiveParser.getInstance()
-        );
-        JsonParser.init(
-                JsonValidator.getInstance(),
-                JsonFormat.getInstance(),
-                ObjectMapper.getInstance(),
-                JsonMapper.getInstance()
-        );
 
         //* Test JSON -> Object
-        JsonParser jsonParser = JsonParser.getInstance();
+        JsonParser jsonParser = null;
         DummyClass dummyClassTemplate = new DummyClass("Alex", 24);
         List<String> strings = new LinkedList<>();
         strings.add("Dummy2");

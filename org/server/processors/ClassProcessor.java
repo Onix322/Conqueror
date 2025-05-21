@@ -18,23 +18,6 @@ public class ClassProcessor implements Processor<ControllerMetaData> {
 
     private ClassProcessor(MethodProcessor methodProcessor){
         this.METHOD_PROCESSOR = methodProcessor;
-    };
-
-    private static class Init{
-        private static ClassProcessor INSTANCE = null;
-    }
-
-    public synchronized static void init(MethodProcessor methodProcessor){
-        if(Init.INSTANCE == null){
-            Init.INSTANCE = new ClassProcessor(methodProcessor);
-        }
-    }
-
-    public static ClassProcessor getInstance(){
-        if(Init.INSTANCE == null){
-            throw new IllegalStateException("ClassProcessor not initialized. Use ClassProcessor.init()");
-        }
-        return Init.INSTANCE;
     }
 
     @Override
@@ -46,9 +29,5 @@ public class ClassProcessor implements Processor<ControllerMetaData> {
         Map<String, MethodMetaData> methodMetaData = this.METHOD_PROCESSOR.process(clazz, Mapping.class);
 
         return new ControllerMetaData(controllerRoute, clazz, methodMetaData);
-    }
-
-    public MethodProcessor getMethodProcessor() {
-        return METHOD_PROCESSOR;
     }
 }

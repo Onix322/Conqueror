@@ -1,4 +1,4 @@
-package org.server.httpServer.request.transformationHandler;
+package org.server.handlers;
 
 import org.server.entityManager.EntityManager;
 import org.server.exepltions.MissingHttpStartLine;
@@ -18,8 +18,6 @@ import org.server.jsonService.json.types.JsonType;
 import org.server.processors.annotations.Singleton;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,23 +33,6 @@ public class TransformationHandler {
     private TransformationHandler(JsonService jsonService, EntityManager entityManager) {
         this.ENTITY_MANAGER = entityManager;
         this.JSON_SERVICE = jsonService;
-    }
-
-    private static class Init {
-        private static TransformationHandler INSTANCE = null;
-    }
-
-    public synchronized static void init(JsonService jsonService, EntityManager entityManager) {
-        if (Init.INSTANCE == null) {
-            Init.INSTANCE = new TransformationHandler(jsonService, entityManager);
-        }
-    }
-
-    public static TransformationHandler getInstance() {
-        if (Init.INSTANCE == null) {
-            throw new IllegalStateException("TransformationHandler not initialized! Use TransformationHandler.init()");
-        }
-        return Init.INSTANCE;
     }
 
     public HttpRequest transformToHttpRequest(BufferedReader in) throws Exception {

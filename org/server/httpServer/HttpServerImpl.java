@@ -5,7 +5,7 @@ import org.server.controllerManager.ControllerManager;
 import org.server.entityManager.EntityManager;
 import org.server.handlers.RouteHandler;
 import org.server.httpServer.request.httpRequest.HttpRequest;
-import org.server.httpServer.request.transformationHandler.TransformationHandler;
+import org.server.handlers.TransformationHandler;
 import org.server.httpServer.response.HttpConnectionType;
 import org.server.httpServer.response.HttpStatus;
 import org.server.httpServer.response.httpResponse.HttpResponse;
@@ -46,24 +46,6 @@ public class HttpServerImpl implements HttpServer {
         this.ROUTE_HANDLER = routeHandler;
         this.JSON_SERVICE = jsonService;
         this.ROUTE_PROCESSOR = routeProcessor;
-    }
-
-    private static class Init {
-        private static HttpServerImpl instance;
-    }
-
-    public synchronized static void init(Configuration configuration, ExecutorService executorService, EntityManager entityManager, ControllerManager controllerManager, TransformationHandler transformationHandler, RouteHandler routeHandler, JsonService jsonService, RouteProcessor routeProcessor) {
-        if (Init.instance == null) {
-            System.out.println("Setting up server configuration...");
-            Init.instance = new HttpServerImpl(configuration, executorService, entityManager, controllerManager, transformationHandler, routeHandler, jsonService, routeProcessor);
-        }
-    }
-
-    public static HttpServerImpl getInstance() {
-        if (Init.instance == null) {
-            throw new IllegalStateException("Server not initialized!");
-        }
-        return Init.instance;
     }
 
     @Override

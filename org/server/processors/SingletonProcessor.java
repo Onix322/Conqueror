@@ -15,17 +15,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SingletonProcessor {
 
-    private final Configuration CONFIGURATION;
-    private final String PATH;
     private final String PACKAGE;
     private final File FILE;
     private final Map<Class<?>, Object> APPLICATION_CONTEXT = new LinkedHashMap<>();
 
     public SingletonProcessor(Configuration configuration) {
-        this.CONFIGURATION = configuration;
-        this.PATH = CONFIGURATION.readProperty("project.path");
-        this.FILE = new File(PATH);
-        this.PACKAGE = CONFIGURATION.readProperty("project.package");
+        String path = configuration.readProperty("project.path");
+        this.FILE = new File(path);
+        this.PACKAGE = configuration.readProperty("project.package");
     }
 
     @SuppressWarnings("unchecked")

@@ -3,25 +3,8 @@ import org.mvc.entities.TestObject;
 import org.server.configuration.Configuration;
 import org.server.configuration.ConfigurationImpl;
 import org.server.controllerManager.ControllerManager;
-import org.server.controllerManager.ControllerManagerImpl;
 import org.server.entityManager.EntityManager;
-import org.server.entityManager.EntityManagerImpl;
-import org.server.handlers.RouteHandler;
-import org.server.httpServer.HttpServer;
 import org.server.httpServer.HttpServerImpl;
-import org.server.httpServer.request.transformationHandler.TransformationHandler;
-import org.server.httpServer.route.ControllerRoute;
-import org.server.jsonService.JsonService;
-import org.server.jsonService.JsonServiceImpl;
-import org.server.jsonService.json.formatter.JsonFormat;
-import org.server.jsonService.json.mapper.JsonMapper;
-import org.server.jsonService.json.mapper.ObjectMapper;
-import org.server.jsonService.json.parser.JsonParser;
-import org.server.jsonService.json.validator.JsonValidator;
-import org.server.primitiveParser.PrimitiveParser;
-import org.server.processors.ClassProcessor;
-import org.server.processors.MethodProcessor;
-import org.server.processors.RouteProcessor;
 import org.server.processors.SingletonProcessor;
 
 import java.util.concurrent.ExecutorService;
@@ -33,14 +16,14 @@ public class Conqueror {
     public static void main(String[] args) throws Exception {
         System.out.println("Starting app...");
 
-        //*HTTP SERVER Configuration
+        //* Server Configuration
         ConfigurationImpl.init();
         Configuration configuration = ConfigurationImpl.getInstance();
 
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
-        //*SingletonProcessor Initialization
+        //* SingletonProcessor Initialization
         SingletonProcessor singletonProcessor = new SingletonProcessor(configuration);
         singletonProcessor.force(executorService.getClass(), executorService);
         singletonProcessor.applicationContextInit();
@@ -48,80 +31,7 @@ public class Conqueror {
         singletonProcessor.requestInstance(EntityManager.class).registerEntityClass(TestObject.class);
         singletonProcessor.requestInstance(ControllerManager.class).registerController(TestObjectController.class);
 
+        //* Server start
         singletonProcessor.requestInstance(HttpServerImpl.class).start();
-
-//        //*PrimitiveParser Initialization
-//        PrimitiveParser.init();
-//        PrimitiveParser primitiveParser = PrimitiveParser.getInstance();
-//
-//        //*JsonService Initialization
-//        JsonMapper.init(
-//                primitiveParser
-//        );
-//        JsonParser.init(
-//                JsonValidator.getInstance(),
-//                JsonFormat.getInstance(),
-//                ObjectMapper.getInstance(),
-//                JsonMapper.getInstance()
-//        );
-//        JsonServiceImpl.init(
-//                JsonParser.getInstance()
-//        );
-//        JsonService jsonService = JsonServiceImpl.getInstance();
-//
-//        //*EntityManager Initialization, Entities registering in Database
-//        EntityManagerImpl.init();
-//        EntityManager entityManager = EntityManagerImpl.getInstance();
-//        entityManager.registerEntityClass(TestObject.class);
-//
-//        //*Method, ClassProcessors initialization
-//        MethodProcessor.init();
-//        MethodProcessor methodProcessor = MethodProcessor.getInstance();
-//        ClassProcessor.init(
-//                methodProcessor
-//        );
-//        ClassProcessor classProcessor = ClassProcessor.getInstance();
-//
-//        //*ControllerManager Initialization
-//        ControllerManagerImpl.init(
-//                classProcessor
-//        );
-//        ControllerManager controllerManager = ControllerManagerImpl.getInstance();
-//        controllerManager.registerController(TestObjectController.class);
-//
-//        //*TransformationHandler Initialization
-//        TransformationHandler.init(
-//                jsonService,
-//                entityManager
-//        );
-//        TransformationHandler transformationHandler = TransformationHandler.getInstance();
-//
-//        //*RouteHandler Initialization
-//        RouteHandler.init();
-//        RouteHandler routeHandler = RouteHandler.getInstance();
-//
-//        //*RouteProcessor Initialization
-//        RouteProcessor.init(
-//                controllerManager,
-//                primitiveParser
-//        );
-//        RouteProcessor routeProcessor = RouteProcessor.getInstance();
-//
-//        //*HTTP SERVER CREATE
-//        HttpServerImpl.init(
-//                configuration,
-//                executorService,
-//                entityManager,
-//                controllerManager,
-//                transformationHandler,
-//                routeHandler,
-//                jsonService,
-//                routeProcessor
-//        );
-//        HttpServer httpServer = HttpServerImpl.getInstance();
-//
-//        //*HTTP SERVER START
-//        httpServer.start();
-
     }
 }

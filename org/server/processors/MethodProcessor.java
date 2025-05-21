@@ -22,23 +22,6 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>> {
     private MethodProcessor() {
     }
 
-    private static class Init {
-        private static MethodProcessor INSTANCE = null;
-    }
-
-    public synchronized static void init() {
-        if (Init.INSTANCE == null) {
-            Init.INSTANCE = new MethodProcessor();
-        }
-    }
-
-    public static MethodProcessor getInstance() {
-        if (Init.INSTANCE == null) {
-            throw new IllegalStateException("ClassProcessor not initialized. Use ClassProcessor.init()");
-        }
-        return Init.INSTANCE;
-    }
-
     @Override
     public <A extends Annotation> Map<String, MethodMetaData> process(Class<?> clazz, Class<A> extensionOf) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         Map<String, MethodMetaData> mappedMethods = new LinkedHashMap<>();
@@ -75,6 +58,4 @@ public class MethodProcessor implements Processor<Map<String, MethodMetaData>> {
 
         return methodReturnType.cast(value);
     }
-
-    ;
 }

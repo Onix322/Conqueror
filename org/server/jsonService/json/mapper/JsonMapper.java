@@ -24,23 +24,6 @@ public class JsonMapper {
         this.PRIMITIVE_PARSER = primitiveParser;
     }
 
-    private static class Init {
-        private static JsonMapper INSTANCE = null;
-    }
-
-    public synchronized static void init(PrimitiveParser primitiveParser) {
-        if (Init.INSTANCE == null) {
-            Init.INSTANCE = new JsonMapper(primitiveParser);
-        }
-    }
-
-    public static JsonMapper getInstance() {
-        if (Init.INSTANCE == null) {
-            throw new IllegalStateException("JsonMapper not initialized! call JsonMapper.init()");
-        }
-        return Init.INSTANCE;
-    }
-
     public PrimitiveParser getPrimitiveParser(){
         return this.PRIMITIVE_PARSER;
     }

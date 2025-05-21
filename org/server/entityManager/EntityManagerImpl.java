@@ -17,23 +17,6 @@ public class EntityManagerImpl implements EntityManager {
         this.ENTITIES = new HashSet<>();
     }
 
-    private static class Init {
-        private static EntityManagerImpl INSTANCE = null;
-    }
-
-    public static synchronized void init(){
-        if(Init.INSTANCE == null){
-            Init.INSTANCE = new EntityManagerImpl();
-        }
-    }
-
-    public static EntityManagerImpl getInstance(){
-        if(Init.INSTANCE == null){
-            throw new IllegalStateException("EntityManager not initialized. Use EntityManagerImpl.init()");
-        }
-        return Init.INSTANCE;
-    }
-
     @Override
     public Set<Class<?>> getEntities() {
         return Set.copyOf(ENTITIES);

@@ -11,14 +11,6 @@ public class JsonFormat {
     private JsonFormat() {
     }
 
-    private static class Init {
-        private static final JsonFormat INSTANCE = new JsonFormat();
-    }
-
-    public static JsonFormat getInstance() {
-        return Init.INSTANCE;
-    }
-
     /**
      * Main method that minifies the JSON input by removing spaces and new lines
      * outside of strings, and adding a space after each ':' that is not within a string.

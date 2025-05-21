@@ -15,23 +15,6 @@ public class RouteHandler {
     private RouteHandler() {
     }
 
-    private static class Init {
-        private static RouteHandler INSTANCE = null;
-    }
-
-    public synchronized static void init() {
-        if (Init.INSTANCE == null) {
-            Init.INSTANCE = new RouteHandler();
-        }
-    }
-
-    public static RouteHandler getInstance() {
-        if (Init.INSTANCE == null) {
-            throw new IllegalStateException("RouteHandler not initialized! Use RouteHandler.init()");
-        }
-        return Init.INSTANCE;
-    }
-
     public Object handleRoute(RouteMetaData route, HttpRequest request) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         switch (route.getMethodMetaData().getHttpMethod()) {
             case GET -> {

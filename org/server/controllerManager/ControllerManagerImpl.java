@@ -21,23 +21,6 @@ public class ControllerManagerImpl implements ControllerManager {
         this.CONTROLLERS = new LinkedHashMap<>();
     }
 
-    private static class Init {
-        private static ControllerManagerImpl INSTANCE = null;
-    }
-
-    public static synchronized void init(ClassProcessor processor) {
-        if (Init.INSTANCE == null) {
-            Init.INSTANCE = new ControllerManagerImpl(processor);
-        }
-    }
-
-    public static ControllerManagerImpl getInstance() {
-        if (Init.INSTANCE == null) {
-            throw new IllegalStateException("ControllerManager not initialized. Use ControllerManagerImpl.init()");
-        }
-        return Init.INSTANCE;
-    }
-
     @Override
     public Map<String, ControllerMetaData> getControllers() {
         return Map.copyOf(this.CONTROLLERS);
@@ -72,9 +55,5 @@ public class ControllerManagerImpl implements ControllerManager {
         );
 
         return this;
-    }
-
-    public ClassProcessor getClassProcessor(){
-        return PROCESSOR;
     }
 }

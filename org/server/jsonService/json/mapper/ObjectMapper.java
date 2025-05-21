@@ -17,14 +17,6 @@ public class ObjectMapper {
     private ObjectMapper() {
     }
 
-    private static class Init {
-        private static final ObjectMapper INSTANCE = new ObjectMapper();
-    }
-
-    public static ObjectMapper getInstance() {
-        return Init.INSTANCE;
-    }
-
     public <T> T mapObject(JsonObject jsonObject, Class<T> clazz) throws ReflectiveOperationException {
         T instance = this.createInstance(clazz);
         Field[] fields = instance.getClass().getDeclaredFields();

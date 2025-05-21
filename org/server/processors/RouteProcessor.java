@@ -25,23 +25,6 @@ public class RouteProcessor {
         this.PRIMITIVE_PARSER = primitiveParser;
     }
 
-    private static class Init {
-        private static RouteProcessor INSTANCE = null;
-    }
-
-    public synchronized static void init(ControllerManager controllerManager, PrimitiveParser primitiveParser) {
-        if (Init.INSTANCE == null) {
-            Init.INSTANCE = new RouteProcessor(controllerManager, primitiveParser);
-        }
-    }
-
-    public static RouteProcessor getInstance() {
-        if (Init.INSTANCE == null) {
-            throw new IllegalStateException("RouteProcessor not initialized! Use RouteProcessor.init()");
-        }
-        return Init.INSTANCE;
-    }
-
     public RouteMetaData process(HttpRequest request) {
 
         ControllerMetaData controllerMetaData = this.processControllerMetaData(request.getStartLine());

@@ -8,6 +8,7 @@ import org.server.jsonService.json.mapper.ObjectMapper;
 import org.server.jsonService.json.parser.JsonParser;
 import org.server.jsonService.json.validator.JsonValidator;
 import org.server.jsonService.json.types.JsonObject;
+import org.server.processors.SingletonProcessor;
 
 import java.util.Scanner;
 
@@ -74,13 +75,8 @@ public class TestJsonService {
     public static void isJsonValidTest() {
 
         //init
-        JsonParser.init(
-                JsonValidator.getInstance(),
-                JsonFormat.getInstance(),
-                ObjectMapper.getInstance(),
-                JsonMapper.getInstance()
-        );
-        JsonParser jsonParser = JsonParser.getInstance();
+
+        JsonParser jsonParser = null;
 
         //test
 

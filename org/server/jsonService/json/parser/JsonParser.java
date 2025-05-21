@@ -26,29 +26,14 @@ public class JsonParser implements Parser{
     private final JsonFormat JSON_FORMAT;
     private final ObjectMapper OBJECT_MAPPER;
     private final JsonMapper JSON_MAPPER;
+    private final PrimitiveParser PRIMITIVE_PARSER;
 
-    private JsonParser(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper) {
+    private JsonParser(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper, PrimitiveParser primitiveParser) {
         this.JSON_FORMAT = jsonFormat;
         this.OBJECT_MAPPER = objectMapper;
         this.JSON_VALIDATOR = jsonValidator;
         this.JSON_MAPPER = jsonMapper;
-    }
-
-    private static class Init {
-        private static JsonParser INSTANCE = null;
-    }
-
-    public synchronized static void init(JsonValidator jsonValidator, JsonFormat jsonFormat, ObjectMapper objectMapper, JsonMapper jsonMapper) {
-        if (JsonParser.Init.INSTANCE == null) {
-            JsonParser.Init.INSTANCE = new JsonParser(jsonValidator, jsonFormat, objectMapper, jsonMapper);
-        }
-    }
-
-    public static JsonParser getInstance() {
-        if (JsonParser.Init.INSTANCE == null) {
-            throw new IllegalStateException("JsonParser not initialized! call JsonServiceImpl.init()");
-        }
-        return JsonParser.Init.INSTANCE;
+        this.PRIMITIVE_PARSER = primitiveParser;
     }
 
     public <T> T mapObject(JsonObject jsonType, Class<T> type) throws Exception {
@@ -109,17 +94,16 @@ public class JsonParser implements Parser{
 
         Set<String> keys = objects.keySet();
         Map<String, JsonType> parsedTypes = new LinkedHashMap<>();
-        PrimitiveParser primitiveParser = this.JSON_MAPPER.getPrimitiveParser();
 
         for (String k : keys) {
             String v = objects.get(k);
             switch (v.charAt(0)) {
                 case '[' -> {
-                    JsonArray jsonArray = this.parseArray(v, primitiveParser);
+                    JsonArray jsonArray = this.parseArray(v);
                     parsedTypes.put(k, jsonArray);
                 }
                 case '{' -> {
-                    JsonObject jsonObjectImpl = this.parseObject(v, primitiveParser);
+                    JsonObject jsonObjectImpl = this.parseObject(v);
                     parsedTypes.put(k, jsonObjectImpl);
                 }
             }
@@ -127,8 +111,8 @@ public class JsonParser implements Parser{
         return parsedTypes;
     }
 
-    private JsonObject parseObject(String stringObject, PrimitiveParser primitiveParser) {
-        String regexObjects = "^\\{\\s*(?:\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)\\s*(?:,\\s*\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)\\s*)*)?\\s*\\}$";
+    private JsonObject parseObject(String stringObject) {
+        String regexObjects = "^\\{\\s*(?:\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)\\s*(?:,\\s*\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)\\s*)*)?\\s*}$";
 
         if (!stringObject.matches(regexObjects)) {
             throw new JsonNotValid("This is not valid object: " + stringObject);
@@ -138,15 +122,15 @@ public class JsonParser implements Parser{
         List<Coordinate> coordinates = this.getElementsLocation(stringObject);
         for (Coordinate coordinate : coordinates) {
             String value = stringObject.substring(coordinate.getStartIndex(), coordinate.getEndIndex());
-            JsonProperty jsonValue = this.splitStringProperty(value, primitiveParser);
+            JsonProperty jsonValue = this.splitStringProperty(value);
             properties.add(jsonValue);
         }
 
         return new JsonObject(properties.toArray(new JsonProperty[0]));
     }
 
-    private JsonArray parseArray(String stringArray, PrimitiveParser primitiveParser) {
-        String regexArrays = "^\\[\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)(?:\\s*,\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null))*\\s*\\]$";
+    private JsonArray parseArray(String stringArray) {
+        String regexArrays = "^\\[\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)(?:\\s*,\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null))*\\s*]$";
 
         if (!stringArray.matches(regexArrays)) {
             throw new JsonNotValid("This is not valid array: " + stringArray);
@@ -158,8 +142,8 @@ public class JsonParser implements Parser{
         for (Coordinate coordinate : coordinates) {
             String value = stringArray.substring(coordinate.getStartIndex() + 1, coordinate.getEndIndex());
             JsonValue jsonValue;
-            if(primitiveParser.isPrimitive(value)){
-                jsonValue = new JsonValue(primitiveParser.parse(value));
+            if(this.PRIMITIVE_PARSER.isPrimitive(value)){
+                jsonValue = new JsonValue(this.PRIMITIVE_PARSER.parse(value));
             } else {
                 jsonValue = new JsonValue(value);
             }
@@ -168,7 +152,7 @@ public class JsonParser implements Parser{
         return new JsonArray(values.toArray(new JsonValue[0]));
     }
 
-    private JsonProperty splitStringProperty(String stringProperty, PrimitiveParser primitiveParser) {
+    private JsonProperty splitStringProperty(String stringProperty) {
         StringBuilder stringBuilder = new StringBuilder();
         String[] keyValue = new String[2];
         int currentIndex = 0;
@@ -194,10 +178,10 @@ public class JsonParser implements Parser{
             throw new JsonPropertyFormatError("Property format is invalid: " + stringProperty);
         }
 
-        if(primitiveParser.isPrimitive(keyValue[1])){
+        if(this.PRIMITIVE_PARSER.isPrimitive(keyValue[1])){
             return new JsonProperty(
                     new JsonKey(keyValue[0]),
-                    new JsonValue(primitiveParser.parse(keyValue[1]))
+                    new JsonValue(this.PRIMITIVE_PARSER.parse(keyValue[1]))
             );
         }
         return new JsonProperty(
@@ -344,21 +328,5 @@ public class JsonParser implements Parser{
                 .setEndIndex(endIndex)
                 .setStartIndex(startIndex)
                 .build();
-    }
-
-    public JsonValidator getJsonValidator(){
-        return this.JSON_VALIDATOR;
-    }
-
-    public JsonFormat getJsonFormat(){
-        return this.JSON_FORMAT;
-    }
-
-    public ObjectMapper getObjectMapper(){
-        return this.OBJECT_MAPPER;
-    }
-
-    public JsonMapper getJsonMapper(){
-        return this.JSON_MAPPER;
     }
 }

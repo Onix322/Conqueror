@@ -22,23 +22,6 @@ public class PrimitiveParser {
     private PrimitiveParser() {
     }
 
-    private static class Init {
-        private static PrimitiveParser INSTANCE = null;
-    }
-
-    public synchronized static void init() {
-        if (PrimitiveParser.Init.INSTANCE == null) {
-            PrimitiveParser.Init.INSTANCE = new PrimitiveParser();
-        }
-    }
-
-    public static PrimitiveParser getInstance() {
-        if (Init.INSTANCE == null) {
-            throw new IllegalStateException("PrimitiveParser not initialized! call PrimitiveParser.init()");
-        }
-        return Init.INSTANCE;
-    }
-
     public Object parse(String input) {
 
         if (input.matches("-?\\d+")) {

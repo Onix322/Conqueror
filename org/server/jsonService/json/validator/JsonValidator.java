@@ -9,14 +9,6 @@ public class JsonValidator {
 
     private JsonValidator() {}
 
-    private static class Init {
-        public static final JsonValidator INSTANCE = new JsonValidator();
-    }
-
-    public static JsonValidator getInstance() {
-        return Init.INSTANCE;
-    }
-
     public boolean isValidJsonValue(JsonFormatedString json) {
 
         if(!this.hasAllBrackets(json)){
