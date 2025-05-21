@@ -6,7 +6,7 @@ import org.server.processors.components.annotations.Singleton;
  *Its role is to transform a string into a json format.
  */
 @Singleton
-public class JsonFormat {
+public final class JsonFormat {
 
     private JsonFormat() {
     }

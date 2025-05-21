@@ -13,7 +13,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SingletonProcessor {
+public final class SingletonProcessor {
 
     private final String PACKAGE;
     private final File FILE;

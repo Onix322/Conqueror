@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 
 @Singleton
-public class HttpServerImpl implements HttpServer {
+public final class HttpServerImpl implements HttpServer {
 
     private final Configuration CONFIGURATION;
     private final ExecutorService EXECUTOR_SERVICE;

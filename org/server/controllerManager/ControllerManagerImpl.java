@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Singleton
-public class ControllerManagerImpl implements ControllerManager {
+public final class ControllerManagerImpl implements ControllerManager {
 
     private final Map<String, ControllerMetaData> CONTROLLERS;
     private final ClassMetaDataProcessor PROCESSOR;

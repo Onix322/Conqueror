@@ -5,7 +5,7 @@ import org.server.metadata.ControllerMetaData;
 
 import java.util.Map;
 
-public interface ControllerManager {
+public sealed interface ControllerManager permits ControllerManagerImpl{
     Map<String, ControllerMetaData> getControllers();
 
     ControllerMetaData requestController(ControllerRoute route);

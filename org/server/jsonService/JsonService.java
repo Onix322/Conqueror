@@ -8,7 +8,7 @@ import org.server.jsonService.json.types.JsonType;
 import java.util.Collection;
 
 //T is representing the class implementation
-public interface JsonService {
+public sealed interface JsonService permits JsonServiceImpl{
 
     <T> T mapObject(JsonObject jsonObject, Class<T> clazz) throws Exception;
 

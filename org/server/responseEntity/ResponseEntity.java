@@ -1,7 +1,5 @@
 package org.server.responseEntity;
 
-import org.server.httpServer.response.HttpStatus;
-
 public class ResponseEntity<T> {
     private int httpStatus;
     private String message;
@@ -37,16 +35,17 @@ public class ResponseEntity<T> {
         this.message = message;
     }
 
-    public static <T> ResponseEntityBuilder<T> builder(){
+    public static <T> ResponseEntityBuilder<T> builder() {
         return new ResponseEntityBuilder<>();
     }
 
-    public static class ResponseEntityBuilder<T>{
+    public static class ResponseEntityBuilder<T> {
         private int httpStatus;
         private String message;
         private T data;
 
-        private ResponseEntityBuilder(){};
+        private ResponseEntityBuilder() {
+        }
 
         public int getHttpStatus() {
             return httpStatus;
@@ -75,9 +74,10 @@ public class ResponseEntity<T> {
             return this;
         }
 
-        public ResponseEntity<T> build(){
+        public ResponseEntity<T> build() {
             return new ResponseEntity<>(this);
         }
+
         @Override
         public String toString() {
             return "ResponseEntityBuilder{" +
@@ -87,6 +87,7 @@ public class ResponseEntity<T> {
                     '}';
         }
     }
+
     @Override
     public String toString() {
         return "ResponseEntity{" +

@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Singleton
-public class JsonMapper {
+public final class JsonMapper {
 
     private final PrimitiveParser PRIMITIVE_PARSER;
 

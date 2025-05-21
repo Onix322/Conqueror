@@ -3,7 +3,7 @@ package org.server.entityManager;
 
 import java.util.Set;
 
-public interface EntityManager {
+public sealed interface EntityManager permits EntityManagerImpl{
 
     Set<Class<?>> getEntities();
 

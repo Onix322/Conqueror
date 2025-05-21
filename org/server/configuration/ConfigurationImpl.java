@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 @Singleton
-public class ConfigurationImpl implements Configuration {
+public final class ConfigurationImpl implements Configuration {
 
     private static final Properties PROPERTIES = new Properties();
 

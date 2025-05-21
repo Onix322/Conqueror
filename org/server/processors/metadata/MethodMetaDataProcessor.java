@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Singleton
-public class MethodMetaDataProcessor implements MetaDataProcessor<Map<String, MethodMetaData>> {
+public final class MethodMetaDataProcessor implements MetaDataProcessor<Map<String, MethodMetaData>> {
 
     private MethodMetaDataProcessor() {
     }

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Singleton
-public class RouteHandler {
+public final class RouteHandler {
 
     private RouteHandler() {
     }

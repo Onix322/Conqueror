@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Singleton
-public class RouteProcessor {
+public final class RouteProcessor {
 
     private final ControllerManager CONTROLLER_MANAGER;
     private final PrimitiveParser PRIMITIVE_PARSER;

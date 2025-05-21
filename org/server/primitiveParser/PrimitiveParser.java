@@ -5,7 +5,7 @@ import org.server.processors.components.annotations.Singleton;
 import java.util.Map;
 
 @Singleton
-public class PrimitiveParser {
+public final class PrimitiveParser {
 
     private final Map<Class<?>, Class<?>> WRAPPERS_AND_PRIMITIVES = Map.ofEntries(
             Map.entry(Integer.class, int.class),

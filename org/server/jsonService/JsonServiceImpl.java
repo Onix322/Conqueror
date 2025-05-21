@@ -9,7 +9,7 @@ import org.server.processors.components.annotations.Singleton;
 import java.util.Collection;
 
 @Singleton
-public class JsonServiceImpl implements JsonService {
+public final class JsonServiceImpl implements JsonService {
 
     private final JsonParser JSON_PARSER;
 

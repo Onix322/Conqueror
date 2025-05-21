@@ -6,7 +6,7 @@ import org.server.jsonService.json.types.JsonType;
 
 import java.util.Collection;
 
-public interface Parser {
+public sealed interface Parser permits JsonParser{
     <T> T mapObject(JsonObject jsonType, Class<T> type) throws Exception;
 
     <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws Exception;

@@ -20,7 +20,7 @@ import org.server.processors.components.annotations.Singleton;
 import java.util.*;
 
 @Singleton
-public class JsonParser implements Parser{
+public final class JsonParser implements Parser{
 
     private final JsonValidator JSON_VALIDATOR;
     private final JsonFormat JSON_FORMAT;

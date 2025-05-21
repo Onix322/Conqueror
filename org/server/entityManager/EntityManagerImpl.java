@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Singleton
-public class EntityManagerImpl implements EntityManager {
+public final class EntityManagerImpl implements EntityManager {
 
     private final Set<Class<?>> ENTITIES;
 

@@ -5,7 +5,7 @@ import org.server.jsonService.json.formatter.JsonFormatedString;
 import org.server.processors.components.annotations.Singleton;
 
 @Singleton
-public class JsonValidator {
+public final class JsonValidator {
 
     private JsonValidator() {}
 

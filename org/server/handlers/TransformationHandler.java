@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Singleton
-public class TransformationHandler {
+public final class TransformationHandler {
 
     private final JsonService JSON_SERVICE;
     private final EntityManager ENTITY_MANAGER;

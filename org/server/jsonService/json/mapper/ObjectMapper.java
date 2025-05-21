@@ -12,7 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Singleton
-public class ObjectMapper {
+public final class ObjectMapper {
 
     private ObjectMapper() {
     }
