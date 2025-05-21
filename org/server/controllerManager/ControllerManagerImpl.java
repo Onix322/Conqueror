@@ -2,7 +2,7 @@ package org.server.controllerManager;
 
 import org.server.httpServer.route.ControllerRoute;
 import org.server.processors.metadata.ControllerMetaDataProcessor;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 import org.server.processors.components.annotations.controller.Controller;
 import org.server.metadata.ControllerMetaData;
 
@@ -10,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Singleton
+@Component
 public final class ControllerManagerImpl implements ControllerManager {
 
     private final Map<String, ControllerMetaData> CONTROLLERS;
@@ -29,18 +29,6 @@ public final class ControllerManagerImpl implements ControllerManager {
     @Override
     public ControllerMetaData requestController(ControllerRoute route) {
         return this.CONTROLLERS.get(route.getRoute());
-    }
-
-    @Override
-    public <E, T extends Map<String, E>> E request(String path, T map){
-        String key = "";
-        for (String cKey : map.keySet()) {
-            String cleanKey = cKey.replaceAll("/\\{[A-z0-9]+}", "");
-            if (path.contains(cleanKey) && cKey.length() >= key.length()) {
-                key = cKey;
-            }
-        }
-        return map.get(key);
     }
 
     public <T> ControllerManager registerController(Class<T> clazz) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {

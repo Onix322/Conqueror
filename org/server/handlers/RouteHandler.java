@@ -3,13 +3,13 @@ package org.server.handlers;
 import org.server.httpServer.request.httpRequest.HttpRequest;
 import org.server.httpServer.route.PathVariable;
 import org.server.metadata.RouteMetaData;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
-@Singleton
+@Component
 public final class RouteHandler {
 
     private RouteHandler() {

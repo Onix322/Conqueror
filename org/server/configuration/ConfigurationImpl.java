@@ -1,7 +1,6 @@
 package org.server.configuration;
 
 import org.server.exepltions.ConfigPropertyNonExistent;
-import org.server.processors.components.annotations.Singleton;
 
 import java.io.IOError;
 import java.io.IOException;

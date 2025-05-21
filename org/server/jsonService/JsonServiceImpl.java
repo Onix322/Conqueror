@@ -4,11 +4,11 @@ import org.server.jsonService.json.parser.JsonParser;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
 import org.server.jsonService.json.types.JsonType;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 
 import java.util.Collection;
 
-@Singleton
+@Component
 public final class JsonServiceImpl implements JsonService {
 
     private final JsonParser JSON_PARSER;

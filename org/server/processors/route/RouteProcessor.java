@@ -9,12 +9,12 @@ import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
 import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 
 import java.util.*;
 import java.util.stream.Stream;
 
-@Singleton
+@Component
 public final class RouteProcessor {
 
     private final ControllerManager CONTROLLER_MANAGER;

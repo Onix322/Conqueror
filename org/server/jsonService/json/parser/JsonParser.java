@@ -15,11 +15,11 @@ import org.server.jsonService.json.properties.JsonValue;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
 import org.server.jsonService.json.types.JsonType;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 
 import java.util.*;
 
-@Singleton
+@Component
 public final class JsonParser implements Parser{
 
     private final JsonValidator JSON_VALIDATOR;

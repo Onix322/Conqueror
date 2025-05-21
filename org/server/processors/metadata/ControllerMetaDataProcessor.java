@@ -1,7 +1,7 @@
 package org.server.processors.metadata;
 
 import org.server.httpServer.route.ControllerRoute;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 import org.server.processors.components.annotations.controller.mapping.Mapping;
 import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
@@ -11,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-@Singleton
+@Component
 public final class ControllerMetaDataProcessor implements MetaDataProcessor<ControllerMetaData> {
 
     private final MethodMetaDataProcessor METHOD_PROCESSOR;

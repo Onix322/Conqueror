@@ -2,7 +2,7 @@ package org.server.processors.components;
 
 import org.server.configuration.Configuration;
 import org.server.exepltions.CircularDependencyException;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,13 +14,13 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
-public final class SingletonProcessor {
+public final class ComponentProcessor {
 
     private final String PACKAGE;
     private final File FILE;
     private final Map<Class<?>, Object> APPLICATION_CONTEXT = new LinkedHashMap<>();
 
-    public SingletonProcessor(Configuration configuration, ExecutorService executorService) {
+    public ComponentProcessor(Configuration configuration, ExecutorService executorService) {
         this.force(configuration.getClass(), configuration);
         this.force(executorService.getClass(), executorService);
         String path = configuration.readProperty("project.path");
@@ -54,21 +54,21 @@ public final class SingletonProcessor {
 
     public void applicationContextInit() throws IOException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<File> files = Arrays.asList(Objects.requireNonNull(this.FILE.listFiles()));
-        List<Class<?>> allSingletons = getAllSingletons(files, PACKAGE);
+        List<Class<?>> allComponents = getAllComponents(files, PACKAGE);
         List<String> argsNamesForError = null; //in case there is an error for debugging
 
-        Iterator<Class<?>> iteratorAllSingletons = allSingletons.listIterator();
+        Iterator<Class<?>> iteratorAllComponents = allComponents.listIterator();
 
-        while (iteratorAllSingletons.hasNext()) {
-            Class<?> singleton = iteratorAllSingletons.next();
+        while (iteratorAllComponents.hasNext()) {
+            Class<?> component = iteratorAllComponents.next();
 
             //already in context -> jump over
-            if (APPLICATION_CONTEXT.containsKey(singleton)) {
-                iteratorAllSingletons.remove();
+            if (APPLICATION_CONTEXT.containsKey(component)) {
+                iteratorAllComponents.remove();
                 continue;
             }
 
-            Constructor<?> constructor = getConstructor(singleton);
+            Constructor<?> constructor = getConstructor(component);
             constructor.setAccessible(true);
             Object instance;
 
@@ -85,20 +85,20 @@ public final class SingletonProcessor {
                 instance = constructor.newInstance(args.toArray());
             }
 
-            System.out.println("[" + this.getClass().getSimpleName() + "] Initialization -> " + singleton.getName());
-            APPLICATION_CONTEXT.put(singleton, instance);
-            iteratorAllSingletons.remove();
+            System.out.println("[" + this.getClass().getSimpleName() + "] Initialization -> " + component.getName());
+            APPLICATION_CONTEXT.put(component, instance);
+            iteratorAllComponents.remove();
 
-            iteratorAllSingletons = allSingletons.listIterator(); //Reset
+            iteratorAllComponents = allComponents.listIterator(); //Reset
         }
 
-        if (!allSingletons.isEmpty()) {
+        if (!allComponents.isEmpty()) {
             List<String> finalArgsForError = argsNamesForError;
-            allSingletons.forEach(s -> {
+            allComponents.forEach(s -> {
                 System.err.println(s);
                 System.err.println(finalArgsForError);
             });
-            throw new CircularDependencyException("Circular dependency or missing @Singleton: " + allSingletons);
+            throw new CircularDependencyException("Circular dependency or missing @Component: " + allComponents);
         }
     }
 
@@ -120,23 +120,23 @@ public final class SingletonProcessor {
                 .toList();
     }
 
-    private List<Class<?>> getAllSingletons(List<File> files, String packageName) throws ClassNotFoundException, IOException {
-        List<Class<?>> allSingletons = new LinkedList<>();
+    private List<Class<?>> getAllComponents(List<File> files, String packageName) throws ClassNotFoundException, IOException {
+        List<Class<?>> allComponents = new LinkedList<>();
         try (URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{FILE.toURI().toURL()})) {
             for (File f : files) {
                 if (f.isDirectory()) {
                     List<File> inner_files = Arrays.stream(Objects.requireNonNull(f.listFiles())).toList();
-                    allSingletons.addAll(getAllSingletons(inner_files, packageName + f.getName() + "."));
+                    allComponents.addAll(getAllComponents(inner_files, packageName + f.getName() + "."));
                 }
                 String fn = f.getName();
                 if (!fn.endsWith(".class")) continue;
                 Class<?> classTest = classLoader.loadClass(packageName + fn.substring(0, fn.length() - 6));
-                if (!classTest.isAnnotationPresent(Singleton.class)) {
+                if (!classTest.isAnnotationPresent(Component.class)) {
                     continue;
                 }
-                allSingletons.add(classTest);
+                allComponents.add(classTest);
             }
-            return allSingletons;
+            return allComponents;
         }
     }
 

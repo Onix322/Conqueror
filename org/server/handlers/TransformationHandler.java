@@ -15,7 +15,7 @@ import org.server.jsonService.json.properties.JsonProperty;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
 import org.server.jsonService.json.types.JsonType;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-@Singleton
+@Component
 public final class TransformationHandler {
 
     private final JsonService JSON_SERVICE;

@@ -4,7 +4,7 @@ import org.server.exepltions.DuplicateMappingMethod;
 import org.server.httpServer.HttpMethod;
 import org.server.httpServer.route.MethodRoute;
 import org.server.metadata.MethodMetaData;
-import org.server.processors.components.annotations.Singleton;
+import org.server.processors.components.annotations.Component;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Singleton
+@Component
 public final class MethodMetaDataProcessor implements MetaDataProcessor<Map<String, MethodMetaData>> {
 
     private MethodMetaDataProcessor() {

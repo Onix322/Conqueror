@@ -10,7 +10,5 @@ public sealed interface ControllerManager permits ControllerManagerImpl{
 
     ControllerMetaData requestController(ControllerRoute route);
 
-    <E, T extends Map<String, E>> E request(String path, T map);
-
     <T> ControllerManager registerController(Class<T> clazz) throws Exception;
 }

@@ -1,7 +1,6 @@
 package org.mvc.controller;
 
 import org.mvc.entities.TestObject;
-import org.server.processors.components.annotations.Singleton;
 import org.server.processors.components.annotations.controller.Controller;
 import org.server.processors.components.annotations.controller.mapping.GetMapping;
 import org.server.httpServer.response.HttpStatus;
