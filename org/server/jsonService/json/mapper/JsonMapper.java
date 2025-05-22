@@ -22,7 +22,7 @@ public final class JsonMapper {
         this.PRIMITIVE_PARSER = primitiveParser;
     }
 
-    public PrimitiveParser getPrimitiveParser(){
+    public PrimitiveParser getPrimitiveParser() {
         return this.PRIMITIVE_PARSER;
     }
 
@@ -57,12 +57,14 @@ public final class JsonMapper {
 
     private JsonValue getJsonValue(Object o) throws Exception {
         JsonValue jsonValue;
-        if (this.PRIMITIVE_PARSER.isWrapperClass(o.getClass())){
+        if (this.PRIMITIVE_PARSER.isWrapperClass(o.getClass())) {
             jsonValue = new JsonValue(o);
         } else if (o instanceof String) {
             jsonValue = new JsonValue('"' + o.toString() + '"');
         } else if (o instanceof Collection<?>) {
             jsonValue = new JsonValue(this.toJsonArray((Collection<?>) o));
+        } else if (o instanceof Enum<?>) {
+            jsonValue = new JsonValue('"' + ((Enum<?>) o).name() + '"');
         } else {
             jsonValue = new JsonValue(this.toJsonObject(o));
         }

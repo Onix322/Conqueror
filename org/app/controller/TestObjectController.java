@@ -1,11 +1,14 @@
 package org.app.controller;
 
 import org.app.entity.TestObject;
+import org.server.httpServer.HttpMethod;
 import org.server.processors.components.annotations.controller.Controller;
 import org.server.processors.components.annotations.controller.mapping.GetMapping;
 import org.server.httpServer.response.HttpStatus;
 import org.server.processors.components.annotations.controller.mapping.PostMapping;
 import org.server.responseEntity.ResponseEntity;
+
+import java.util.List;
 
 @Controller("/test-object")
 public class TestObjectController {
@@ -36,7 +39,7 @@ public class TestObjectController {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData(new TestObject(name, integer))
+                .setData(new TestObject(name, integer, List.of(HttpMethod.GET)))
                 .build();
     }
 

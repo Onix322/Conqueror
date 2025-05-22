@@ -1,8 +1,6 @@
 package org.server.httpServer;
 
 import org.server.configuration.Configuration;
-import org.server.controllerManager.ControllerManager;
-import org.server.entityManager.EntityManager;
 import org.server.handlers.RouteHandler;
 import org.server.httpServer.request.httpRequest.HttpRequest;
 import org.server.handlers.TransformationHandler;
@@ -93,6 +91,7 @@ public final class HttpServerImpl implements HttpServer {
                 this.sendResponse(clientSocket, response);
             } catch (Exception e) {
                 e.printStackTrace();
+                //TODO SEND ERROR TO CLIENT
                 throw new RuntimeException(e.getLocalizedMessage());
             }
         });
