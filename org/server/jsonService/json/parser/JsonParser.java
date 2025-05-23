@@ -15,7 +15,7 @@ import org.server.jsonService.json.properties.JsonValue;
 import org.server.jsonService.json.types.JsonArray;
 import org.server.jsonService.json.types.JsonObject;
 import org.server.jsonService.json.types.JsonType;
-import org.server.processors.components.annotations.Component;
+import org.server.processors.context.annotations.Component;
 
 import java.util.*;
 

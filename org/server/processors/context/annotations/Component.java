@@ -1,4 +1,4 @@
-package org.server.processors.components.annotations;
+package org.server.processors.context.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

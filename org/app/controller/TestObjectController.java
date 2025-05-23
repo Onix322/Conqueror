@@ -2,10 +2,10 @@ package org.app.controller;
 
 import org.app.entity.TestObject;
 import org.server.httpServer.HttpMethod;
-import org.server.processors.components.annotations.controller.Controller;
-import org.server.processors.components.annotations.controller.mapping.GetMapping;
+import org.server.processors.context.annotations.controller.Controller;
+import org.server.processors.context.annotations.controller.mapping.GetMapping;
 import org.server.httpServer.response.HttpStatus;
-import org.server.processors.components.annotations.controller.mapping.PostMapping;
+import org.server.processors.context.annotations.controller.mapping.PostMapping;
 import org.server.responseEntity.ResponseEntity;
 
 import java.util.List;

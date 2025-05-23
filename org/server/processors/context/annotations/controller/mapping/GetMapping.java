@@ -1,4 +1,4 @@
-package org.server.processors.components.annotations.controller.mapping;
+package org.server.processors.context.annotations.controller.mapping;
 
 import org.server.httpServer.HttpMethod;
 
@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Mapping
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface PostMapping {
-    HttpMethod httpMethod() default HttpMethod.POST;
-    String value() default "/post";
+public @interface GetMapping {
+    HttpMethod httpMethod() default HttpMethod.GET;
+    String value() default "/get";
 }

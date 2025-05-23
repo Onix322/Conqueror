@@ -9,7 +9,7 @@ import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
 import org.server.metadata.RouteMetaData;
 import org.server.primitiveParser.PrimitiveParser;
-import org.server.processors.components.annotations.Component;
+import org.server.processors.context.annotations.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;

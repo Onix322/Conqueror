@@ -2,9 +2,9 @@ package org.server.controllerManager;
 
 import org.server.httpServer.route.ControllerRoute;
 import org.server.metadata.ControllerMetaData;
-import org.server.processors.components.ContextProcessor;
-import org.server.processors.components.annotations.Component;
-import org.server.processors.components.annotations.controller.Controller;
+import org.server.processors.context.ContextProcessor;
+import org.server.processors.context.annotations.Component;
+import org.server.processors.context.annotations.controller.Controller;
 import org.server.processors.metadata.ControllerMetaDataProcessor;
 
 import java.lang.reflect.InvocationTargetException;

@@ -1,6 +1,6 @@
 package org.server.primitiveParser;
 
-import org.server.processors.components.annotations.Component;
+import org.server.processors.context.annotations.Component;
 
 import java.util.Map;
 

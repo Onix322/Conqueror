@@ -4,7 +4,7 @@ import org.server.exepltions.DuplicateMappingMethod;
 import org.server.httpServer.HttpMethod;
 import org.server.httpServer.route.MethodRoute;
 import org.server.metadata.MethodMetaData;
-import org.server.processors.components.annotations.Component;
+import org.server.processors.context.annotations.Component;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;

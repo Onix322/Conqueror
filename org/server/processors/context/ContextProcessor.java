@@ -1,9 +1,10 @@
-package org.server.processors.components;
+package org.server.processors.context;
 
 import org.server.configuration.Configuration;
 import org.server.exepltions.CircularDependencyException;
-import org.server.processors.components.annotations.Component;
-import org.server.processors.components.annotations.controller.Controller;
+import org.server.processors.context.annotations.Component;
+import org.server.processors.context.annotations.controller.Controller;
+import org.server.processors.context.annotations.entity.Entity;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +21,7 @@ public final class ContextProcessor {
     private final String PACKAGE;
     private final File FILE;
     private final Map<Class<?>, Object> APPLICATION_CONTEXT = new LinkedHashMap<>();
+    private final Set<Class<?>> APPLICATION_ENTITIES = new LinkedHashSet<>();
 
     public ContextProcessor(Configuration configuration, ExecutorService executorService) {
         this.force(configuration.getClass(), configuration);
@@ -54,15 +56,25 @@ public final class ContextProcessor {
         return Map.copyOf(this.APPLICATION_CONTEXT);
     }
 
+    public Set<Class<?>> getEntities() {
+        return Set.copyOf(this.APPLICATION_ENTITIES);
+    }
+
     public void applicationContextInit() throws IOException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<File> files = Arrays.asList(Objects.requireNonNull(this.FILE.listFiles()));
-        List<Class<?>> allComponents = getAllComponents(files, PACKAGE);
+        List<Class<?>> allComponents = gather(files, PACKAGE);
         Object circularDependency = null; // in case is circular
         Iterator<Class<?>> iteratorAllComponents = allComponents.listIterator();
 
         while (iteratorAllComponents.hasNext()) {
             Class<?> component = iteratorAllComponents.next();
 
+            if (component.isAnnotationPresent(Entity.class)) {
+                System.out.println("[" + this.getClass().getSimpleName() + "] Register Entity -> " + component.getName());
+                APPLICATION_ENTITIES.add(component);
+                iteratorAllComponents.remove();
+                continue;
+            }
             //already in context -> jump over
             if (APPLICATION_CONTEXT.containsKey(component)) {
                 iteratorAllComponents.remove();
@@ -97,7 +109,7 @@ public final class ContextProcessor {
         }
     }
 
-    private List<Object> rezolveConstructorArgs(Constructor<?> constructor){
+    private List<Object> rezolveConstructorArgs(Constructor<?> constructor) {
         return Arrays.stream(constructor.getParameterTypes())
                 .map(p -> {
                     AtomicReference<Object> arg = new AtomicReference<>();
@@ -115,21 +127,22 @@ public final class ContextProcessor {
                 .toList();
     }
 
-    private List<Class<?>> getAllComponents(List<File> files, String packageName) throws ClassNotFoundException, IOException {
+    private List<Class<?>> gather(List<File> files, String packageName) throws ClassNotFoundException, IOException {
         List<Class<?>> allComponents = new LinkedList<>();
         try (URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{FILE.toURI().toURL()})) {
             for (File f : files) {
                 if (f.isDirectory()) {
                     List<File> inner_files = Arrays.stream(Objects.requireNonNull(f.listFiles())).toList();
-                    allComponents.addAll(getAllComponents(inner_files, packageName + f.getName() + "."));
+                    allComponents.addAll(gather(inner_files, packageName + f.getName() + "."));
                 }
                 String fn = f.getName();
                 if (!fn.endsWith(".class")) continue;
                 Class<?> classTest = classLoader.loadClass(packageName + fn.substring(0, fn.length() - 6));
-                if (!(classTest.isAnnotationPresent(Component.class) || classTest.isAnnotationPresent(Controller.class))) {
-                    continue;
+                if (classTest.isAnnotationPresent(Component.class) ||
+                        classTest.isAnnotationPresent(Controller.class) ||
+                        classTest.isAnnotationPresent(Entity.class)) {
+                    allComponents.add(classTest);
                 }
-                allComponents.add(classTest);
             }
             return allComponents;
         }

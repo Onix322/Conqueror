@@ -3,7 +3,7 @@ package org.server.handlers;
 import org.server.httpServer.request.httpRequest.HttpRequest;
 import org.server.httpServer.route.PathVariable;
 import org.server.metadata.RouteMetaData;
-import org.server.processors.components.annotations.Component;
+import org.server.processors.context.annotations.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;

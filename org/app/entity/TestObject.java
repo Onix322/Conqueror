@@ -1,10 +1,12 @@
 package org.app.entity;
 
 import org.server.httpServer.HttpMethod;
+import org.server.processors.context.annotations.entity.Entity;
 
 import java.util.List;
 import java.util.Objects;
 
+@Entity
 public class TestObject {
 
     private String hello;

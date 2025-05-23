@@ -1,7 +1,8 @@
 package org.server.entityManager;
 
 import org.server.exepltions.NoEntityMatchesJson;
-import org.server.processors.components.annotations.Component;
+import org.server.processors.context.ContextProcessor;
+import org.server.processors.context.annotations.Component;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -11,31 +12,20 @@ import java.util.stream.Stream;
 @Component
 public final class EntityManagerImpl implements EntityManager {
 
-    private final Set<Class<?>> ENTITIES;
+    private final ContextProcessor CONTEXT_PROCESSOR;
 
-    private EntityManagerImpl() {
-        this.ENTITIES = new HashSet<>();
-    }
-
-    @Override
-    public Set<Class<?>> getEntities() {
-        return Set.copyOf(ENTITIES);
-    }
-
-    @Override
-    public <T> EntityManager registerEntityClass(Class<T> entity) {
-        ENTITIES.add(entity);
-
-        //TODO when called automatically make an entity in DB
-        return this;
+    private EntityManagerImpl(ContextProcessor CONTEXT_PROCESSOR) {
+        this.CONTEXT_PROCESSOR = CONTEXT_PROCESSOR;
     }
 
     @Override
     public Class<?> askForClass(String[] fieldsNames){
 
+        Set<Class<?>> entities = this.CONTEXT_PROCESSOR.getEntities();
+
         Class<?> gotClass = null;
 
-        for(Class<?> entityClass : ENTITIES){
+        for(Class<?> entityClass : entities){
             Set<String> fields = Stream.of(entityClass.getDeclaredFields())
                     .map(Field::getName)
                     .collect(Collectors.toSet());
@@ -49,13 +39,7 @@ public final class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public <T> EntityManager removeEntityClass(Class<T> clazz) {
-        ENTITIES.remove(clazz);
-        return this;
-    }
-
-    @Override
     public <T> boolean contains(Class<T> clazz){
-        return ENTITIES.contains(clazz);
+        return CONTEXT_PROCESSOR.getEntities().contains(clazz);
     }
 }

@@ -12,7 +12,7 @@ import org.server.jsonService.JsonService;
 import org.server.jsonService.json.types.JsonType;
 import org.server.metadata.RouteMetaData;
 import org.server.processors.route.RouteProcessor;
-import org.server.processors.components.annotations.Component;
+import org.server.processors.context.annotations.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

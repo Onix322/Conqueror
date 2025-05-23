@@ -2,7 +2,7 @@ package org.server.jsonService.json.validator;
 
 import org.server.exepltions.JsonNotValid;
 import org.server.jsonService.json.formatter.JsonFormatedString;
-import org.server.processors.components.annotations.Component;
+import org.server.processors.context.annotations.Component;
 
 @Component
 public final class JsonValidator {
