@@ -6,7 +6,7 @@ import org.server.processors.context.annotations.entity.Entity;
 import java.util.List;
 import java.util.Objects;
 
-@Entity
+@Entity("test_object")
 public class TestObject {
 
     private String hello;

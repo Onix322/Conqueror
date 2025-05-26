@@ -1,6 +1,6 @@
 package org.server.processors.route;
 
-import org.server.controllerManager.ControllerManager;
+import org.server.managers.controllerManager.ControllerManager;
 import org.server.httpServer.request.httpRequest.HttpRequest;
 import org.server.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
 import org.server.httpServer.route.ControllerRoute;
@@ -8,7 +8,7 @@ import org.server.httpServer.route.PathVariable;
 import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
 import org.server.metadata.RouteMetaData;
-import org.server.primitiveParser.PrimitiveParser;
+import org.server.parsers.primitiveParser.PrimitiveParser;
 import org.server.processors.context.annotations.Component;
 
 import java.lang.reflect.InvocationTargetException;

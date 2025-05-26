@@ -6,7 +6,7 @@ import org.server.processors.context.annotations.controller.Controller;
 import org.server.processors.context.annotations.controller.mapping.GetMapping;
 import org.server.httpServer.response.HttpStatus;
 import org.server.processors.context.annotations.controller.mapping.PostMapping;
-import org.server.responseEntity.ResponseEntity;
+import org.server.httpServer.responseEntity.ResponseEntity;
 
 import java.util.List;
 

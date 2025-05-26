@@ -1,5 +1,6 @@
 import org.server.configuration.Configuration;
 import org.server.configuration.ConfigurationImpl;
+import org.server.managers.entityManager.EntityManager;
 import org.server.httpServer.HttpServer;
 import org.server.processors.context.ContextProcessor;
 
@@ -22,6 +23,10 @@ public class Conqueror {
         //* SingletonProcessor Initialization
         ContextProcessor contextProcessor = new ContextProcessor(configuration, executorService);
         contextProcessor.applicationContextInit();
+
+        //* Entities autoload
+        contextProcessor.requestInstance(EntityManager.class)
+                        .autoload();
 
         //* Server start
         contextProcessor.requestInstance(HttpServer.class)

@@ -1,6 +1,6 @@
 package org.server.handlers;
 
-import org.server.entityManager.EntityManager;
+import org.server.managers.entityManager.EntityManager;
 import org.server.exepltions.MissingHttpStartLine;
 import org.server.httpServer.HttpMethod;
 import org.server.httpServer.request.httpRequest.HttpRequest;
@@ -9,12 +9,12 @@ import org.server.httpServer.request.httpRequestHeader.HttpRequestHeader;
 import org.server.httpServer.request.httpRequestHeader.HttpRequestHeaderFactory;
 import org.server.httpServer.request.httpRequestStartLine.HttpRequestStartLine;
 import org.server.httpServer.request.httpRequestStartLine.HttpRequestStartLineFactory;
-import org.server.jsonService.JsonService;
-import org.server.jsonService.json.properties.JsonKey;
-import org.server.jsonService.json.properties.JsonProperty;
-import org.server.jsonService.json.types.JsonArray;
-import org.server.jsonService.json.types.JsonObject;
-import org.server.jsonService.json.types.JsonType;
+import org.server.parsers.jsonService.JsonService;
+import org.server.parsers.jsonService.json.properties.JsonKey;
+import org.server.parsers.jsonService.json.properties.JsonProperty;
+import org.server.parsers.jsonService.json.types.JsonArray;
+import org.server.parsers.jsonService.json.types.JsonObject;
+import org.server.parsers.jsonService.json.types.JsonType;
 import org.server.processors.context.annotations.Component;
 
 import java.io.BufferedReader;

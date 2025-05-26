@@ -1,14 +1,9 @@
 package test.databaseConnectionTest;
 
-import org.server.configuration.Configuration;
-import org.server.driverManager.ConnectionManager;
-import org.server.processors.context.annotations.Component;
-
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.sql.*;
-import java.util.List;
 import java.util.Properties;
 
 public final class MySqlConnectionTest {
@@ -27,7 +22,7 @@ public final class MySqlConnectionTest {
     }
 
     public static Driver driver() throws URISyntaxException, MalformedURLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-        File file = new File("org/server/driverManager/mysql-connector-j-9.3.0.jar");
+        File file = new File("org/libs/mysql-connector-j-9.3.0.jar");
 
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{file.toURI().toURL()});
 
