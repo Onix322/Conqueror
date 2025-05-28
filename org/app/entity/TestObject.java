@@ -1,16 +1,20 @@
 package org.app.entity;
 
 import org.server.httpServer.HttpMethod;
+import org.server.processors.context.annotations.entity.Column;
 import org.server.processors.context.annotations.entity.Entity;
 
 import java.util.List;
 import java.util.Objects;
 
-@Entity("test_object")
+@Entity(name = "test_object")
 public class TestObject {
 
+    @Column(name = "hello")
     private String hello;
+    @Column(name = "number")
     private Integer number;
+    @Column(name = "method")
     private List<HttpMethod> method;
 
     public TestObject() {
