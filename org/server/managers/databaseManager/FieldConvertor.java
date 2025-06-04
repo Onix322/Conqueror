@@ -1,19 +1,26 @@
 package org.server.managers.databaseManager;
 
 import org.server.exepltions.AnnotationException;
-import org.server.exepltions.IncompatibleTypeChangeException;
 import org.server.processors.context.annotations.Component;
 import org.server.processors.context.annotations.entity.Column;
 
 import java.lang.reflect.Field;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.JDBCType;
+import java.sql.SQLType;
 import java.util.List;
-import java.util.Set;
 
 @Component
-public class DatabaseFieldConvertor {
+public class FieldConvertor {
 
+    private final JDBCTypeResolver JDBC_TYPE_RESOLVER;
+
+    private FieldConvertor(JDBCTypeResolver jdbcTypeResolver) {
+        this.JDBC_TYPE_RESOLVER = jdbcTypeResolver;
+    }
+
+    /*
+     * Is converting a field in an EntityColumn
+     * */
     public EntityColumn convertor(Field field) {
         if (!field.isAnnotationPresent(Column.class)) {
             throw new AnnotationException("No @Column annotation present on field: " + field);
@@ -23,46 +30,41 @@ public class DatabaseFieldConvertor {
         boolean unique = field.getAnnotation(Column.class).unique();
         boolean primaryKey = field.getAnnotation(Column.class).primary();
         boolean nullable = field.getAnnotation(Column.class).nullable();
-        int type = this.handleType(field.getType());
+        SQLType type = JDBC_TYPE_RESOLVER.getJdbcType(field);
 
         return new EntityColumn(columnName, unique, primaryKey, nullable, type);
     }
 
-    public String sqlFormat(EntityColumn entityColumn){
+    /*
+     * Is creating sql table column syntax e.g: column_name VARCHAR(255) UNIQUE NOT NULL
+     * */
+    public String sqlFormat(EntityColumn entityColumn) {
         String base = entityColumn.getColumnName() + " " + entityColumn.getType();
 
-        if(entityColumn.isPrimaryKey()) return base + " PRIMARY KEY";
-        if(entityColumn.isUnique()) base += " UNIQUE";
-        if(entityColumn.isNullable()) base += " NOT NULL";
+        if (entityColumn.getType().equals(JDBCType.VARCHAR)) base += "(255)";
+        if (entityColumn.isPrimaryKey()) return base + " PRIMARY KEY";
+        if (entityColumn.isUnique()) base += " UNIQUE";
+        if (entityColumn.isNullable()) base += " NOT NULL";
         return base;
 
     }
 
-    public String slqEntityColumnsFormat(List<EntityColumn> entityColumns){
+    /*
+     * Is creating MULTIPLE sql table column syntax e.g:
+     * (column_name1 VARCHAR(255) UNIQUE NOT NULL, column_name2 VARCHAR(255) UNIQUE NOT NULL)
+     * */
+    public String slqEntityColumnsFormat(List<EntityColumn> entityColumns) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('(');
 
         for (int i = 0; i < entityColumns.size(); i++) {
             EntityColumn ec = entityColumns.get(i);
             stringBuilder.append(this.sqlFormat(ec));
-            if(i < entityColumns.size() - 1) {
+            if (i < entityColumns.size() - 1) {
                 stringBuilder.append(", ");
             }
         }
         stringBuilder.append(')');
         return stringBuilder.toString();
     }
-
-
-    public int handleType(Class<?> type) {
-        if (type.isAssignableFrom(String.class)) return Types.VARCHAR;
-        else if (type.isAssignableFrom(Integer.class)) return Types.INTEGER;
-        else if (type.isAssignableFrom(Double.class)) return Types.DOUBLE;
-        else if (type.isAssignableFrom(Timestamp.class)) return Types.TIMESTAMP;
-        else if (type.isAssignableFrom(List.class) ||
-                type.isAssignableFrom(Set.class)) return Types.ARRAY;
-
-        throw new IncompatibleTypeChangeException("Not a supported type: " + type);
-    }
-
 }

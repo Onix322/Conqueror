@@ -14,16 +14,13 @@ public class TestObject {
     private String hello;
     @Column(name = "number")
     private Integer number;
-    @Column(name = "method")
-    private List<HttpMethod> method;
 
     public TestObject() {
     }
 
-    public TestObject(String hello, Integer number, List<HttpMethod> method) {
+    public TestObject(String hello, Integer number) {
         this.hello = hello;
         this.number = number;
-        this.method = method;
     }
 
     public String getHello() {
@@ -43,14 +40,6 @@ public class TestObject {
     }
 
     @Override
-    public String toString() {
-        return "TestObject{" +
-                "hello='" + hello + '\'' +
-                ", number=" + number +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         TestObject that = (TestObject) object;
@@ -60,5 +49,13 @@ public class TestObject {
     @Override
     public int hashCode() {
         return Objects.hash(getHello(), getNumber());
+    }
+
+    @Override
+    public String toString() {
+        return "TestObject{" +
+                "hello='" + hello + '\'' +
+                ", number=" + number +
+                '}';
     }
 }

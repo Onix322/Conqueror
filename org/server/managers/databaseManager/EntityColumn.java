@@ -1,6 +1,6 @@
 package org.server.managers.databaseManager;
 
-import java.sql.Types;
+import java.sql.SQLType;
 import java.util.Objects;
 
 public class EntityColumn implements EntityData<EntityColumn> {
@@ -8,9 +8,9 @@ public class EntityColumn implements EntityData<EntityColumn> {
     private boolean unique;
     private boolean primaryKey;
     private boolean nullable;
-    private int type;
+    private SQLType type;
 
-    public EntityColumn(String columnName, boolean unique, boolean primaryKey, boolean nullable, int type) {
+    public EntityColumn(String columnName, boolean unique, boolean primaryKey, boolean nullable, SQLType type) {
         this.columnName = columnName;
         this.unique = unique;
         this.primaryKey = primaryKey;
@@ -50,11 +50,11 @@ public class EntityColumn implements EntityData<EntityColumn> {
         this.nullable = nullable;
     }
 
-    public int getType() {
+    public SQLType getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(SQLType type) {
         this.type = type;
     }
 
