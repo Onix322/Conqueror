@@ -1,38 +1,42 @@
-package org.server.managers.databaseManager;
+package org.server.managers.database.databaseManager.schemaHandler.schemaManager;
 
-import org.server.exepltions.AnnotationException;
+import org.server.managers.database.databaseManager.entityData.EntityColumn;
+import org.server.managers.database.databaseManager.entityData.EntityTable;
 import org.server.processors.context.annotations.Component;
-import org.server.processors.context.annotations.entity.Column;
 
-import java.lang.reflect.Field;
 import java.sql.JDBCType;
-import java.sql.SQLType;
 import java.util.List;
 
+/*
+* Factoring SQL strings for SchemaManager usage.
+* */
 @Component
-public class FieldConvertor {
+public class SqlQueryFactory {
 
-    private final JDBCTypeResolver JDBC_TYPE_RESOLVER;
-
-    private FieldConvertor(JDBCTypeResolver jdbcTypeResolver) {
-        this.JDBC_TYPE_RESOLVER = jdbcTypeResolver;
+    private SqlQueryFactory() {
     }
 
-    /*
-     * Is converting a field in an EntityColumn
-     * */
-    public EntityColumn convertor(Field field) {
-        if (!field.isAnnotationPresent(Column.class)) {
-            throw new AnnotationException("No @Column annotation present on field: " + field);
-        }
+    public String createTableSql(EntityTable entityTable) {
 
-        String columnName = field.getAnnotation(Column.class).name();
-        boolean unique = field.getAnnotation(Column.class).unique();
-        boolean primaryKey = field.getAnnotation(Column.class).primary();
-        boolean nullable = field.getAnnotation(Column.class).nullable();
-        SQLType type = JDBC_TYPE_RESOLVER.getJdbcType(field);
+        //TODO 1. column per field
+        //TODO 2. annotations for columns with attributes (name, uniques, nullable, primary_key)
+        //TODO 3. annotations for relationships (1-1, 1-N, N-1, N-N);
 
-        return new EntityColumn(columnName, unique, primaryKey, nullable, type);
+        return "CREATE TABLE "
+                + entityTable.getName()
+                + this.slqEntityColumnsFormat(entityTable.getColumns());
+    }
+
+    public String deleteTableSql(EntityTable entityTable) {
+        return "DROP TABLE " + entityTable.getName();
+    }
+
+    public String existTableSql(EntityTable entityTable){
+        return "SELECT EXISTS (" +
+                "  SELECT 1" +
+                "  FROM INFORMATION_SCHEMA.TABLES" +
+                "  WHERE TABLE_NAME = '" + entityTable.getName() +
+                "') AS table_exists";
     }
 
     /*

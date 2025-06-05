@@ -1,4 +1,4 @@
-package org.server.managers.databaseManager;
+package org.server.managers.database.databaseManager.schemaHandler.schemaManager;
 
 import org.server.processors.context.annotations.Component;
 
@@ -6,10 +6,7 @@ import java.lang.reflect.Field;
 import java.sql.JDBCType;
 import java.sql.SQLType;
 import java.sql.Types;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class JDBCTypeResolver {

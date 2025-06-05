@@ -1,7 +1,9 @@
-package org.server.managers.databaseManager;
+package org.server.managers.database.databaseManager.schemaHandler.schemaManager;
 
 import org.server.exepltions.IllegalClassException;
-import org.server.managers.driverManager.ConnectionManager;
+import org.server.managers.database.databaseManager.entityData.EntityColumn;
+import org.server.managers.database.databaseManager.entityData.EntityTable;
+import org.server.managers.database.driverManager.ConnectionManager;
 import org.server.processors.context.annotations.Component;
 import org.server.processors.context.annotations.entity.Entity;
 
@@ -12,19 +14,19 @@ import java.net.URISyntaxException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Component
-public class DatabaseManager {
+public class SchemaManager {
     private final ConnectionManager CONNECTION_MANAGER;
     private final FieldConvertor DB_FIELD_CONVERTOR;
+    private final SqlQueryFactory SQL_FORMATTER;
 
-    private DatabaseManager(ConnectionManager connection, FieldConvertor fieldConvertor) {
+    private SchemaManager(ConnectionManager connection, FieldConvertor fieldConvertor, SqlQueryFactory sqlQueryFactory) {
         this.CONNECTION_MANAGER = connection;
         this.DB_FIELD_CONVERTOR = fieldConvertor;
+        this.SQL_FORMATTER = sqlQueryFactory;
     }
 
     public PreparedStatement preparedStatement(String sql) throws RuntimeException {
@@ -37,7 +39,7 @@ public class DatabaseManager {
         }
     }
 
-    public EntityTable createEntityTable(Class<?> entity) {
+    public void createEntityTable(Class<?> entity) throws SQLException {
         if (!entity.isAnnotationPresent(Entity.class)) {
             throw new IllegalClassException("Class: " + entity + " is not defined as entity. Missing of @Entity annotation.");
         }
@@ -45,21 +47,33 @@ public class DatabaseManager {
         Field[] fields = entity.getDeclaredFields();
         List<EntityColumn> entityColumns = this.convertFields(fields);
 
-        return new EntityTable(
-                entity.getAnnotation(Entity.class).name(),
-                entityColumns
-        );
+        EntityTable entityTable = EntityTable.builder()
+                .setName(entity.getAnnotation(Entity.class).name())
+                .setColumns(entityColumns)
+                .build();
+
+        String tableSql = this.SQL_FORMATTER.createTableSql(entityTable);
+        try (PreparedStatement preparedStatement = this.preparedStatement(tableSql)) {
+            preparedStatement.execute();
+        }
     }
 
-    public String createTableSqlFormat(EntityTable entityTable) {
+    public boolean deleteEntityTable(Class<?> entity) throws SQLException {
 
-        //TODO 1. column per field
-        //TODO 2. annotations for columns with attributes (name, uniques, nullable, primary_key)
-        //TODO 3. annotations for relationships (1-1, 1-N, N-1, N-N)
+        if (!entity.isAnnotationPresent(Entity.class)) {
+            throw new IllegalClassException("Class: " + entity + " is not defined as entity. Missing of @Entity annotation.");
+        }
 
-        return "CREATE TABLE "
-                + entityTable.getName()
-                + this.DB_FIELD_CONVERTOR.slqEntityColumnsFormat(entityTable.getColumns());
+        EntityTable entityTable = EntityTable.builder()
+                .setName(entity.getAnnotation(Entity.class).name())
+                .build();
+
+        String sql = this.SQL_FORMATTER.deleteTableSql(entityTable);
+
+        try (PreparedStatement preparedStatement = this.preparedStatement(sql)) {
+            preparedStatement.execute();
+            return true;
+        }
     }
 
     private List<EntityColumn> convertFields(Field[] fields) {
@@ -73,35 +87,21 @@ public class DatabaseManager {
         return entityColumns;
     }
 
-    public void autoload(Set<Class<?>> applicationEntities) throws SQLException {
-        Iterator<Class<?>> entityIterator = applicationEntities.stream().iterator();
-//        PreparedStatement preparedStatement;
-        while (entityIterator.hasNext()) {
-            Class<?> entity = entityIterator.next();
-            EntityTable entityTable = this.createEntityTable(entity);
-            if (this.existsTable(entityTable)) {
-                System.out.println("[DatabaseManager] -> " + "Existing table for entity: '" + entity.getSimpleName() +
-                        "', table name: '" + entityTable.getName() + "'");
-                continue;
-            }
-            String tableSql = this.createTableSqlFormat(entityTable);
-            try (PreparedStatement preparedStatement = this.preparedStatement(tableSql)) {
-                preparedStatement.execute();
-            }
-        }
-    }
-
     public void stop() throws SQLException {
         System.out.println();
         this.CONNECTION_MANAGER.close();
     }
 
-    public boolean existsTable(EntityTable entityTable) throws SQLException {
-        String sql = "SELECT EXISTS (" +
-                "  SELECT 1" +
-                "  FROM INFORMATION_SCHEMA.TABLES" +
-                "  WHERE TABLE_NAME = '" + entityTable.getName() +
-                "') AS table_exists";
+    public boolean existsTable(Class<?> entity) throws SQLException {
+        if (!entity.isAnnotationPresent(Entity.class)) {
+            throw new IllegalClassException("Class: " + entity + " is not defined as entity. Missing of @Entity annotation.");
+        }
+
+        EntityTable entityTable = EntityTable.builder()
+                .setName(entity.getAnnotation(Entity.class).name())
+                .build();
+        String sql = this.SQL_FORMATTER.existTableSql(entityTable);
+
         try (PreparedStatement preparedStatement = this.preparedStatement(sql)) {
             preparedStatement.execute();
             ResultSet resultSet = preparedStatement.executeQuery();

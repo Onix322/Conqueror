@@ -1,4 +1,4 @@
-package org.server.managers.driverManager;
+package org.server.managers.database.driverManager;
 
 import org.server.configuration.Configuration;
 import org.server.processors.context.annotations.Component;

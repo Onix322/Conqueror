@@ -1,4 +1,4 @@
-package org.server.managers.driverManager;
+package org.server.managers.database.driverManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;

@@ -1,4 +1,4 @@
-package org.server.managers.entityManager;
+package org.server.managers.database.entityManager;
 
 
 import java.lang.reflect.InvocationTargetException;
