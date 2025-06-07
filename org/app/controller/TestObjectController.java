@@ -39,7 +39,7 @@ public class TestObjectController {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData(new TestObject(name, integer))
+                .setData(new TestObject(1, name, integer, 1))
                 .build();
     }
 

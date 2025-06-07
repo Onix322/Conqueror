@@ -51,11 +51,15 @@ public class SchemaHandler {
      * UPDATING existing entities without deleting any values / configuration
      * Compares the metadata from database and entity metadata for any differences
      * */
-    public boolean update(Iterator<Class<?>> entityIterator) {
+    public boolean update(Iterator<Class<?>> entityIterator) throws SQLException {
 
         // 1. identify new modifications made on schema.
         while (entityIterator.hasNext()) {
             Class<?> entity = entityIterator.next();
+
+            if(!this.SCHEMA_MANAGER.existsTable(entity)){
+                this.SCHEMA_MANAGER.createEntityTable(entity);
+            }
 
             List<Field> fieldsFound = new ArrayList<>(List.of(entity.getDeclaredFields()));
             Iterator<Field> fields = fieldsFound.listIterator();

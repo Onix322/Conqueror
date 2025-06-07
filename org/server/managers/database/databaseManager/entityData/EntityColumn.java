@@ -8,13 +8,15 @@ public class EntityColumn implements EntityData<EntityColumn> {
     private boolean unique;
     private boolean primaryKey;
     private boolean nullable;
+    private boolean autoIncrement;
     private SQLType type;
 
-    public EntityColumn(String columnName, boolean unique, boolean primaryKey, boolean nullable, SQLType type) {
+    public EntityColumn(String columnName, boolean unique, boolean primaryKey, boolean nullable, boolean autoIncrement, SQLType type) {
         this.columnName = columnName;
         this.unique = unique;
         this.primaryKey = primaryKey;
         this.nullable = nullable;
+        this.autoIncrement = autoIncrement;
         this.type = type;
     }
 
@@ -24,6 +26,22 @@ public class EntityColumn implements EntityData<EntityColumn> {
 
     public void setColumnName(String columnName) {
         this.columnName = columnName;
+    }
+
+    public SQLType getType() {
+        return type;
+    }
+
+    public void setType(SQLType type) {
+        this.type = type;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
     }
 
     public boolean isUnique() {
@@ -42,32 +60,25 @@ public class EntityColumn implements EntityData<EntityColumn> {
         this.primaryKey = primaryKey;
     }
 
-    public boolean isNullable() {
-        return nullable;
+    public boolean isAutoIncrement() {
+        return autoIncrement;
     }
 
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
-    }
-
-    public SQLType getType() {
-        return type;
-    }
-
-    public void setType(SQLType type) {
-        this.type = type;
+    public void setAutoIncrement(boolean autoIncrement) {
+        this.autoIncrement = autoIncrement;
     }
 
     @Override
     public boolean equals(Object object) {
+
         if (object == null || getClass() != object.getClass()) return false;
         EntityColumn that = (EntityColumn) object;
-        return isUnique() == that.isUnique() && isPrimaryKey() == that.isPrimaryKey() && isNullable() == that.isNullable() && getType() == that.getType() && Objects.equals(getColumnName(), that.getColumnName());
+        return isUnique() == that.isUnique() && isPrimaryKey() == that.isPrimaryKey() && isNullable() == that.isNullable() && isAutoIncrement() == that.isAutoIncrement() && Objects.equals(getColumnName(), that.getColumnName()) && Objects.equals(getType(), that.getType());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getColumnName(), isUnique(), isPrimaryKey(), isNullable(), getType());
+        return Objects.hash(getColumnName(), isUnique(), isPrimaryKey(), isNullable(), isAutoIncrement(), getType());
     }
 
     @Override
@@ -77,8 +88,8 @@ public class EntityColumn implements EntityData<EntityColumn> {
                 ", unique=" + unique +
                 ", primaryKey=" + primaryKey +
                 ", nullable=" + nullable +
+                ", autoIncrement=" + autoIncrement +
                 ", type=" + type +
                 '}';
     }
-
 }

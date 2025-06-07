@@ -18,20 +18,22 @@ public class FieldConvertor {
     }
 
     /*
-     * Is converting a field in an EntityColumn
+     * Is converting a field in an EntityColumn based on metadata provided by @Column
      * */
     public EntityColumn convertor(Field field) {
         if (!field.isAnnotationPresent(Column.class)) {
             throw new AnnotationException("No @Column annotation present on field: " + field);
         }
 
-        String columnName = field.getAnnotation(Column.class).name();
-        boolean unique = field.getAnnotation(Column.class).unique();
-        boolean primaryKey = field.getAnnotation(Column.class).primary();
-        boolean nullable = field.getAnnotation(Column.class).nullable();
+        Column column = field.getAnnotation(Column.class);
+        String columnName = column.name();
+        boolean unique = column.unique();
+        boolean primaryKey = column.primary();
+        boolean nullable = column.nullable();
+        boolean autoIncrement = column.autoIncrement();
         SQLType type = JDBC_TYPE_RESOLVER.getJdbcType(field);
 
-        return new EntityColumn(columnName, unique, primaryKey, nullable, type);
+        return new EntityColumn(columnName, unique, primaryKey, nullable, autoIncrement, type);
     }
 
 }

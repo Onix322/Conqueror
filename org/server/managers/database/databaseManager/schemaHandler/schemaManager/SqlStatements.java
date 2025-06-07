@@ -11,15 +11,15 @@ import java.util.List;
 * Factoring SQL strings for SchemaManager usage.
 * */
 @Component
-public class SqlQueryFactory {
+public class SqlStatements {
 
-    private SqlQueryFactory() {
+    private SqlStatements() {
     }
 
     public String addColumnSql(EntityTable entityTable, EntityColumn entityColumn){
         return "ALTER TABLE " +
                 entityTable.getName() +
-                " ADD " + this.sqlFormat(entityColumn);
+                " ADD " + this.entityColumnSql(entityColumn);
     }
 
     public String deleteColumnSql(EntityTable entityTable, String columName){
@@ -30,8 +30,6 @@ public class SqlQueryFactory {
 
     public String createTableSql(EntityTable entityTable) {
 
-        //TODO 1. column per field
-        //TODO 2. annotations for columns with attributes (name, uniques, nullable, primary_key)
         //TODO 3. annotations for relationships (1-1, 1-N, N-1, N-N);
 
         return "CREATE TABLE "
@@ -54,15 +52,14 @@ public class SqlQueryFactory {
     /*
      * Is creating sql table column syntax e.g: column_name VARCHAR(255) UNIQUE NOT NULL
      * */
-    public String sqlFormat(EntityColumn entityColumn) {
+    public String entityColumnSql(EntityColumn entityColumn) {
         String base = entityColumn.getColumnName() + " " + entityColumn.getType();
-
         if (entityColumn.getType().equals(JDBCType.VARCHAR)) base += "(255)";
-        if (entityColumn.isPrimaryKey()) return base + " PRIMARY KEY";
+        if (entityColumn.isPrimaryKey()) base += " PRIMARY KEY";
+        if (entityColumn.isAutoIncrement()) base += " AUTO_INCREMENT";
         if (entityColumn.isUnique()) base += " UNIQUE";
-        if (entityColumn.isNullable()) base += " NOT NULL";
+        if (!entityColumn.isNullable()) base += " NOT NULL";
         return base;
-
     }
 
     /*
@@ -75,7 +72,7 @@ public class SqlQueryFactory {
 
         for (int i = 0; i < entityColumns.size(); i++) {
             EntityColumn ec = entityColumns.get(i);
-            stringBuilder.append(this.sqlFormat(ec));
+            stringBuilder.append(this.entityColumnSql(ec));
             if (i < entityColumns.size() - 1) {
                 stringBuilder.append(", ");
             }

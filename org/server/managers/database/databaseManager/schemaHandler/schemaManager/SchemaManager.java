@@ -24,12 +24,12 @@ import java.util.List;
 public class SchemaManager {
     private final ConnectionManager CONNECTION_MANAGER;
     private final FieldConvertor DB_FIELD_CONVERTOR;
-    private final SqlQueryFactory SQL_FORMATTER;
+    private final SqlStatements SQL_FORMATTER;
 
-    private SchemaManager(ConnectionManager connection, FieldConvertor fieldConvertor, SqlQueryFactory sqlQueryFactory) {
+    private SchemaManager(ConnectionManager connection, FieldConvertor fieldConvertor, SqlStatements sqlStatements) {
         this.CONNECTION_MANAGER = connection;
         this.DB_FIELD_CONVERTOR = fieldConvertor;
-        this.SQL_FORMATTER = sqlQueryFactory;
+        this.SQL_FORMATTER = sqlStatements;
     }
 
     public PreparedStatement preparedStatement(String sql) throws RuntimeException {

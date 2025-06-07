@@ -3,13 +3,13 @@ package org.app.entity;
 import org.server.processors.context.annotations.entity.Column;
 import org.server.processors.context.annotations.entity.Entity;
 
-import java.util.Objects;
-
 @Entity(name = "test_object")
 public class TestObject {
 
-    @Column(name = "hello")
-    private String hello;
+    @Column(name = "id", primary = true, autoIncrement = true, nullable = false)
+    private Integer id;
+    @Column(name = "name")
+    private String name;
     @Column(name = "number")
     private Integer number;
     @Column(name = "age")
@@ -18,44 +18,20 @@ public class TestObject {
     public TestObject() {
     }
 
-    public TestObject(String hello, Integer number) {
-        this.hello = hello;
+    public TestObject(Integer id, String name, Integer number, Integer age) {
+        this.id = id;
+        this.name = name;
         this.number = number;
-    }
-
-    public String getHello() {
-        return hello;
-    }
-
-    public void setHello(String hello) {
-        this.hello = hello;
-    }
-
-    public Integer getNumber() {
-        return number;
-    }
-
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object == null || getClass() != object.getClass()) return false;
-        TestObject that = (TestObject) object;
-        return Objects.equals(getHello(), that.getHello()) && Objects.equals(getNumber(), that.getNumber());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getHello(), getNumber());
+        this.age = age;
     }
 
     @Override
     public String toString() {
         return "TestObject{" +
-                "hello='" + hello + '\'' +
+                "id=" + id +
+                ", hello='" + name + '\'' +
                 ", number=" + number +
+                ", age=" + age +
                 '}';
     }
 }
