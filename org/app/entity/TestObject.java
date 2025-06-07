@@ -1,10 +1,8 @@
 package org.app.entity;
 
-import org.server.httpServer.HttpMethod;
 import org.server.processors.context.annotations.entity.Column;
 import org.server.processors.context.annotations.entity.Entity;
 
-import java.util.List;
 import java.util.Objects;
 
 @Entity(name = "test_object")
@@ -14,6 +12,8 @@ public class TestObject {
     private String hello;
     @Column(name = "number")
     private Integer number;
+    @Column(name = "age")
+    private Integer age;
 
     public TestObject() {
     }

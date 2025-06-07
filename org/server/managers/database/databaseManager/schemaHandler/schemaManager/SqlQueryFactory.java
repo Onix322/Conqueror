@@ -16,6 +16,18 @@ public class SqlQueryFactory {
     private SqlQueryFactory() {
     }
 
+    public String addColumnSql(EntityTable entityTable, EntityColumn entityColumn){
+        return "ALTER TABLE " +
+                entityTable.getName() +
+                " ADD " + this.sqlFormat(entityColumn);
+    }
+
+    public String deleteColumnSql(EntityTable entityTable, String columName){
+        return "ALTER TABLE " +
+                entityTable.getName() +
+                " DROP COLUMN " + columName;
+    }
+
     public String createTableSql(EntityTable entityTable) {
 
         //TODO 1. column per field

@@ -19,28 +19,28 @@ import java.sql.SQLException;
 @Component
 public final class MySqlConnection implements ConnectionManager {
 
-    private Connection connection;
+    private final Connection CONNECTION;
 
     private MySqlConnection(Configuration configuration) throws MalformedURLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, SQLException {
-        this.init(configuration);
+        this.CONNECTION = this.init(configuration);
     }
 
-    private void init(Configuration configuration) throws MalformedURLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, SQLException {
+    private Connection init(Configuration configuration) throws MalformedURLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, SQLException {
         String driverPath = configuration.readProperty("database.driver");
         String url = configuration.readProperty("database.url");
         String user = configuration.readProperty("database.user");
         String password = configuration.readProperty("database.password");
         DriverManager.registerDriver(this.driver(driverPath));
-        this.connection = DriverManager.getConnection(url, user, password);
+        return DriverManager.getConnection(url, user, password);
     }
 
     public Connection connect() {
-        return this.connection;
+        return this.CONNECTION;
     }
 
     @Override
     public void close() throws SQLException {
-        this.connection.close();
+        this.CONNECTION.close();
     }
 
     private Driver driver(String path) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
