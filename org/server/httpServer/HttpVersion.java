@@ -1,6 +1,6 @@
 package org.server.httpServer;
 
-import org.server.exepltions.NoCompatibleHttpVersionFound;
+import org.server.exceptions.NoCompatibleHttpVersionFound;
 
 public enum HttpVersion {
     HTTP_1_1("HTTP/1.1");

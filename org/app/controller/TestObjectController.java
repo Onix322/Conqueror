@@ -1,23 +1,24 @@
 package org.app.controller;
 
 import org.app.entity.TestObject;
-import org.server.httpServer.HttpMethod;
+import org.app.service.TestObjectService;
+import org.server.httpServer.response.HttpStatus;
+import org.server.httpServer.responseEntity.ResponseEntity;
 import org.server.processors.context.annotations.controller.Controller;
 import org.server.processors.context.annotations.controller.mapping.GetMapping;
-import org.server.httpServer.response.HttpStatus;
 import org.server.processors.context.annotations.controller.mapping.PostMapping;
-import org.server.httpServer.responseEntity.ResponseEntity;
-
-import java.util.List;
 
 @Controller("/test-object")
 public class TestObjectController {
 
-    private TestObjectController(){
+    private final TestObjectService TEST_OBJECT_SERVICE;
+
+    private TestObjectController(TestObjectService testObjectService) {
+        this.TEST_OBJECT_SERVICE = testObjectService;
     }
 
     @GetMapping
-    public static ResponseEntity<String> get() {
+    public ResponseEntity<String> get() {
         return ResponseEntity.<String>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
@@ -26,7 +27,7 @@ public class TestObjectController {
     }
 
     @GetMapping("/getSecond")
-    public static ResponseEntity<String> getSecondMessage() {
+    public ResponseEntity<String> getSecondMessage() {
         return ResponseEntity.<String>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
@@ -35,7 +36,7 @@ public class TestObjectController {
     }
 
     @GetMapping("/get-var/{integer}/{string}")
-    public static ResponseEntity<TestObject> getWithVar(Integer integer, String name) {
+    public ResponseEntity<TestObject> getWithVar(Integer integer, String name) {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
@@ -43,8 +44,20 @@ public class TestObjectController {
                 .build();
     }
 
+    @GetMapping("/get-by-id/{integer}")
+    public ResponseEntity<TestObject> getById(Integer id) {
+        TestObject testObject = this.TEST_OBJECT_SERVICE.findById(id);
+
+        return ResponseEntity.<TestObject>builder()
+                .setHttpStatus(HttpStatus.OK.getCode())
+                .setMessage(HttpStatus.OK.getMessage())
+                .setData(testObject)
+                .build();
+    }
+
     @PostMapping
-    public static ResponseEntity<TestObject> create(TestObject testObject) {
+    public ResponseEntity<TestObject> create(TestObject testObject) {
+        this.TEST_OBJECT_SERVICE.create(testObject);
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())

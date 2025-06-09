@@ -1,7 +1,7 @@
 package org.server.managers.database.databaseManager.schemaHandler.schemaManager;
 
-import org.server.exepltions.AnnotationException;
-import org.server.exepltions.IllegalClassException;
+import org.server.exceptions.AnnotationException;
+import org.server.exceptions.IllegalClassException;
 import org.server.managers.database.databaseManager.entityData.EntityColumn;
 import org.server.managers.database.databaseManager.entityData.EntityTable;
 import org.server.managers.database.driverManager.ConnectionManager;
@@ -48,7 +48,7 @@ public class SchemaManager {
         }
 
         Field[] fields = entity.getDeclaredFields();
-        List<EntityColumn> entityColumns = this.convertFields(fields);
+        List<EntityColumn> entityColumns = this.DB_FIELD_CONVERTOR.convertor(fields);
 
         EntityTable entityTable = EntityTable.builder()
                 .setName(entity.getAnnotation(Entity.class).name())
@@ -77,17 +77,6 @@ public class SchemaManager {
             preparedStatement.execute();
             return true;
         }
-    }
-
-    private List<EntityColumn> convertFields(Field[] fields) {
-        List<EntityColumn> entityColumns = new LinkedList<>();
-
-        for (Field field : fields) {
-            EntityColumn entityColumn = this.DB_FIELD_CONVERTOR.convertor(field);
-            entityColumns.add(entityColumn);
-        }
-
-        return entityColumns;
     }
 
     public void stop() throws SQLException {

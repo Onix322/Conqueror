@@ -1,6 +1,6 @@
 package org.server.parsers.jsonService.json.validator;
 
-import org.server.exepltions.JsonNotValid;
+import org.server.exceptions.JsonNotValid;
 import org.server.parsers.jsonService.json.formatter.JsonFormatedString;
 import org.server.processors.context.annotations.Component;
 

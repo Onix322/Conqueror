@@ -6,7 +6,7 @@ import org.server.processors.context.annotations.entity.Entity;
 @Entity(name = "test_object")
 public class TestObject {
 
-    @Column(name = "id", primary = true, autoIncrement = true, nullable = false)
+    @Column(name = "id", primary = true, autoIncrement = true, nullable = false, idColumn = true)
     private Integer id;
     @Column(name = "name")
     private String name;

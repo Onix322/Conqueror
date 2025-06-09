@@ -31,8 +31,8 @@ public final class RouteProcessor {
         ControllerMetaData controllerMetaData = this.processControllerMetaData(request.getStartLine());
         MethodMetaData methodMetaData = this.processMethodMetaData(controllerMetaData, request.getStartLine());
 
-        //if methodMetaData has parameters then is expecting some values
-        //which has to gather them from request.
+        //if methodMetaData has parameters, then is expecting some values
+        //that have to gather them from request.
         if(methodMetaData.getParameters().length > 0){
             PathVariable[] pathVariables = this.processPathVariables(request.getStartLine(),
                     controllerMetaData.getPath().getRoute() + methodMetaData.getPath().getRoute());
@@ -77,7 +77,7 @@ public final class RouteProcessor {
         Map<String, MethodMetaData> methods = controllerMetaData.getMethodsMetaData();
         List<String> fragments = new ArrayList<>(Arrays.stream(this.pathFragments(path)).toList());
 
-        //first try raw fragments
+        //first, try raw fragments
         //If the method we are looking for must not contain any variables.
         MethodMetaData methodMetaData = methods.get(path);
         if (methodMetaData != null) {

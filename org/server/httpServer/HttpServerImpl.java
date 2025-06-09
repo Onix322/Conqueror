@@ -1,18 +1,19 @@
 package org.server.httpServer;
 
 import org.server.configuration.Configuration;
+import org.server.exceptions.HttpProcessFailed;
 import org.server.handlers.RouteHandler;
-import org.server.httpServer.request.httpRequest.HttpRequest;
 import org.server.handlers.TransformationHandler;
+import org.server.httpServer.request.httpRequest.HttpRequest;
 import org.server.httpServer.response.HttpConnectionType;
 import org.server.httpServer.response.HttpStatus;
 import org.server.httpServer.response.httpResponse.HttpResponse;
 import org.server.httpServer.response.httpResponse.HttpResponseFactory;
+import org.server.metadata.RouteMetaData;
 import org.server.parsers.jsonService.JsonService;
 import org.server.parsers.jsonService.json.types.JsonType;
-import org.server.metadata.RouteMetaData;
-import org.server.processors.route.RouteProcessor;
 import org.server.processors.context.annotations.Component;
+import org.server.processors.route.RouteProcessor;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -60,7 +61,6 @@ public final class HttpServerImpl implements HttpServer {
         String address = getConfig().readProperty("server.hostname");
 
         InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
-
         try {
             ServerSocket serverSocket = new ServerSocket(inetSocketAddress.getPort(), 0, inetSocketAddress.getAddress());
             while (serverSocket.isBound() && !serverSocket.isClosed()) {
@@ -115,7 +115,6 @@ public final class HttpServerImpl implements HttpServer {
             jsonResponse = this.JSON_SERVICE.mapJson(responseBody);
         }
 
-        System.out.println(jsonResponse);
         return HttpResponseFactory.create(
                 "HTTP/1.1",
                 HttpStatus.OK,
@@ -129,7 +128,9 @@ public final class HttpServerImpl implements HttpServer {
         System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
 
         clientSocket.getOutputStream()
-                .write(httpResponse.getResponseString().getBytes(StandardCharsets.UTF_8));
+                .write(httpResponse.getResponseString()
+                        .getBytes(StandardCharsets.UTF_8)
+                );
 
         clientSocket.shutdownOutput();
     }

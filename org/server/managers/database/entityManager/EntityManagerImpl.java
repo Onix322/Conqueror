@@ -1,6 +1,6 @@
 package org.server.managers.database.entityManager;
 
-import org.server.exepltions.NoEntityMatchesJson;
+import org.server.exceptions.NoEntityMatchesJson;
 import org.server.managers.database.databaseManager.schemaHandler.SchemaHandler;
 import org.server.processors.context.ContextProcessor;
 import org.server.processors.context.annotations.Component;

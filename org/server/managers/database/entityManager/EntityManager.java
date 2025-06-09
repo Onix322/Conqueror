@@ -13,5 +13,4 @@ public sealed interface EntityManager permits EntityManagerImpl {
     <T> boolean contains(Class<T> clazz);
 
     void autoload() throws MalformedURLException, SQLException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException;
-
 }

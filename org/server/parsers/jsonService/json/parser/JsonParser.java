@@ -1,7 +1,7 @@
 package org.server.parsers.jsonService.json.parser;
 
-import org.server.exepltions.JsonNotValid;
-import org.server.exepltions.JsonPropertyFormatError;
+import org.server.exceptions.JsonNotValid;
+import org.server.exceptions.JsonPropertyFormatError;
 import org.server.parsers.jsonService.json.coordinate.Coordinate;
 import org.server.parsers.jsonService.json.mapper.JsonMapper;
 import org.server.parsers.primitiveParser.PrimitiveParser;

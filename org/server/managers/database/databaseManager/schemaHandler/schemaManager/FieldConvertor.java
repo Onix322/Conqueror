@@ -1,12 +1,15 @@
 package org.server.managers.database.databaseManager.schemaHandler.schemaManager;
 
-import org.server.exepltions.AnnotationException;
+import org.server.exceptions.AnnotationException;
 import org.server.managers.database.databaseManager.entityData.EntityColumn;
 import org.server.processors.context.annotations.Component;
 import org.server.processors.context.annotations.entity.Column;
+import org.server.processors.context.annotations.entity.Entity;
 
 import java.lang.reflect.Field;
 import java.sql.SQLType;
+import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class FieldConvertor {
@@ -31,9 +34,29 @@ public class FieldConvertor {
         boolean primaryKey = column.primary();
         boolean nullable = column.nullable();
         boolean autoIncrement = column.autoIncrement();
+        boolean idColumn = column.idColumn();
         SQLType type = JDBC_TYPE_RESOLVER.getJdbcType(field);
 
-        return new EntityColumn(columnName, unique, primaryKey, nullable, autoIncrement, type);
+        return new EntityColumn(columnName, unique, primaryKey, nullable, autoIncrement, idColumn, type);
     }
 
+    public List<EntityColumn> convertor(Field[] fields) {
+        List<EntityColumn> entityColumns = new LinkedList<>();
+
+        for (Field field : fields) {
+            EntityColumn entityColumn = this.convertor(field);
+            entityColumns.add(entityColumn);
+        }
+
+        return entityColumns;
+    }
+
+    public List<EntityColumn> convertor(Class<?> entityCls){
+        if(!entityCls.isAnnotationPresent(Entity.class)){
+            throw new AnnotationException("No @Entity annotation present on field: " + entityCls);
+        }
+        Field[] fields = entityCls.getDeclaredFields();
+
+        return this.convertor(fields);
+    }
 }

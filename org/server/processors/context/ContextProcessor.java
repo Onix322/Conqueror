@@ -1,7 +1,7 @@
 package org.server.processors.context;
 
 import org.server.configuration.Configuration;
-import org.server.exepltions.CircularDependencyException;
+import org.server.exceptions.CircularDependencyException;
 import org.server.processors.context.annotations.Component;
 import org.server.processors.context.annotations.controller.Controller;
 import org.server.processors.context.annotations.entity.Entity;

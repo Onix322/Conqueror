@@ -1,6 +1,6 @@
 package org.server.managers.database.databaseManager.schemaHandler.schemaMode;
 
-import org.server.exepltions.SchemaModeNotSupported;
+import org.server.exceptions.SchemaModeNotSupported;
 
 import java.util.Arrays;
 

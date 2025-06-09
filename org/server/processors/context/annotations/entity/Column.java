@@ -13,4 +13,5 @@ public @interface Column {
     boolean unique() default false;
     boolean primary() default false;
     boolean autoIncrement() default false;
+    boolean idColumn() default false;
 }

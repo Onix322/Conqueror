@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 /*
- * Main purpose of this class is to dictate how the schema is managed and handled constraint by
+ * The Main purpose of this class is to dictate how the schema is managed and handled constraint by
  * the result coming from CurrentSchemaMode class and automatically makes actions over the schema
  *
  * USED ONLY ON STARTUP
@@ -57,7 +57,7 @@ public class SchemaHandler {
         while (entityIterator.hasNext()) {
             Class<?> entity = entityIterator.next();
 
-            if(!this.SCHEMA_MANAGER.existsTable(entity)){
+            if (!this.SCHEMA_MANAGER.existsTable(entity)) {
                 this.SCHEMA_MANAGER.createEntityTable(entity);
             }
 

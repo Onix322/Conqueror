@@ -1,4 +1,4 @@
-package org.server.exepltions;
+package org.server.exceptions;
 
 public class DuplicateMappingMethod extends RuntimeException {
     public DuplicateMappingMethod(String message) {

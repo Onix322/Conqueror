@@ -1,6 +1,6 @@
 package org.server.configuration;
 
-import org.server.exepltions.ConfigPropertyNonExistent;
+import org.server.exceptions.ConfigPropertyNonExistent;
 
 import java.io.IOException;
 import java.util.Properties;
