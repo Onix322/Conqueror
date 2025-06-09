@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID> {
@@ -36,10 +37,10 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
 
     private EntityTable transform(Class<?> entity) {
         if (!entity.isAnnotationPresent(Entity.class)) {
-            throw new AnnotationException("@Entity is not present for: " + entity.getClass().getName());
+            throw new AnnotationException("@Entity is not present for: " + entity.getName());
         }
         String tableName = entity.getAnnotation(Entity.class).name();
-        List<EntityColumn> columns = this.FIELD_CONVERTOR.convertor(entity.getClass());
+        List<EntityColumn> columns = this.FIELD_CONVERTOR.convertor(entity);
         return EntityTable.builder()
                 .setName(tableName)
                 .setColumns(columns)
@@ -47,7 +48,7 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
     }
 
     @Override
-    public T findById(Class<T> entity, ID id) {
+    public Optional<T> findById(Class<T> entity, ID id) {
         try {
             String sql = this.SQL_STATEMENTS.findByIdSql(entity, id);
             System.out.println(sql);
@@ -71,7 +72,7 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
                 }
             }
 
-            return entity.cast(instance);
+            return Optional.of(entity.cast(instance));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

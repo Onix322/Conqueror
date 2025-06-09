@@ -47,7 +47,6 @@ public class TestObjectController {
     @GetMapping("/get-by-id/{integer}")
     public ResponseEntity<TestObject> getById(Integer id) {
         TestObject testObject = this.TEST_OBJECT_SERVICE.findById(id);
-
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())

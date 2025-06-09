@@ -56,7 +56,6 @@ public class FieldConvertor {
             throw new AnnotationException("No @Entity annotation present on field: " + entityCls);
         }
         Field[] fields = entityCls.getDeclaredFields();
-
         return this.convertor(fields);
     }
 }
