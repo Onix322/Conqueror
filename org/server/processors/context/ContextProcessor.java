@@ -61,7 +61,7 @@ public final class ContextProcessor {
         return Set.copyOf(this.APPLICATION_ENTITIES);
     }
 
-    public void applicationContextInit() throws IOException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void applicationContextInit() throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, InstantiationException {
         List<File> files = Arrays.asList(Objects.requireNonNull(this.FILE.listFiles()));
         List<Class<?>> allComponents = gather(files, PACKAGE);
         Object circularDependency = null; // in case is circular
@@ -86,14 +86,18 @@ public final class ContextProcessor {
             constructor.setAccessible(true);
             Object instance;
 
-            if (constructor.getParameterTypes().length < 1) {
-                instance = constructor.newInstance();
-            } else {
-                List<Object> args = this.rezolveConstructorArgs(constructor);
-                if (args.stream().anyMatch(Objects::isNull)) {
-                    continue;
+            try {
+                if (constructor.getParameterTypes().length < 1) {
+                    instance = constructor.newInstance();
+                } else {
+                    List<Object> args = this.rezolveConstructorArgs(constructor);
+                    if (args.stream().anyMatch(Objects::isNull)) {
+                        continue;
+                    }
+                    instance = constructor.newInstance(args.toArray());
                 }
-                instance = constructor.newInstance(args.toArray());
+            } catch (InstantiationException e) {
+                throw new InstantiationException("Unable to instantiate: " + component.getName());
             }
 
             System.out.println("[" + this.getClass().getSimpleName() + "] Initialization -> " + component.getName());
@@ -153,9 +157,12 @@ public final class ContextProcessor {
         APPLICATION_CONTEXT.put(clazz, instance);
     }
 
-    private Constructor<?> getConstructor(Class<?> clazz) {
+    private Constructor<?> getConstructor(Class<?> clazz) throws InstantiationException {
+        if(clazz.isInterface()){
+            throw new InstantiationException("Can't instantiate an interface: " + clazz.getName());
+        }
         return Arrays.stream(clazz.getDeclaredConstructors())
                 .max(Comparator.comparingInt(Constructor::getParameterCount))
-                .orElseThrow();
+                .orElseThrow(() -> new NoSuchElementException("No constructor has been found."));
     }
 }

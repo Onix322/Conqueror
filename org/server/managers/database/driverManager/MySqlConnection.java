@@ -5,6 +5,7 @@ import org.server.processors.context.annotations.Component;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -21,17 +22,22 @@ public final class MySqlConnection implements ConnectionManager {
 
     private final Connection CONNECTION;
 
-    private MySqlConnection(Configuration configuration) throws MalformedURLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, SQLException {
+    private MySqlConnection(Configuration configuration) throws MalformedURLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, SQLException, ConnectException {
         this.CONNECTION = this.init(configuration);
     }
 
-    private Connection init(Configuration configuration) throws MalformedURLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, SQLException {
+    private Connection init(Configuration configuration) throws MalformedURLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, SQLException, ConnectException {
         String driverPath = configuration.readProperty("database.driver");
         String url = configuration.readProperty("database.url");
         String user = configuration.readProperty("database.user");
         String password = configuration.readProperty("database.password");
         DriverManager.registerDriver(this.driver(driverPath));
-        return DriverManager.getConnection(url, user, password);
+        try{
+            return DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            throw new ConnectException("Unable to make the connection! " + e.getMessage());
+        }
+
     }
 
     public Connection connect() {

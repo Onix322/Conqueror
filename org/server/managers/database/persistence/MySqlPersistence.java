@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,6 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
         try {
             String sql = this.SQL_STATEMENTS.findByIdSql(entity, id);
             System.out.println(sql);
-            //TODO create object constructor
             ResultSet resultSet = this.SCHEMA_MANAGER.preparedStatement(sql).executeQuery();
             Object instance = entity.getConstructor().newInstance();
             while (resultSet.next()){
@@ -79,7 +79,7 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
     }
 
     @Override
-    public boolean save(T entity) {
+    public void save(T entity) {
         try {
             EntityTable entityTable = this.transform(entity.getClass());
             String sql = this.SQL_STATEMENTS.addRowSql(entityTable, entity);
@@ -90,9 +90,8 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
                     .toArray();
 
             this.STATEMENT_SETTER.autoSetter(preparedStatement, values).execute();
-            return true;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (NoSuchFieldException | SQLException | IllegalAccessException e) {
+            throw new RuntimeException("Can't save the entity in database. " + e.getMessage());
         }
     }
 }

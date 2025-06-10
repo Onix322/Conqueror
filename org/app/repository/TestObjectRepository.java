@@ -11,7 +11,7 @@ import org.server.processors.context.annotations.Component;
 
 @Component
 public class TestObjectRepository extends MySqlPersistence<TestObject, Integer> {
-    protected TestObjectRepository(SqlStatements sqlStatements, FieldConvertor fieldConvertor, SchemaManager schemaManager, PreparedStatementSetter preparedStatementSetter, ColumnValueConvertor columnValueConvertor) {
-        super(sqlStatements, fieldConvertor, schemaManager, preparedStatementSetter, columnValueConvertor);
+    protected TestObjectRepository(SqlStatements sqlStatements, FieldConvertor fieldConvertor, SchemaManager schemaManager, PreparedStatementSetter statementSetter, ColumnValueConvertor columnValueConvertor) {
+        super(sqlStatements, fieldConvertor, schemaManager, statementSetter, columnValueConvertor);
     }
 }
