@@ -1,4 +1,4 @@
-package org.server.managers.database.driverManager;
+package org.server.database.mysql.driverManager;
 
 import java.sql.*;
 import java.util.Properties;

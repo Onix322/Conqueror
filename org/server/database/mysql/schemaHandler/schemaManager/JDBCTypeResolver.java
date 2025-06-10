@@ -1,4 +1,4 @@
-package org.server.managers.database.databaseManager.schemaHandler.schemaManager;
+package org.server.database.mysql.schemaHandler.schemaManager;
 
 import org.server.processors.context.annotations.Component;
 

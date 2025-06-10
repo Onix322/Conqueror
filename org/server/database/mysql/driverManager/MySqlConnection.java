@@ -1,4 +1,4 @@
-package org.server.managers.database.driverManager;
+package org.server.database.mysql.driverManager;
 
 import org.server.configuration.Configuration;
 import org.server.processors.context.annotations.Component;

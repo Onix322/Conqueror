@@ -1,4 +1,4 @@
-package org.server.managers.database.persistence;
+package org.server.database;
 
 import java.util.Optional;
 

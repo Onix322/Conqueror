@@ -1,6 +1,6 @@
 package org.server.handlers;
 
-import org.server.managers.database.entityManager.EntityManager;
+import org.server.managers.entityManager.EntityManager;
 import org.server.exceptions.MissingHttpStartLine;
 import org.server.httpServer.HttpMethod;
 import org.server.httpServer.request.httpRequest.HttpRequest;

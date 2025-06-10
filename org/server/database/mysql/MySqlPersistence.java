@@ -1,12 +1,12 @@
-package org.server.managers.database.persistence.mysql;
+package org.server.database.mysql;
 
 import org.server.exceptions.AnnotationException;
-import org.server.managers.database.databaseManager.entityData.EntityColumn;
-import org.server.managers.database.databaseManager.entityData.EntityTable;
-import org.server.managers.database.databaseManager.schemaHandler.schemaManager.FieldConvertor;
-import org.server.managers.database.databaseManager.schemaHandler.schemaManager.SchemaManager;
-import org.server.managers.database.databaseManager.schemaHandler.schemaManager.SqlStatements;
-import org.server.managers.database.persistence.Persistence;
+import org.server.database.mysql.entityData.EntityColumn;
+import org.server.database.mysql.entityData.EntityTable;
+import org.server.database.mysql.schemaHandler.schemaManager.FieldConvertor;
+import org.server.database.mysql.schemaHandler.schemaManager.SchemaManager;
+import org.server.database.mysql.schemaHandler.schemaManager.SqlStatements;
+import org.server.database.Persistence;
 import org.server.processors.context.annotations.Component;
 import org.server.processors.context.annotations.entity.Column;
 import org.server.processors.context.annotations.entity.Entity;

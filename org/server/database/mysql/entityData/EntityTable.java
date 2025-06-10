@@ -1,6 +1,4 @@
-package org.server.managers.database.databaseManager.entityData;
-
-import org.server.processors.context.annotations.entity.Entity;
+package org.server.database.mysql.entityData;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -1,8 +1,8 @@
-package org.server.managers.database.databaseManager.schemaHandler;
+package org.server.database.mysql.schemaHandler;
 
-import org.server.managers.database.databaseManager.schemaHandler.schemaManager.SchemaManager;
-import org.server.managers.database.databaseManager.schemaHandler.schemaMode.CurrentSchemaMode;
-import org.server.managers.database.databaseManager.schemaHandler.schemaMode.SchemaMode;
+import org.server.database.mysql.schemaHandler.schemaManager.SchemaManager;
+import org.server.database.mysql.schemaHandler.schemaMode.CurrentSchemaMode;
+import org.server.database.mysql.schemaHandler.schemaMode.SchemaMode;
 import org.server.processors.context.annotations.Component;
 import org.server.processors.context.annotations.entity.Column;
 

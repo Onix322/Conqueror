@@ -1,4 +1,4 @@
-package org.server.managers.database.databaseManager.entityData;
+package org.server.database.mysql.entityData;
 
 import java.sql.SQLType;
 import java.util.Objects;

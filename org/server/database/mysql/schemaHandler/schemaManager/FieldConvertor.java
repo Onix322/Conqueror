@@ -1,7 +1,7 @@
-package org.server.managers.database.databaseManager.schemaHandler.schemaManager;
+package org.server.database.mysql.schemaHandler.schemaManager;
 
 import org.server.exceptions.AnnotationException;
-import org.server.managers.database.databaseManager.entityData.EntityColumn;
+import org.server.database.mysql.entityData.EntityColumn;
 import org.server.processors.context.annotations.Component;
 import org.server.processors.context.annotations.entity.Column;
 import org.server.processors.context.annotations.entity.Entity;

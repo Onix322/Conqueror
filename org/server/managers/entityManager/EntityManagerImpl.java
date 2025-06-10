@@ -1,7 +1,7 @@
-package org.server.managers.database.entityManager;
+package org.server.managers.entityManager;
 
 import org.server.exceptions.NoEntityMatchesJson;
-import org.server.managers.database.databaseManager.schemaHandler.SchemaHandler;
+import org.server.database.mysql.schemaHandler.SchemaHandler;
 import org.server.processors.context.ContextProcessor;
 import org.server.processors.context.annotations.Component;
 

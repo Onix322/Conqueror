@@ -1,4 +1,4 @@
-package org.server.managers.database.databaseManager.entityData;
+package org.server.database.mysql.entityData;
 
 public interface EntityData<T extends EntityData<T>> {
 

@@ -1,4 +1,4 @@
-package org.server.managers.database.databaseManager.schemaHandler.schemaMode;
+package org.server.database.mysql.schemaHandler.schemaMode;
 
 import org.server.exceptions.SchemaModeNotSupported;
 
