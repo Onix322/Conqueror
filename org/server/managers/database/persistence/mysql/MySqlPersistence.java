@@ -1,4 +1,4 @@
-package org.server.managers.database.persistence;
+package org.server.managers.database.persistence.mysql;
 
 import org.server.exceptions.AnnotationException;
 import org.server.managers.database.databaseManager.entityData.EntityColumn;
@@ -6,6 +6,7 @@ import org.server.managers.database.databaseManager.entityData.EntityTable;
 import org.server.managers.database.databaseManager.schemaHandler.schemaManager.FieldConvertor;
 import org.server.managers.database.databaseManager.schemaHandler.schemaManager.SchemaManager;
 import org.server.managers.database.databaseManager.schemaHandler.schemaManager.SqlStatements;
+import org.server.managers.database.persistence.Persistence;
 import org.server.processors.context.annotations.Component;
 import org.server.processors.context.annotations.entity.Column;
 import org.server.processors.context.annotations.entity.Entity;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**/
 @Component
 public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID> {
 
@@ -55,7 +57,7 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
             System.out.println(sql);
             ResultSet resultSet = this.SCHEMA_MANAGER.preparedStatement(sql).executeQuery();
             Object instance = entity.getConstructor().newInstance();
-            while (resultSet.next()){
+            if (resultSet.next()){
                 Field[] fields = instance.getClass().getDeclaredFields();
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
                 int columnCount = resultSetMetaData.getColumnCount();
@@ -70,11 +72,13 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
                     field.setAccessible(true);
                     field.set(instance, columnValue);
                 }
+                return Optional.of(entity.cast(instance));
+            } else {
+                return Optional.empty();
             }
-
-            return Optional.of(entity.cast(instance));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.err.println(e.getMessage());
+            return Optional.empty();
         }
     }
 

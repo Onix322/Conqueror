@@ -1,4 +1,4 @@
-package org.server.managers.database.persistence;
+package org.server.managers.database.persistence.mysql;
 
 import org.server.processors.context.annotations.Component;
 

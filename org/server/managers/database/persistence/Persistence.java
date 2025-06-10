@@ -2,7 +2,12 @@ package org.server.managers.database.persistence;
 
 import java.util.Optional;
 
-public interface Persistence<T , ID extends Number> {
+/**
+ * This interface defines the core persistence methods used throughout the application.
+ * These methods must be implemented when a new database driver is added.
+ * All database operations in the application should rely on this interface for consistency.
+ */
+public interface Persistence<T, ID extends Number> {
 
     Optional<T> findById(Class<T> entity, ID id);
 
