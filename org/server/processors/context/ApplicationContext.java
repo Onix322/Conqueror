@@ -166,6 +166,7 @@ public final class ApplicationContext {
                 return Optional.of(constructor.newInstance(args.toArray()));
             }
         } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+            System.err.println(e.getCause().fillInStackTrace().getMessage());
             throw new RuntimeException("Unable to instantiate: " + component.getName());
         }
     }

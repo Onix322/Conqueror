@@ -24,7 +24,7 @@ public final class ObjectMapper {
         Field[] fields = instance.getClass().getDeclaredFields();
 
         if (fields.length != jsonObject.get().length) {
-            throw new ClassCastException("JsonObject must have same properties as: " + clazz);
+            throw new ClassCastException("JSON must have same properties as: " + clazz);
         }
         for (Field field : fields) {
             JsonProperty jsonProperty = jsonObject.getProperty(field.getName());

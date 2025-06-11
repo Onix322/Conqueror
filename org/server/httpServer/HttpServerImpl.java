@@ -14,9 +14,7 @@ import org.server.parsers.json.utils.types.JsonType;
 import org.server.annotations.component.Component;
 import org.server.processors.route.RouteProcessor;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -60,13 +58,13 @@ public final class HttpServerImpl implements HttpServer {
         String address = getConfig().readProperty("server.hostname");
 
         InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
-        try {
-            ServerSocket serverSocket = new ServerSocket(inetSocketAddress.getPort(), 0, inetSocketAddress.getAddress());
+
+        try(ServerSocket serverSocket = new ServerSocket(inetSocketAddress.getPort(), 0, inetSocketAddress.getAddress())) {
             while (serverSocket.isBound() && !serverSocket.isClosed()) {
-                this.listen(serverSocket.accept());
+                Socket clientSocket = serverSocket.accept();
+                this.listen(clientSocket);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -76,7 +74,7 @@ public final class HttpServerImpl implements HttpServer {
         EXECUTOR_SERVICE.close();
     }
 
-    private void listen(Socket clientSocket) {
+    private void listen(Socket clientSocket){
         EXECUTOR_SERVICE.submit(() -> {
             try (clientSocket) {
                 //* STEP 1: handle request
@@ -90,7 +88,6 @@ public final class HttpServerImpl implements HttpServer {
                 this.sendResponse(clientSocket, response);
             } catch (Exception e) {
                 e.printStackTrace();
-                //TODO SEND ERROR TO CLIENT
                 throw new RuntimeException(e.getLocalizedMessage());
             }
         });

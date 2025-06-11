@@ -40,7 +40,7 @@ public final class ConfigurationImpl implements Configuration {
     @Override
     public String readProperty(String name) throws ConfigPropertyNonExistent {
         String property = PROPERTIES.getProperty(name);
-        if (property == null) {
+        if (property == null || property.isEmpty()) {
             throw new ConfigPropertyNonExistent(name);
         }
         return property;
