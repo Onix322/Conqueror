@@ -3,7 +3,7 @@ package org.app.service;
 import org.app.entity.TestObject;
 import org.app.repository.Repository;
 import org.server.exceptions.NoSuchEntity;
-import org.server.processors.context.annotations.Component;
+import org.server.annotations.component.Component;
 
 @Component
 public class TestObjectService {

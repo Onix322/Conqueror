@@ -1,6 +1,6 @@
 package org.server.metadata;
 
-import org.server.httpServer.route.PathVariable;
+import org.server.httpServer.utils.route.PathVariable;
 
 import java.util.Arrays;
 

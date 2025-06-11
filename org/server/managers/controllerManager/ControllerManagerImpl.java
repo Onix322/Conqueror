@@ -1,10 +1,10 @@
 package org.server.managers.controllerManager;
 
-import org.server.httpServer.route.ControllerRoute;
+import org.server.httpServer.utils.route.ControllerRoute;
 import org.server.metadata.ControllerMetaData;
-import org.server.processors.context.ContextProcessor;
-import org.server.processors.context.annotations.Component;
-import org.server.processors.context.annotations.controller.Controller;
+import org.server.processors.context.ApplicationContext;
+import org.server.annotations.component.Component;
+import org.server.annotations.component.controller.Controller;
 import org.server.processors.metadata.ControllerMetaDataProcessor;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,16 +14,16 @@ import java.util.NoSuchElementException;
 public final class ControllerManagerImpl implements ControllerManager {
 
     private final ControllerMetaDataProcessor PROCESSOR;
-    private final ContextProcessor COMPONENT_PROCESSOR;
+    private final ApplicationContext COMPONENT_PROCESSOR;
 
-    private ControllerManagerImpl(ControllerMetaDataProcessor processor, ContextProcessor contextProcessor) {
+    private ControllerManagerImpl(ControllerMetaDataProcessor processor, ApplicationContext applicationContext) {
         this.PROCESSOR = processor;
-        this.COMPONENT_PROCESSOR = contextProcessor;
+        this.COMPONENT_PROCESSOR = applicationContext;
     }
 
     public ControllerMetaData requestController(ControllerRoute route) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
-        Class<?> controllerClazz = this.COMPONENT_PROCESSOR.getContext()
+        Class<?> controllerClazz = this.COMPONENT_PROCESSOR.getComponents()
                 .keySet()
                 .stream()
                 .filter(k -> k.isAnnotationPresent(Controller.class))

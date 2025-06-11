@@ -1,6 +1,6 @@
 package org.server.metadata;
 
-import org.server.httpServer.route.ControllerRoute;
+import org.server.httpServer.utils.route.ControllerRoute;
 
 import java.util.Map;
 

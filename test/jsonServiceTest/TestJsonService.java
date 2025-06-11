@@ -1,8 +1,8 @@
 package test.jsonServiceTest;
 
-import org.server.parsers.jsonService.json.navigator.JsonNavigator;
-import org.server.parsers.jsonService.json.parser.JsonParser;
-import org.server.parsers.jsonService.json.types.JsonObject;
+import org.server.parsers.json.utils.navigator.JsonNavigator;
+import org.server.parsers.json.utils.parser.JsonParser;
+import org.server.parsers.json.utils.types.JsonObject;
 
 import java.util.Scanner;
 

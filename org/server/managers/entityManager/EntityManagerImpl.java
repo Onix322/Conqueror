@@ -1,9 +1,9 @@
 package org.server.managers.entityManager;
 
 import org.server.exceptions.NoEntityMatchesJson;
-import org.server.database.mysql.schemaHandler.SchemaHandler;
-import org.server.processors.context.ContextProcessor;
-import org.server.processors.context.annotations.Component;
+import org.server.database.mysql.utils.schemaHandler.SchemaHandler;
+import org.server.processors.context.ApplicationContext;
+import org.server.annotations.component.Component;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
@@ -15,11 +15,11 @@ import java.util.stream.Stream;
 @Component
 public final class EntityManagerImpl implements EntityManager {
 
-    private final ContextProcessor CONTEXT_PROCESSOR;
+    private final ApplicationContext CONTEXT_PROCESSOR;
     private final SchemaHandler SCHEMA_HANDLER;
 
-    private EntityManagerImpl(ContextProcessor contextProcessor, SchemaHandler schemaHandler) {
-        this.CONTEXT_PROCESSOR = contextProcessor;
+    private EntityManagerImpl(ApplicationContext applicationContext, SchemaHandler schemaHandler) {
+        this.CONTEXT_PROCESSOR = applicationContext;
         this.SCHEMA_HANDLER = schemaHandler;
     }
 

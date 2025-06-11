@@ -1,10 +1,10 @@
 package org.server.processors.metadata;
 
 import org.server.exceptions.DuplicateMappingMethod;
-import org.server.httpServer.HttpMethod;
-import org.server.httpServer.route.MethodRoute;
+import org.server.httpServer.utils.HttpMethod;
+import org.server.httpServer.utils.route.MethodRoute;
 import org.server.metadata.MethodMetaData;
-import org.server.processors.context.annotations.Component;
+import org.server.annotations.component.Component;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;

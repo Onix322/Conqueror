@@ -2,7 +2,7 @@ import org.server.configuration.Configuration;
 import org.server.configuration.ConfigurationImpl;
 import org.server.managers.entityManager.EntityManager;
 import org.server.httpServer.HttpServer;
-import org.server.processors.context.ContextProcessor;
+import org.server.processors.context.ApplicationContext;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,15 +21,15 @@ public class Conqueror {
         ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
         //* SingletonProcessor Initialization
-        ContextProcessor contextProcessor = new ContextProcessor(configuration, executorService);
-        contextProcessor.applicationContextInit();
+        ApplicationContext applicationContext = new ApplicationContext(configuration, executorService);
+        applicationContext.applicationContextInit();
 
         //* Entities autoload
-        contextProcessor.requestInstance(EntityManager.class)
+        applicationContext.requestInstance(EntityManager.class)
                         .autoload();
 
         //* Server start
-        contextProcessor.requestInstance(HttpServer.class)
+        applicationContext.requestInstance(HttpServer.class)
                 .start();
     }
 }

@@ -2,11 +2,11 @@ package org.app.controller;
 
 import org.app.entity.TestObject;
 import org.app.service.TestObjectService;
-import org.server.httpServer.response.HttpStatus;
-import org.server.httpServer.responseEntity.ResponseEntity;
-import org.server.processors.context.annotations.controller.Controller;
-import org.server.processors.context.annotations.controller.mapping.GetMapping;
-import org.server.processors.context.annotations.controller.mapping.PostMapping;
+import org.server.httpServer.utils.response.HttpStatus;
+import org.server.httpServer.utils.responseEntity.ResponseEntity;
+import org.server.annotations.component.controller.Controller;
+import org.server.annotations.component.controller.mapping.GetMapping;
+import org.server.annotations.component.controller.mapping.PostMapping;
 
 @Controller("/test-object")
 public class TestObjectController {

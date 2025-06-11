@@ -1,10 +1,10 @@
 package org.server.handlers;
 
-import org.server.httpServer.request.httpRequest.HttpRequest;
-import org.server.httpServer.route.PathVariable;
+import org.server.httpServer.utils.request.httpRequest.HttpRequest;
+import org.server.httpServer.utils.route.PathVariable;
 import org.server.metadata.RouteMetaData;
-import org.server.processors.context.ContextProcessor;
-import org.server.processors.context.annotations.Component;
+import org.server.processors.context.ApplicationContext;
+import org.server.annotations.component.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -13,10 +13,10 @@ import java.util.List;
 @Component
 public final class RouteHandler {
 
-    private final ContextProcessor CONTEXT_PROCESSOR;
+    private final ApplicationContext CONTEXT_PROCESSOR;
 
-    private RouteHandler(ContextProcessor contextProcessor) {
-        this.CONTEXT_PROCESSOR = contextProcessor;
+    private RouteHandler(ApplicationContext applicationContext) {
+        this.CONTEXT_PROCESSOR = applicationContext;
     }
 
     public Object handleRoute(RouteMetaData route, HttpRequest request) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {

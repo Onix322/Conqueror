@@ -1,7 +1,7 @@
 package org.server.metadata;
 
-import org.server.httpServer.HttpMethod;
-import org.server.httpServer.route.MethodRoute;
+import org.server.httpServer.utils.HttpMethod;
+import org.server.httpServer.utils.route.MethodRoute;
 
 import java.util.Arrays;
 

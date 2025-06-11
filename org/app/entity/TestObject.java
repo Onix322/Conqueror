@@ -1,7 +1,7 @@
 package org.app.entity;
 
-import org.server.processors.context.annotations.entity.Column;
-import org.server.processors.context.annotations.entity.Entity;
+import org.server.annotations.entity.Column;
+import org.server.annotations.entity.Entity;
 
 @Entity(name = "test_object")
 public class TestObject {

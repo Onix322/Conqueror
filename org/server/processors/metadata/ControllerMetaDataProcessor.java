@@ -1,8 +1,8 @@
 package org.server.processors.metadata;
 
-import org.server.httpServer.route.ControllerRoute;
-import org.server.processors.context.annotations.Component;
-import org.server.processors.context.annotations.controller.mapping.Mapping;
+import org.server.httpServer.utils.route.ControllerRoute;
+import org.server.annotations.component.Component;
+import org.server.annotations.component.controller.mapping.Mapping;
 import org.server.metadata.ControllerMetaData;
 import org.server.metadata.MethodMetaData;
 

@@ -2,7 +2,7 @@ package org.server.httpServer;
 
 import org.server.configuration.Configuration;
 
-public interface HttpServer {
+public sealed interface HttpServer permits HttpServerImpl {
 
     void start();
 

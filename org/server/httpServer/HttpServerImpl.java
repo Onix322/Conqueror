@@ -1,18 +1,17 @@
 package org.server.httpServer;
 
 import org.server.configuration.Configuration;
-import org.server.exceptions.HttpProcessFailed;
 import org.server.handlers.RouteHandler;
 import org.server.handlers.TransformationHandler;
-import org.server.httpServer.request.httpRequest.HttpRequest;
-import org.server.httpServer.response.HttpConnectionType;
-import org.server.httpServer.response.HttpStatus;
-import org.server.httpServer.response.httpResponse.HttpResponse;
-import org.server.httpServer.response.httpResponse.HttpResponseFactory;
+import org.server.httpServer.utils.request.httpRequest.HttpRequest;
+import org.server.httpServer.utils.response.HttpConnectionType;
+import org.server.httpServer.utils.response.HttpStatus;
+import org.server.httpServer.utils.response.httpResponse.HttpResponse;
+import org.server.httpServer.utils.response.httpResponse.HttpResponseFactory;
 import org.server.metadata.RouteMetaData;
-import org.server.parsers.jsonService.JsonService;
-import org.server.parsers.jsonService.json.types.JsonType;
-import org.server.processors.context.annotations.Component;
+import org.server.parsers.json.JsonService;
+import org.server.parsers.json.utils.types.JsonType;
+import org.server.annotations.component.Component;
 import org.server.processors.route.RouteProcessor;
 
 import java.io.BufferedReader;

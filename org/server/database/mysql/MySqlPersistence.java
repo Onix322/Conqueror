@@ -1,15 +1,17 @@
 package org.server.database.mysql;
 
+import org.server.database.mysql.utils.ColumnValueConvertor;
+import org.server.database.mysql.utils.PreparedStatementSetter;
 import org.server.exceptions.AnnotationException;
-import org.server.database.mysql.entityData.EntityColumn;
-import org.server.database.mysql.entityData.EntityTable;
-import org.server.database.mysql.schemaHandler.schemaManager.FieldConvertor;
-import org.server.database.mysql.schemaHandler.schemaManager.SchemaManager;
-import org.server.database.mysql.schemaHandler.schemaManager.SqlStatements;
+import org.server.database.mysql.utils.entityData.EntityColumn;
+import org.server.database.mysql.utils.entityData.EntityTable;
+import org.server.database.mysql.utils.schemaHandler.schemaManager.FieldConvertor;
+import org.server.database.mysql.utils.schemaHandler.schemaManager.SchemaManager;
+import org.server.database.mysql.utils.schemaHandler.schemaManager.SqlStatements;
 import org.server.database.Persistence;
-import org.server.processors.context.annotations.Component;
-import org.server.processors.context.annotations.entity.Column;
-import org.server.processors.context.annotations.entity.Entity;
+import org.server.annotations.component.Component;
+import org.server.annotations.entity.Column;
+import org.server.annotations.entity.Entity;
 
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
