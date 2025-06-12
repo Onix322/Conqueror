@@ -13,6 +13,7 @@ import org.server.annotations.component.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -74,24 +75,32 @@ public final class RouteProcessor {
                     .toLowerCase(Locale.ROOT);
         }
 
-        Map<String, MethodMetaData> methods = controllerMetaData.getMethodsMetaData();
+        Map<String, MethodMetaData> filteredMethods = controllerMetaData.getMethodsMetaData()
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().getHttpMethod().equals(startLine.getMethod()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+//        System.out.println(filteredMethods);
+//        Map<String, MethodMetaData> methods = controllerMetaData.getMethodsMetaData();
+
         List<String> fragments = new ArrayList<>(Arrays.stream(this.pathFragments(path)).toList());
 
         //first, try raw fragments
         //If the method we are looking for must not contain any variables.
-        MethodMetaData methodMetaData = methods.get(path);
+        MethodMetaData methodMetaData = filteredMethods.get(path);
         if (methodMetaData != null) {
             if (this.pathFragments(methodMetaData.getPath().getRoute()).length == fragments.size()) {
                 return methodMetaData;
             }
         }
 
-        //second try with processed fragments e.g /1/name -> /{integer}/{string}
+        //second try with processed fragments e.g. /1/name -> /{integer}/{string}
         for (int i = fragments.size() - 1; i >= 0; i--) {
             String fragment = this.handleVariable(fragments.get(i));
             fragments.set(i, fragment);
             String currentPath = this.joinFragments(fragments.toArray(String[]::new));
-            methodMetaData = methods.get(currentPath);
+            methodMetaData = filteredMethods.get(currentPath);
             if (methodMetaData != null) {
                 if (this.pathFragments(methodMetaData.getPath().getRoute()).length == fragments.size()) {
                     break;

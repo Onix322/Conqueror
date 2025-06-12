@@ -46,21 +46,29 @@ public class SqlStatements {
     }
 
     public <T, ID> String findByIdSql(Class<T> entity, ID id) throws NoSuchFieldException {
-        if(!entity.isAnnotationPresent(Entity.class)){
-            throw new AnnotationException("@Entity not present on: " + entity.getName());
-        }
-
-        String idFiledColumnName = Arrays.stream(entity.getDeclaredFields())
-                .filter(f -> f.getAnnotation(Column.class).idColumn())
-                .findFirst()
-                .orElseThrow(() -> new NoSuchFieldException("No field with @Column annotation property 'idColumn' set 'true'."))
-                .getAnnotation(Column.class)
-                .name();
 
         return "SELECT * FROM "
                 + entity.getAnnotation(Entity.class).name()
                 + " WHERE "
-                + idFiledColumnName
+                + this.findIdField(entity)
+                + "=" + id;
+    }
+
+    public <T> String findAllSql(Class<T> entity){
+        if(!entity.isAnnotationPresent(Entity.class)){
+            throw new AnnotationException("@Entity not present on: " + entity.getName());
+        }
+
+        return "SELECT * FROM "
+                + entity.getAnnotation(Entity.class).name();
+    }
+
+    public <T, ID> String removeByIdSql(Class<T> entity, ID id) throws NoSuchFieldException {
+
+        return "DELETE FROM "
+                + entity.getAnnotation(Entity.class).name()
+                + " WHERE "
+                + this.findIdField(entity)
                 + "=" + id;
     }
 
@@ -142,5 +150,19 @@ public class SqlStatements {
         }
         stringBuilder.append(')');
         return stringBuilder.toString();
+    }
+
+    private <T> String findIdField(Class<T> entity) throws NoSuchFieldException {
+        if(!entity.isAnnotationPresent(Entity.class)){
+            throw new AnnotationException("@Entity not present on: " + entity.getName());
+        }
+
+        return Arrays.stream(entity.getDeclaredFields())
+                .filter(f -> f.getAnnotation(Column.class).idColumn())
+                .findFirst()
+                .orElseThrow(() -> new NoSuchFieldException("No field with @Column annotation property 'idColumn' set 'true'."))
+                .getAnnotation(Column.class)
+                .name();
+
     }
 }

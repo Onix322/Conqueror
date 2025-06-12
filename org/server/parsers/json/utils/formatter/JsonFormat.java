@@ -2,8 +2,8 @@ package org.server.parsers.json.utils.formatter;
 
 import org.server.annotations.component.Component;
 
-/*
- *Its role is to transform a string into a json format.
+/**
+ * Its role is to transform a string into a JSON format.
  */
 @Component
 public final class JsonFormat {
@@ -13,7 +13,7 @@ public final class JsonFormat {
 
     /**
      * Main method that minifies the JSON input by removing spaces and new lines
-     * outside of strings, and adding a space after each ':' that is not within a string.
+     * outside strings, and adding a space after each ':' that is not within a string.
      */
     public JsonFormatedString format(String string) {
 

@@ -2,11 +2,14 @@ package org.app.controller;
 
 import org.app.entity.TestObject;
 import org.app.service.TestObjectService;
+import org.server.annotations.controller.mapping.DeleteMapping;
 import org.server.httpServer.utils.response.HttpStatus;
 import org.server.httpServer.utils.responseEntity.ResponseEntity;
-import org.server.annotations.component.controller.Controller;
-import org.server.annotations.component.controller.mapping.GetMapping;
-import org.server.annotations.component.controller.mapping.PostMapping;
+import org.server.annotations.controller.Controller;
+import org.server.annotations.controller.mapping.GetMapping;
+import org.server.annotations.controller.mapping.PostMapping;
+
+import java.util.List;
 
 @Controller("/test-object")
 public class TestObjectController {
@@ -17,50 +20,39 @@ public class TestObjectController {
         this.TEST_OBJECT_SERVICE = testObjectService;
     }
 
-    @GetMapping
-    public ResponseEntity<String> get() {
-        return ResponseEntity.<String>builder()
-                .setHttpStatus(HttpStatus.OK.getCode())
-                .setMessage(HttpStatus.OK.getMessage())
-                .setData("This is the first message")
-                .build();
-    }
-
-    @GetMapping("/getSecond")
-    public ResponseEntity<String> getSecondMessage() {
-        return ResponseEntity.<String>builder()
-                .setHttpStatus(HttpStatus.OK.getCode())
-                .setMessage(HttpStatus.OK.getMessage())
-                .setData("This is the second message")
-                .build();
-    }
-
-    @GetMapping("/get-var/{integer}/{string}")
-    public ResponseEntity<TestObject> getWithVar(Integer integer, String name) {
-        return ResponseEntity.<TestObject>builder()
-                .setHttpStatus(HttpStatus.OK.getCode())
-                .setMessage(HttpStatus.OK.getMessage())
-                .setData(new TestObject(1, name, integer, 1))
-                .build();
-    }
-
     @GetMapping("/get-by-id/{integer}")
     public ResponseEntity<TestObject> getById(Integer id) {
-        TestObject testObject = this.TEST_OBJECT_SERVICE.findById(id);
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData(testObject)
+                .setData(this.TEST_OBJECT_SERVICE.findById(id))
+                .build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TestObject>> getAll() {
+        return ResponseEntity.<List<TestObject>>builder()
+                .setHttpStatus(HttpStatus.OK.getCode())
+                .setMessage(HttpStatus.OK.getMessage())
+                .setData(this.TEST_OBJECT_SERVICE.findAll())
                 .build();
     }
 
     @PostMapping
     public ResponseEntity<TestObject> create(TestObject testObject) {
-        this.TEST_OBJECT_SERVICE.create(testObject);
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData(testObject)
+                .setData(this.TEST_OBJECT_SERVICE.create(testObject))
+                .build();
+    }
+
+    @DeleteMapping("/{integer}")
+    public ResponseEntity<Boolean> delete(Integer id) {
+        return ResponseEntity.<Boolean>builder()
+                .setHttpStatus(HttpStatus.OK.getCode())
+                .setMessage(HttpStatus.OK.getMessage())
+                .setData(this.TEST_OBJECT_SERVICE.delete(id))
                 .build();
     }
 }

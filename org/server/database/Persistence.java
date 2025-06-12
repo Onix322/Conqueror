@@ -1,5 +1,6 @@
 package org.server.database;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,5 +17,9 @@ public interface Persistence<T, ID extends Number> {
 
     Optional<T> findById(Class<T> entity, ID id);
 
-    void save(T entity);
+    List<T> findAll(Class<T> entity);
+
+    boolean removeById(Class<T> entity, ID id);
+
+    T save(T entity);
 }

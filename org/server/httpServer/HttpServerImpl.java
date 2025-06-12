@@ -115,7 +115,7 @@ public final class HttpServerImpl implements HttpServer {
                 "HTTP/1.1",
                 HttpStatus.OK,
                 "application/json",
-                HttpConnectionType.CLOSED,
+                HttpConnectionType.KEEP_ALIVE,
                 jsonResponse
         );
     }

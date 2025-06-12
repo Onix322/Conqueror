@@ -4,7 +4,7 @@ import org.server.httpServer.utils.route.ControllerRoute;
 import org.server.metadata.ControllerMetaData;
 import org.server.processors.context.ApplicationContext;
 import org.server.annotations.component.Component;
-import org.server.annotations.component.controller.Controller;
+import org.server.annotations.controller.Controller;
 import org.server.processors.metadata.ControllerMetaDataProcessor;
 
 import java.lang.reflect.InvocationTargetException;

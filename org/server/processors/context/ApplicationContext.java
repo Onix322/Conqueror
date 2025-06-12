@@ -3,7 +3,7 @@ package org.server.processors.context;
 import org.server.configuration.Configuration;
 import org.server.exceptions.CircularDependencyException;
 import org.server.annotations.component.Component;
-import org.server.annotations.component.controller.Controller;
+import org.server.annotations.controller.Controller;
 import org.server.annotations.entity.Entity;
 
 import java.io.File;
@@ -31,7 +31,6 @@ public final class ApplicationContext {
         this.FILE = new File(path);
         this.PACKAGE = configuration.readProperty("project.package");
     }
-
 
     @SuppressWarnings("unchecked")
     public <T> T requestInstance(Class<T> clazz) {
@@ -61,7 +60,7 @@ public final class ApplicationContext {
         return Set.copyOf(this.APPLICATION_ENTITIES);
     }
 
-    public void applicationContextInit() throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, InstantiationException {
+    public void applicationContextInit() throws IOException, ClassNotFoundException {
         List<File> files = Arrays.asList(Objects.requireNonNull(this.FILE.listFiles()));
         List<Class<?>> allComponents = gather(files, PACKAGE);
         Object circularDependency = null; // in case is circular
@@ -156,15 +155,15 @@ public final class ApplicationContext {
             Constructor<?> constructor = getConstructor(component);
             constructor.setAccessible(true);
 
-            if (constructor.getParameterTypes().length < 1) {
-                return Optional.of(constructor.newInstance());
-            } else {
+            if (constructor.getParameterTypes().length >= 1) {
                 List<Object> args = this.rezolveConstructorArgs(constructor);
                 if (args.stream().anyMatch(Objects::isNull)) {
                     return Optional.empty();
                 }
                 return Optional.of(constructor.newInstance(args.toArray()));
             }
+
+            return Optional.of(constructor.newInstance());
         } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
             System.err.println(e.getCause().fillInStackTrace().getMessage());
             throw new RuntimeException("Unable to instantiate: " + component.getName());
