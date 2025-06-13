@@ -58,12 +58,13 @@ public class TestObjectController {
                 .build();
     }
 
+    //TODO Working on PutMapping
     @PutMapping
-    public ResponseEntity<String> update() {
-        return ResponseEntity.<String>builder()
+    public ResponseEntity<TestObject> update(@RequestBody TestObject testObject) {
+        return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData("")
+                .setData(testObject)
                 .build();
     }
 }

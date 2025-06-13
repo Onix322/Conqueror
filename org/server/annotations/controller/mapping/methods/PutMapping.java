@@ -12,6 +12,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface PutMapping {
-    HttpMethod httpMethod() default HttpMethod.DELETE;
+    HttpMethod httpMethod() default HttpMethod.PUT;
     String value() default "/put";
 }

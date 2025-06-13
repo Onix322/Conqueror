@@ -32,7 +32,11 @@ public final class RouteHandler {
             case DELETE -> {
                 return this.handleDeleteMapping(route, instance);
             }
-            case PUT, PATCH -> {
+            case PUT -> {
+                System.out.println("DEBUTING PUT");
+                return  this.handlePutMapping(route, request, instance);
+            }
+            case PATCH -> {
                 throw new NoSuchMethodException("MAPPING METHOD COMING SOON...");
             }
             default ->
@@ -65,14 +69,19 @@ public final class RouteHandler {
         return this.returnTypeInstance(instance, route, vars);
     }
 
-    // WITH NO path variables
+    private Object handlePutMapping(RouteMetaData route, HttpRequest request, Object instance) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        System.err.println("MUST IMPLEMENT handlePutMapping in RouteHandler");
+        return null;
+    }
+
+    // WITH path variables
     private Object returnTypeInstance(Object instance, RouteMetaData routeMetaData, List<Object> vars) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         return routeMetaData.getControllerMetaData().getClassOf()
                 .getDeclaredMethod(routeMetaData.getMethodMetaData().getName(), routeMetaData.getMethodMetaData().getParametersClasses())
                 .invoke(instance, vars.toArray(new Object[0]));
     }
 
-    // WITH path variables
+    // WITH NO path variables
     private Object returnTypeInstance(Object instance, RouteMetaData routeMetaData) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         return routeMetaData.getControllerMetaData().getClassOf()
                 .getDeclaredMethod(routeMetaData.getMethodMetaData().getName())

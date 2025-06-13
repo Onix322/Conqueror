@@ -34,7 +34,9 @@ public final class RouteProcessor {
 
         //if methodMetaData has parameters, then is expecting some values
         //that have to gather them from request.
-        if(methodMetaData.getParameters().length > 0){
+        int pathVarsCount = this.countPathVariables(methodMetaData);
+        if(pathVarsCount > 0){
+            System.out.println(methodMetaData.getPath().getRoute());
             PathVariable[] pathVariables = this.processPathVariables(request.getStartLine(),
                     controllerMetaData.getPath().getRoute() + methodMetaData.getPath().getRoute());
             return new RouteMetaData(controllerMetaData, methodMetaData, pathVariables);
@@ -80,9 +82,6 @@ public final class RouteProcessor {
                 .stream()
                 .filter(entry -> entry.getValue().getHttpMethod().equals(startLine.getMethod()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-//        System.out.println(filteredMethods);
-//        Map<String, MethodMetaData> methods = controllerMetaData.getMethodsMetaData();
 
         List<String> fragments = new ArrayList<>(Arrays.stream(this.pathFragments(path)).toList());
 
@@ -160,7 +159,18 @@ public final class RouteProcessor {
     private String handleVariable(String fragment) {
         String var = fragment.replaceAll("/", "");
         Object stringParsed = this.PRIMITIVE_PARSER.parse(var);
-
+        if(stringParsed == null) return null;
         return "/{" + stringParsed.getClass().getSimpleName().toLowerCase(Locale.ROOT) + "}";
+    }
+
+    private int countPathVariables(MethodMetaData methodMetaData){
+        int count = 0;
+        String route = methodMetaData.getPath().getRoute();
+        for (int i = 0; i < route.length(); i++) {
+            if (route.charAt(i) == '{') {
+                count++;
+            }
+        }
+        return count;
     }
 }
