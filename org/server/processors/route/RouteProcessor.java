@@ -75,7 +75,7 @@ public final class RouteProcessor {
                     .toLowerCase(Locale.ROOT);
         }
 
-        Map<String, MethodMetaData> filteredMethods = controllerMetaData.getMethodsMetaData()
+        Map<String, MethodMetaData> methods = controllerMetaData.getMethodsMetaData()
                 .entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().getHttpMethod().equals(startLine.getMethod()))
@@ -88,7 +88,7 @@ public final class RouteProcessor {
 
         //first, try raw fragments
         //If the method we are looking for must not contain any variables.
-        MethodMetaData methodMetaData = filteredMethods.get(path);
+        MethodMetaData methodMetaData = methods.get(path);
         if (methodMetaData != null) {
             if (this.pathFragments(methodMetaData.getPath().getRoute()).length == fragments.size()) {
                 return methodMetaData;
@@ -100,7 +100,7 @@ public final class RouteProcessor {
             String fragment = this.handleVariable(fragments.get(i));
             fragments.set(i, fragment);
             String currentPath = this.joinFragments(fragments.toArray(String[]::new));
-            methodMetaData = filteredMethods.get(currentPath);
+            methodMetaData = methods.get(currentPath);
             if (methodMetaData != null) {
                 if (this.pathFragments(methodMetaData.getPath().getRoute()).length == fragments.size()) {
                     break;

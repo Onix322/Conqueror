@@ -7,7 +7,6 @@ import org.server.processors.context.ApplicationContext;
 import org.server.annotations.component.Component;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -33,24 +32,20 @@ public final class RouteHandler {
             case DELETE -> {
                 return this.handleDeleteMapping(route, instance);
             }
+            case PUT, PATCH -> {
+                throw new NoSuchMethodException("MAPPING METHOD COMING SOON...");
+            }
             default ->
-                    throw new NoSuchMethodException(route.getMethodMetaData().getHttpMethod() + " has not been implemented yet.");
+                throw new NoSuchMethodException(route.getMethodMetaData().getHttpMethod() + " has not been implemented yet.");
         }
     }
 
     private Object handleGetMapping(RouteMetaData route, Object instance) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if (route.getPathVariables().length > 0) {
-            List<Object> vars = Arrays.stream(route.getPathVariables())
-                    .map(PathVariable::value)
-                    .toList();
-
-            return route.getControllerMetaData().getClassOf()
-                    .getDeclaredMethod(route.getMethodMetaData().getName(), route.getMethodMetaData().getParameters())
-                    .invoke(instance, vars.toArray(new Object[0]));
+            List<Object> vars = this.getPathVars(route);
+            return this.returnTypeInstance(instance, route, vars);
         } else {
-            return route.getControllerMetaData().getClassOf()
-                    .getDeclaredMethod(route.getMethodMetaData().getName())
-                    .invoke(instance);
+            return this.returnTypeInstance(instance, route);
         }
     }
 
@@ -58,22 +53,35 @@ public final class RouteHandler {
         if (request.getHttpRequestBody().getBody() == null) {
             throw new IllegalArgumentException("HTTP " + request.getStartLine().getMethod() + " body is empty or null: " + request.getHttpRequestBody().getBody());
         }
-        return route.getControllerMetaData().getClassOf()
-                .getDeclaredMethod(route.getMethodMetaData().getName(), route.getMethodMetaData().getParameters())
-                .invoke(instance, request.getHttpRequestBody().getBody());
+        List<Object> vars = List.of(request.getHttpRequestBody().getBody());
+        return this.returnTypeInstance(instance, route, vars);
     }
 
     private Object handleDeleteMapping(RouteMetaData route, Object instance) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if (route.getPathVariables().length == 0) {
             throw new NoSuchElementException("Delete mapping must have at least 1 path variable!");
         }
+        List<Object> vars = this.getPathVars(route);
+        return this.returnTypeInstance(instance, route, vars);
+    }
 
-        List<Object> vars = Arrays.stream(route.getPathVariables())
+    // WITH NO path variables
+    private Object returnTypeInstance(Object instance, RouteMetaData routeMetaData, List<Object> vars) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        return routeMetaData.getControllerMetaData().getClassOf()
+                .getDeclaredMethod(routeMetaData.getMethodMetaData().getName(), routeMetaData.getMethodMetaData().getParameters())
+                .invoke(instance, vars.toArray(new Object[0]));
+    }
+
+    // WITH path variables
+    private Object returnTypeInstance(Object instance, RouteMetaData routeMetaData) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        return routeMetaData.getControllerMetaData().getClassOf()
+                .getDeclaredMethod(routeMetaData.getMethodMetaData().getName())
+                .invoke(instance);
+    }
+
+    private List<Object> getPathVars(RouteMetaData routeMetaData){
+        return  Arrays.stream(routeMetaData.getPathVariables())
                 .map(PathVariable::value)
                 .toList();
-
-        return route.getControllerMetaData().getClassOf()
-                .getDeclaredMethod(route.getMethodMetaData().getName(), route.getMethodMetaData().getParameters())
-                .invoke(instance, vars.toArray(new Object[0]));
     }
 }

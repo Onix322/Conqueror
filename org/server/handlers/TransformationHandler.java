@@ -72,6 +72,7 @@ public final class TransformationHandler {
             bodyBuilder.append(Character.toString(b));
         }
 
+
         return this.createHttpRequestBody(
                 startLine,
                 headers,

@@ -1,5 +1,6 @@
-package org.server.annotations.controller.mapping;
+package org.server.annotations.controller.mapping.methods;
 
+import org.server.annotations.controller.mapping.Mapping;
 import org.server.httpServer.utils.HttpMethod;
 
 import java.lang.annotation.ElementType;
@@ -10,7 +11,7 @@ import java.lang.annotation.Target;
 @Mapping
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface GetMapping {
-    HttpMethod httpMethod() default HttpMethod.GET;
-    String value() default "/get";
+public @interface DeleteMapping {
+    HttpMethod httpMethod() default HttpMethod.DELETE;
+    String value() default "/delete";
 }

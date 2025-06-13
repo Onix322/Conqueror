@@ -2,12 +2,12 @@ package org.app.controller;
 
 import org.app.entity.TestObject;
 import org.app.service.TestObjectService;
-import org.server.annotations.controller.mapping.DeleteMapping;
+import org.server.annotations.controller.mapping.methods.DeleteMapping;
 import org.server.httpServer.utils.response.HttpStatus;
 import org.server.httpServer.utils.responseEntity.ResponseEntity;
 import org.server.annotations.controller.Controller;
-import org.server.annotations.controller.mapping.GetMapping;
-import org.server.annotations.controller.mapping.PostMapping;
+import org.server.annotations.controller.mapping.methods.GetMapping;
+import org.server.annotations.controller.mapping.methods.PostMapping;
 
 import java.util.List;
 
@@ -53,6 +53,15 @@ public class TestObjectController {
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(this.TEST_OBJECT_SERVICE.delete(id))
+                .build();
+    }
+
+    @DeleteMapping("/put")
+    public ResponseEntity<String> update() {
+        return ResponseEntity.<String>builder()
+                .setHttpStatus(HttpStatus.OK.getCode())
+                .setMessage(HttpStatus.OK.getMessage())
+                .setData("")
                 .build();
     }
 }
