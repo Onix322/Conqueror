@@ -81,10 +81,13 @@ public final class HttpServerImpl implements HttpServer {
                 HttpRequest request = this.handleRequest(clientSocket);
                 RouteMetaData routeMetaData = this.ROUTE_PROCESSOR.process(request);
 
-                //* STEP 2: handle response based on request
-                HttpResponse response = this.handleResponse(routeMetaData, request);
+                //* STEP 2: handle casting of HttpRequestBody from JSON to POJO
+                HttpRequest requestCasted = this.handleCasting(routeMetaData, request);
 
-                //* STEP 3: send response
+                //* STEP 3: handle response based on request
+                HttpResponse response = this.handleResponse(routeMetaData, requestCasted);
+
+                //* STEP 4: send response
                 this.sendResponse(clientSocket, response);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -93,12 +96,20 @@ public final class HttpServerImpl implements HttpServer {
         });
     }
 
+    private HttpRequest handleCasting(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
+        if(request.getStartLine().getMethod().hasBody()){
+            return this.TRANSFORMATION_HANDLER.castTo(routeMetaData, request);
+        }
+        return request;
+    }
+
     private HttpRequest handleRequest(Socket clientSocket) throws Exception {
 
         //*creating HttpRequest
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        HttpRequest httpRequest = this.TRANSFORMATION_HANDLER.transformToHttpRequest(in);
+//        HttpRequest httpRequest = this.TRANSFORMATION_HANDLER.transformToHttpRequest(in);
+        HttpRequest httpRequest = this.TRANSFORMATION_HANDLER.handleTransformation(in);
         clientSocket.shutdownInput();
 
         return httpRequest;

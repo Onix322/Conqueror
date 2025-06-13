@@ -3,6 +3,8 @@ package org.app.controller;
 import org.app.entity.TestObject;
 import org.app.service.TestObjectService;
 import org.server.annotations.controller.mapping.methods.DeleteMapping;
+import org.server.annotations.controller.mapping.methods.PutMapping;
+import org.server.annotations.controller.mapping.parameters.RequestBody;
 import org.server.httpServer.utils.response.HttpStatus;
 import org.server.httpServer.utils.responseEntity.ResponseEntity;
 import org.server.annotations.controller.Controller;
@@ -39,7 +41,7 @@ public class TestObjectController {
     }
 
     @PostMapping
-    public ResponseEntity<TestObject> create(TestObject testObject) {
+    public ResponseEntity<TestObject> create(@RequestBody TestObject testObject) {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
@@ -56,7 +58,7 @@ public class TestObjectController {
                 .build();
     }
 
-    @DeleteMapping("/put")
+    @PutMapping
     public ResponseEntity<String> update() {
         return ResponseEntity.<String>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())

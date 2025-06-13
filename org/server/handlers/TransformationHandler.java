@@ -1,41 +1,36 @@
 package org.server.handlers;
 
-import org.server.managers.entityManager.EntityManager;
+import org.server.annotations.component.Component;
+import org.server.annotations.controller.mapping.parameters.RequestBody;
 import org.server.exceptions.MissingHttpStartLine;
-import org.server.httpServer.utils.HttpMethod;
 import org.server.httpServer.utils.request.httpRequest.HttpRequest;
 import org.server.httpServer.utils.request.httpRequestBody.HttpRequestBody;
 import org.server.httpServer.utils.request.httpRequestHeader.HttpRequestHeader;
 import org.server.httpServer.utils.request.httpRequestHeader.HttpRequestHeaderFactory;
 import org.server.httpServer.utils.request.httpRequestStartLine.HttpRequestStartLine;
 import org.server.httpServer.utils.request.httpRequestStartLine.HttpRequestStartLineFactory;
+import org.server.metadata.MethodMetaData;
+import org.server.metadata.RouteMetaData;
 import org.server.parsers.json.JsonService;
-import org.server.parsers.json.utils.properties.JsonKey;
-import org.server.parsers.json.utils.properties.JsonProperty;
 import org.server.parsers.json.utils.types.JsonArray;
 import org.server.parsers.json.utils.types.JsonObject;
 import org.server.parsers.json.utils.types.JsonType;
-import org.server.annotations.component.Component;
 
 import java.io.BufferedReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.lang.reflect.Parameter;
+import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 @Component
 public final class TransformationHandler {
 
     private final JsonService JSON_SERVICE;
-    private final EntityManager ENTITY_MANAGER;
 
-    private TransformationHandler(JsonService jsonService, EntityManager entityManager) {
-        this.ENTITY_MANAGER = entityManager;
+    private TransformationHandler(JsonService jsonService) {
         this.JSON_SERVICE = jsonService;
     }
 
-    public HttpRequest transformToHttpRequest(BufferedReader in) throws Exception {
+    public HttpRequest handleTransformation(BufferedReader in) throws Exception {
 
         HttpRequestStartLine startLine = null;
         List<HttpRequestHeader> headers = new ArrayList<>();
@@ -54,12 +49,12 @@ public final class TransformationHandler {
             }
         }
 
-        if(startLine == null){
+        if (startLine == null) {
             throw new MissingHttpStartLine("No StartLine found in http request");
         }
 
         //if HttpMethod must not have a body jump over
-        if(!startLine.getMethod().hasBody()){
+        if (!startLine.getMethod().hasBody()) {
             return HttpRequest.builder()
                     .setHttpRequestHeader(headers)
                     .setStartLine(startLine)
@@ -72,27 +67,23 @@ public final class TransformationHandler {
             bodyBuilder.append(Character.toString(b));
         }
 
+        HttpRequestBody httpRequestBody = new HttpRequestBody(bodyBuilder.toString());
 
-        return this.createHttpRequestBody(
-                startLine,
-                headers,
-                bodyBuilder.toString()
-        );
+        return HttpRequest.builder()
+                .setHttpRequestHeader(headers)
+                .setStartLine(startLine)
+                .setHttpRequestBody(httpRequestBody)
+                .build();
     }
 
-    private HttpRequest createHttpRequestBody(HttpRequestStartLine startLine, List<HttpRequestHeader> headers, String rawBody) throws Exception {
+    public HttpRequest castTo(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
         HttpRequestBody body = new HttpRequestBody(null);
+        String rawBody = request.getHttpRequestBody().getBody(String.class);
+        Class<?> clazz = this.getRequestBodyParam(routeMetaData.getMethodMetaData());
         JsonType jsonType = JSON_SERVICE.parse(rawBody);
         Object obj;
 
         if (jsonType instanceof JsonObject jsonObject) {
-            //ask for entity class from ENTITY_MANAGER
-            String[] fieldsNames = Stream.of(jsonObject.get())
-                    .map(JsonProperty::key)
-                    .map(JsonKey::get).distinct()
-                    .toArray(String[]::new);
-
-            Class<?> clazz = ENTITY_MANAGER.askForClass(fieldsNames);
             obj = JSON_SERVICE.mapObject(jsonObject, clazz);
         } else if (jsonType instanceof JsonArray jsonArray) {
             obj = JSON_SERVICE.mapArray(jsonArray, LinkedList.class);
@@ -105,9 +96,23 @@ public final class TransformationHandler {
         body.setBody(obj);
 
         return HttpRequest.builder()
-                .setHttpRequestHeader(headers)
-                .setStartLine(startLine)
+                .setHttpRequestHeader(request.getHttpRequestHeader())
+                .setStartLine(request.getStartLine())
                 .setHttpRequestBody(body)
                 .build();
+    }
+
+    private Class<?> getRequestBodyParam(MethodMetaData method) {
+        List<Parameter> parameters = Arrays.stream(method.getParameters())
+                .filter(p -> p.isAnnotationPresent(RequestBody.class))
+                .toList();
+
+        if (parameters.isEmpty()) {
+            throw new NoSuchElementException("No @RequestBody is present.");
+        } else if (parameters.size() > 1) {
+            throw new NoSuchElementException("Ambiguous annotation: multiple @RequestBody, only 1 allowed.");
+        }
+
+        return parameters.getFirst().getType();
     }
 }

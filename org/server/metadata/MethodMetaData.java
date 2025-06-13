@@ -3,16 +3,17 @@ package org.server.metadata;
 import org.server.httpServer.utils.HttpMethod;
 import org.server.httpServer.utils.route.MethodRoute;
 
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 public class MethodMetaData implements MetaData<MethodMetaData> {
     private MethodRoute path;
     private String name;
-    private Class<?>[] parameters;
+    private Parameter[] parameters;
     private Class<?> returnType;
     private HttpMethod httpMethod;
 
-    public MethodMetaData(MethodRoute path, String name, Class<?>[] parameters, Class<?> returnType, HttpMethod httpMethod) {
+    public MethodMetaData(MethodRoute path, String name, Parameter[] parameters, Class<?> returnType, HttpMethod httpMethod) {
         this.path = path;
         this.name = name;
         this.parameters = parameters;
@@ -36,11 +37,17 @@ public class MethodMetaData implements MetaData<MethodMetaData> {
         this.name = name;
     }
 
-    public Class<?>[] getParameters() {
+    public Parameter[] getParameters() {
         return parameters;
     }
 
-    public void setParameters(Class<?>[] parameters) {
+    public Class<?>[] getParametersClasses() {
+        return Arrays.stream(parameters)
+                .map(p -> p.getType())
+                .toArray(Class<?>[]::new);
+    }
+
+    public void setParameters(Parameter[] parameters) {
         this.parameters = parameters;
     }
 

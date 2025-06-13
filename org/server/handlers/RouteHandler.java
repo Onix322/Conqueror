@@ -68,7 +68,7 @@ public final class RouteHandler {
     // WITH NO path variables
     private Object returnTypeInstance(Object instance, RouteMetaData routeMetaData, List<Object> vars) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         return routeMetaData.getControllerMetaData().getClassOf()
-                .getDeclaredMethod(routeMetaData.getMethodMetaData().getName(), routeMetaData.getMethodMetaData().getParameters())
+                .getDeclaredMethod(routeMetaData.getMethodMetaData().getName(), routeMetaData.getMethodMetaData().getParametersClasses())
                 .invoke(instance, vars.toArray(new Object[0]));
     }
 

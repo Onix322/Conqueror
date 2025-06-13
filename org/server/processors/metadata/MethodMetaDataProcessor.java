@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,7 +34,7 @@ public final class MethodMetaDataProcessor implements MetaDataProcessor<Map<Stri
                     .collect(Collectors.toSet());
             if (annotations.isEmpty()) continue;
 
-            Class<?>[] parameters = method.getParameterTypes();
+            Parameter[] parameters = method.getParameters();
             Class<?> returnType = method.getReturnType();
 
             for (Annotation annotation : annotations) {
