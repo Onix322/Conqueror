@@ -1,15 +1,13 @@
 package org.app.controller;
 
 import org.app.entity.TestObject;
+import org.app.entity.TestObjectDto;
 import org.app.service.TestObjectService;
-import org.server.annotations.controller.mapping.methods.DeleteMapping;
-import org.server.annotations.controller.mapping.methods.PutMapping;
+import org.server.annotations.controller.mapping.methods.*;
 import org.server.annotations.controller.mapping.parameters.RequestBody;
 import org.server.httpServer.utils.response.HttpStatus;
 import org.server.httpServer.utils.responseEntity.ResponseEntity;
 import org.server.annotations.controller.Controller;
-import org.server.annotations.controller.mapping.methods.GetMapping;
-import org.server.annotations.controller.mapping.methods.PostMapping;
 
 import java.util.List;
 
@@ -76,12 +74,24 @@ public class TestObjectController {
                 .build();
     }
 
-    @PutMapping
-    public ResponseEntity<String> update() {
-        return ResponseEntity.<String>builder()
+    @PutMapping("/put/id/{integer}")
+    public ResponseEntity<TestObjectDto> update(@RequestBody TestObjectDto testObjectDto, Integer id) {
+        testObjectDto.setId(id);
+        System.out.println(testObjectDto);
+        return ResponseEntity.<TestObjectDto>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData(null)
+                .setData(testObjectDto)
+                .build();
+    }
+
+    @PatchMethod("/patch/{integer}")
+    public ResponseEntity<TestObject> modify(@RequestBody TestObject testObjectDto, Integer id) {
+        System.out.println(testObjectDto);
+        return ResponseEntity.<TestObject>builder()
+                .setHttpStatus(HttpStatus.OK.getCode())
+                .setMessage(HttpStatus.OK.getMessage())
+                .setData(testObjectDto)
                 .build();
     }
 }

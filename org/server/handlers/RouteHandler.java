@@ -2,14 +2,14 @@ package org.server.handlers;
 
 import org.server.annotations.component.Component;
 import org.server.annotations.controller.mapping.parameters.RequestBody;
+import org.server.annotations.entity.Column;
+import org.server.exceptions.AnnotationException;
 import org.server.httpServer.utils.request.httpRequest.HttpRequest;
 import org.server.httpServer.utils.route.PathVariable;
 import org.server.metadata.RouteMetaData;
 import org.server.processors.context.ApplicationContext;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,7 +22,7 @@ public final class RouteHandler {
         this.CONTEXT_PROCESSOR = applicationContext;
     }
 
-    public Object handleRoute(RouteMetaData route, HttpRequest request) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public Object handleRoute(RouteMetaData route, HttpRequest request) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException, InstantiationException {
         Object instanceController = this.CONTEXT_PROCESSOR.requestInstance(route.getControllerMetaData().getClassOf());
         switch (route.getMethodMetaData().getHttpMethod()) {
             case GET -> {
@@ -38,7 +38,7 @@ public final class RouteHandler {
                 return this.handlePutMapping(route, request, instanceController);
             }
             case PATCH -> {
-                throw new NoSuchMethodException("MAPPING METHOD COMING SOON...");
+                return this.handlePatchMapping(route, request, instanceController);
             }
             default ->
                     throw new NoSuchMethodException(route.getMethodMetaData().getHttpMethod() + " has not been implemented yet.");
@@ -70,25 +70,79 @@ public final class RouteHandler {
         return this.returnTypeInstance(instanceController, route, vars);
     }
 
-    private Object handlePutMapping(RouteMetaData route, HttpRequest request, Object instanceController) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private Object handlePutMapping(RouteMetaData route, HttpRequest request, Object instanceController)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        if(Arrays.stream(route.getMethodMetaData().getParameters()).anyMatch(p -> p.isAnnotationPresent(RequestBody.class))){
-            if (request.getHttpRequestBody().getBody() == null) {
-                throw new IllegalArgumentException("HTTP " + request.getStartLine().getMethod() + " body is empty or null: " + request.getHttpRequestBody().getBody());
-            }
-            List<Object> pathVars = this.getPathVars(route);
-            pathVars.add(request.getHttpRequestBody().getBody());
-            List<Object> repositionedVals = this.repositionParameters(route.getMethodMetaData().getParameters(), pathVars);
-            return this.returnTypeInstance(instanceController, route, repositionedVals);
-        }
+        List<Object> args = new ArrayList<>();
 
         if (route.getPathVariables().length > 0) {
-            List<Object> vars = this.getPathVars(route);
-            return this.returnTypeInstance(instanceController, route, vars);
-        } else {
-            return this.returnTypeInstance(instanceController, route);
+            args.addAll(getPathVars(route));
         }
+
+        boolean expectsRequestBody = Arrays.stream(route.getMethodMetaData().getParameters())
+                .anyMatch(p -> p.isAnnotationPresent(RequestBody.class));
+
+        if (expectsRequestBody) {
+            Object body = request.getHttpRequestBody().getBody();
+            if (body == null) {
+                throw new IllegalArgumentException("HTTP " + request.getStartLine().getMethod() +
+                        " body is empty or null: ");
+            }
+
+            args.add(body);
+        }
+
+        List<Object> finalArgs = args.isEmpty()
+                ? List.of(new Object[0])
+                : repositionParameters(route.getMethodMetaData().getParameters(), args);
+
+        return returnTypeInstance(instanceController, route, finalArgs);
     }
+
+    private Object handlePatchMapping(RouteMetaData route, HttpRequest request, Object instanceController)
+            throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+
+        System.err.println("IMPLEMENTING PATCH_MAPPING");
+
+        Object body = request.getHttpRequestBody().getBody();
+
+        if (body == null) {
+            throw new IllegalArgumentException("PATCH body is null!");
+        }
+
+        Parameter bodyParameter = Arrays.stream(route.getMethodMetaData().getParameters())
+                .filter(p -> p.isAnnotationPresent(RequestBody.class))
+                .findFirst()
+                .orElseThrow(() -> new AnnotationException("@RequestBody parameter not found!"));
+
+        Object targetInstance = bodyParameter.getType().getConstructor().newInstance();
+
+        Class<?> bodyClass = body.getClass();
+        Class<?> targetClass = targetInstance.getClass();
+
+        for (Field sourceField : bodyClass.getDeclaredFields()) {
+            sourceField.setAccessible(true);
+            try {
+                Field targetField = targetClass.getDeclaredField(sourceField.getName());
+                targetField.setAccessible(true);
+                Object value = sourceField.get(body);
+                if (value != null) {
+                    targetField.set(targetInstance, value);
+                }
+            } catch (NoSuchFieldException ignored) {}
+        }
+
+        List<Object> args = new ArrayList<>();
+        if (route.getPathVariables().length > 0) {
+            args.addAll(getPathVars(route));
+        }
+        args.add(targetInstance);
+
+        List<Object> finalArgs = repositionParameters(route.getMethodMetaData().getParameters(), args);
+
+        return returnTypeInstance(instanceController, route, finalArgs);
+    }
+
 
     // WITH path variables
     private Object returnTypeInstance(Object instanceController, RouteMetaData routeMetaData, List<Object> vars) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
