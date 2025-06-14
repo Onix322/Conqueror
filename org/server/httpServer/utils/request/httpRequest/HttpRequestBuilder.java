@@ -1,6 +1,6 @@
 package org.server.httpServer.utils.request.httpRequest;
 
-import org.server.httpServer.utils.HttpMethod;
+import org.server.httpServer.utils.httpMethod.HttpMethod;
 import org.server.httpServer.utils.HttpVersion;
 import org.server.httpServer.utils.request.httpRequestBody.HttpRequestBody;
 import org.server.httpServer.utils.request.httpRequestHeader.HttpRequestHeader;

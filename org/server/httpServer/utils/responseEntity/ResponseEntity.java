@@ -70,9 +70,6 @@ public class ResponseEntity<T> {
         }
 
         public ResponseEntityBuilder<T> setData(T data) {
-            if(data == null){
-                throw new NullPointerException("Null data cannot be set.");
-            }
             this.data = data;
             return this;
         }

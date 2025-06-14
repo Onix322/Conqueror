@@ -58,13 +58,30 @@ public class TestObjectController {
                 .build();
     }
 
-    //TODO Working on PutMapping
-    @PutMapping
-    public ResponseEntity<TestObject> update(@RequestBody TestObject testObject) {
+    @PutMapping("/put/var/{integer}")
+    public ResponseEntity<TestObject> update(@RequestBody TestObject testObject, Integer id) {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(testObject)
+                .build();
+    }
+
+    @PutMapping("/put/{integer}")
+    public ResponseEntity<Integer> update(Integer id) {
+        return ResponseEntity.<Integer>builder()
+                .setHttpStatus(HttpStatus.OK.getCode())
+                .setMessage(HttpStatus.OK.getMessage())
+                .setData(id)
+                .build();
+    }
+
+    @PutMapping
+    public ResponseEntity<String> update() {
+        return ResponseEntity.<String>builder()
+                .setHttpStatus(HttpStatus.OK.getCode())
+                .setMessage(HttpStatus.OK.getMessage())
+                .setData(null)
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package org.server.handlers;
 import org.server.annotations.component.Component;
 import org.server.annotations.controller.mapping.parameters.RequestBody;
 import org.server.exceptions.MissingHttpStartLine;
+import org.server.httpServer.utils.httpMethod.BodyRequirement;
 import org.server.httpServer.utils.request.httpRequest.HttpRequest;
 import org.server.httpServer.utils.request.httpRequestBody.HttpRequestBody;
 import org.server.httpServer.utils.request.httpRequestHeader.HttpRequestHeader;
@@ -18,6 +19,7 @@ import org.server.parsers.json.utils.types.JsonType;
 
 import java.io.BufferedReader;
 import java.lang.reflect.Parameter;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -54,7 +56,7 @@ public final class TransformationHandler {
         }
 
         //if HttpMethod must not have a body jump over
-        if (!startLine.getMethod().hasBody()) {
+        if (startLine.getMethod().hasBody().equals(BodyRequirement.FORBIDDEN)) {
             return HttpRequest.builder()
                     .setHttpRequestHeader(headers)
                     .setStartLine(startLine)
@@ -76,7 +78,15 @@ public final class TransformationHandler {
                 .build();
     }
 
-    public HttpRequest castTo(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
+    public HttpRequest handleCasting(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
+        System.out.println(request.getStartLine().getMethod().hasBody());
+        return switch (request.getStartLine().getMethod().hasBody()){
+            case REQUIRED -> this.castRequiredBody(routeMetaData, request);
+            case OPTIONAL -> this.castOptionalBody(routeMetaData, request);
+            default -> request;
+        };
+    }
+    public HttpRequest castRequiredBody(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
         HttpRequestBody body = new HttpRequestBody(null);
         String rawBody = request.getHttpRequestBody().getBody(String.class);
         Class<?> clazz = this.getRequestBodyParam(routeMetaData.getMethodMetaData());
@@ -100,6 +110,16 @@ public final class TransformationHandler {
                 .setStartLine(request.getStartLine())
                 .setHttpRequestBody(body)
                 .build();
+    }
+
+    public HttpRequest castOptionalBody(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
+        boolean isEligibleForBody = Arrays.stream(routeMetaData.getMethodMetaData().getParameters())
+                .anyMatch(p -> p.isAnnotationPresent(RequestBody.class));
+
+        if(isEligibleForBody){
+            return this.castRequiredBody(routeMetaData, request);
+        }
+        return request;
     }
 
     private Class<?> getRequestBodyParam(MethodMetaData method) {

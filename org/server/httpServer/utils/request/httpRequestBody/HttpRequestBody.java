@@ -19,4 +19,11 @@ public class HttpRequestBody{
     public void setBody(Object body) {
         this.body = body;
     }
+
+    @Override
+    public String toString() {
+        return "HttpRequestBody{" +
+                "body=" + body +
+                '}';
+    }
 }

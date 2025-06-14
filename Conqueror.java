@@ -20,7 +20,7 @@ public class Conqueror {
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
-        //* SingletonProcessor Initialization
+        //* ApplicationContext Initialization
         ApplicationContext applicationContext = new ApplicationContext(configuration, executorService);
         applicationContext.applicationContextInit();
 

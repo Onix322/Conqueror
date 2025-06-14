@@ -1,6 +1,6 @@
 package org.server.metadata;
 
-import org.server.httpServer.utils.HttpMethod;
+import org.server.httpServer.utils.httpMethod.HttpMethod;
 import org.server.httpServer.utils.route.MethodRoute;
 
 import java.lang.reflect.Parameter;
@@ -43,7 +43,7 @@ public class MethodMetaData implements MetaData<MethodMetaData> {
 
     public Class<?>[] getParametersClasses() {
         return Arrays.stream(parameters)
-                .map(p -> p.getType())
+                .map(Parameter::getType)
                 .toArray(Class<?>[]::new);
     }
 

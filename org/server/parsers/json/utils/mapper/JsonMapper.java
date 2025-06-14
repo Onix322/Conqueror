@@ -57,7 +57,9 @@ public final class JsonMapper {
 
     private JsonValue getJsonValue(Object o) throws Exception {
         JsonValue jsonValue;
-        if (this.PRIMITIVE_PARSER.isWrapperClass(o.getClass())) {
+        if(o == null){
+            return null;
+        } else if (this.PRIMITIVE_PARSER.isWrapperClass(o.getClass())) {
             jsonValue = new JsonValue(o);
         } else if (o instanceof String) {
             jsonValue = new JsonValue('"' + o.toString() + '"');

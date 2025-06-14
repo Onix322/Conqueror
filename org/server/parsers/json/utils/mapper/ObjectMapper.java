@@ -77,10 +77,11 @@ public final class ObjectMapper {
     private <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException {
         try {
             Constructor<T> constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                  InvocationTargetException e) {
-            throw new ReflectiveOperationException(e.getLocalizedMessage());
+            throw new ReflectiveOperationException("No empty constructor found! " + e.getLocalizedMessage());
         }
     }
 }

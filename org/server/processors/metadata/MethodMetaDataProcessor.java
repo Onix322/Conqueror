@@ -1,7 +1,7 @@
 package org.server.processors.metadata;
 
 import org.server.exceptions.DuplicateMappingMethod;
-import org.server.httpServer.utils.HttpMethod;
+import org.server.httpServer.utils.httpMethod.HttpMethod;
 import org.server.httpServer.utils.route.MethodRoute;
 import org.server.metadata.MethodMetaData;
 import org.server.annotations.component.Component;

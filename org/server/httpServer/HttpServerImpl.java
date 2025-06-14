@@ -3,6 +3,7 @@ package org.server.httpServer;
 import org.server.configuration.Configuration;
 import org.server.handlers.RouteHandler;
 import org.server.handlers.TransformationHandler;
+import org.server.httpServer.utils.httpMethod.BodyRequirement;
 import org.server.httpServer.utils.request.httpRequest.HttpRequest;
 import org.server.httpServer.utils.response.HttpConnectionType;
 import org.server.httpServer.utils.response.HttpStatus;
@@ -97,18 +98,15 @@ public final class HttpServerImpl implements HttpServer {
     }
 
     private HttpRequest handleCasting(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
-        if(request.getStartLine().getMethod().hasBody()){
-            return this.TRANSFORMATION_HANDLER.castTo(routeMetaData, request);
+        if(!request.getStartLine().getMethod().hasBody().equals(BodyRequirement.FORBIDDEN)){
+            return this.TRANSFORMATION_HANDLER.handleCasting(routeMetaData, request);
         }
         return request;
     }
 
     private HttpRequest handleRequest(Socket clientSocket) throws Exception {
-
-        //*creating HttpRequest
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-//        HttpRequest httpRequest = this.TRANSFORMATION_HANDLER.transformToHttpRequest(in);
         HttpRequest httpRequest = this.TRANSFORMATION_HANDLER.handleTransformation(in);
         clientSocket.shutdownInput();
 
@@ -132,8 +130,6 @@ public final class HttpServerImpl implements HttpServer {
     }
 
     private void sendResponse(Socket clientSocket, HttpResponse httpResponse) throws Exception {
-        System.out.println("Line 102 HttpServerImpl: \n" + httpResponse.getResponseString());
-
         clientSocket.getOutputStream()
                 .write(httpResponse.getResponseString()
                         .getBytes(StandardCharsets.UTF_8)
