@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.sql.JDBCType;
 import java.sql.SQLType;
 import java.sql.Types;
+import java.util.Collection;
 import java.util.Map;
 
 @Component
@@ -39,12 +40,21 @@ public class JDBCTypeResolver {
             Map.entry(java.sql.Struct.class, JDBCType.STRUCT),
             Map.entry(java.net.URL.class, JDBCType.DATALINK),
             Map.entry(java.sql.SQLXML.class, JDBCType.SQLXML),
-            Map.entry(java.sql.ResultSet.class, JDBCType.OTHER), // fallback pentru MULTISET
+            Map.entry(java.sql.ResultSet.class, JDBCType.OTHER),
             Map.entry(Object.class, JDBCType.JAVA_OBJECT)
     );
 
     public SQLType getJdbcType(Field field) {
         Class<?> type = field.getType();
+
+        if (Collection.class.isAssignableFrom(type)) {
+            return JDBCType.ARRAY;
+        }
+
+        if (Map.class.isAssignableFrom(type)) {
+            return JDBCType.OTHER;
+        }
+
         return TYPE_MAP.getOrDefault(type, JDBCType.OTHER);
     }
 

@@ -23,25 +23,14 @@ public final class RouteHandler {
 
     public Object handleRoute(RouteMetaData route, HttpRequest request) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException, InstantiationException {
         Object instanceController = this.CONTEXT_PROCESSOR.requestInstance(route.getControllerMetaData().getClassOf());
-        switch (route.getMethodMetaData().getHttpMethod()) {
-            case GET -> {
-                return this.handleGetMapping(route, instanceController);
-            }
-            case POST -> {
-                return this.handlePostMapping(route, request, instanceController);
-            }
-            case DELETE -> {
-                return this.handleDeleteMapping(route, instanceController);
-            }
-            case PUT -> {
-                return this.handlePutMapping(route, request, instanceController);
-            }
-            case PATCH -> {
-                return this.handlePatchMapping(route, request, instanceController);
-            }
-            default ->
-                    throw new NoSuchMethodException(route.getMethodMetaData().getHttpMethod() + " has not been implemented yet.");
-        }
+        return switch (route.getMethodMetaData().getHttpMethod()) {
+            case GET -> this.handleGetMapping(route, instanceController);
+            case POST -> this.handlePostMapping(route, request, instanceController);
+            case DELETE -> this.handleDeleteMapping(route, instanceController);
+            case PUT -> this.handlePutMapping(route, request, instanceController);
+            case PATCH -> this.handlePatchMapping(route, request, instanceController);
+            default -> throw new NoSuchMethodException(route.getMethodMetaData().getHttpMethod() + " has not been implemented yet.");
+        };
     }
 
     private Object handleGetMapping(RouteMetaData route, Object instanceController) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -137,7 +126,6 @@ public final class RouteHandler {
 
         return returnTypeInstance(instanceController, route, finalArgs);
     }
-
 
     // WITH path variables
     private Object returnTypeInstance(Object instanceController, RouteMetaData routeMetaData, List<Object> vars) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {

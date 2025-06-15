@@ -4,6 +4,8 @@ import org.server.annotations.component.Component;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -32,7 +34,9 @@ public class ColumnValueConvertor {
             if (value instanceof byte[]) return rs.getBytes(indexColumn);
             if (value instanceof Blob) return rs.getBlob(indexColumn);
             if (value instanceof Clob) return rs.getClob(indexColumn);
-            if (value instanceof Array) return rs.getArray(indexColumn);
+            if (value instanceof Array arr) {
+                return convertSqlArray(arr);
+            }
 
             // LocalDateTime fallback
             if (value instanceof Timestamp ts) {
@@ -47,5 +51,10 @@ public class ColumnValueConvertor {
         } catch (SQLException e) {
             throw new RuntimeException("Error converting column at index " + indexColumn, e);
         }
+    }
+
+    private List<Object> convertSqlArray(Array array) throws SQLException {
+        Object[] data = (Object[]) array.getArray();
+        return Arrays.asList(data);
     }
 }
