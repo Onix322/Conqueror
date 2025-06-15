@@ -1,11 +1,11 @@
 package org.server.httpServer.utils.responseEntity;
 
-public class ResponseEntity<T> {
+public class ResponseSuccessful<T> {
     private int httpStatus;
     private String message;
     private T data;
 
-    public ResponseEntity(ResponseEntityBuilder<T> builder) {
+    public ResponseSuccessful(ResponseEntityBuilder<T> builder) {
         this.httpStatus = builder.getHttpStatus();
         this.message = builder.getMessage();
         this.data = builder.getData();
@@ -74,8 +74,8 @@ public class ResponseEntity<T> {
             return this;
         }
 
-        public ResponseEntity<T> build() {
-            return new ResponseEntity<>(this);
+        public ResponseSuccessful<T> build() {
+            return new ResponseSuccessful<>(this);
         }
 
         @Override

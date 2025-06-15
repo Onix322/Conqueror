@@ -1,12 +1,14 @@
 package org.server.httpServer.utils;
 
 import org.server.annotations.component.Component;
+import org.server.exceptions.NoSuchEntity;
 import org.server.httpServer.utils.response.HttpStatus;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.NoSuchFileException;
+import java.rmi.NoSuchObjectException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Map;
@@ -25,10 +27,14 @@ public class ExceptionMapper {
             Map.entry(ArrayIndexOutOfBoundsException.class, HttpStatus.BAD_REQUEST),
             Map.entry(StringIndexOutOfBoundsException.class, HttpStatus.BAD_REQUEST),
             Map.entry(ClassCastException.class, HttpStatus.BAD_REQUEST),
+            Map.entry(NoSuchEntity.class, HttpStatus.BAD_REQUEST),
             Map.entry(ArithmeticException.class, HttpStatus.BAD_REQUEST),
             Map.entry(NumberFormatException.class, HttpStatus.UNPROCESSABLE_ENTITY),
             Map.entry(UnsupportedOperationException.class, HttpStatus.METHOD_NOT_ALLOWED),
             Map.entry(ParseException.class, HttpStatus.UNPROCESSABLE_ENTITY),
+            Map.entry(NoSuchMethodException.class, HttpStatus.BAD_REQUEST),
+            Map.entry(NoSuchFieldException.class, HttpStatus.BAD_REQUEST),
+            Map.entry(NoSuchObjectException.class, HttpStatus.BAD_REQUEST),
 
             // Server error (5xx)
             Map.entry(IOException.class, HttpStatus.INTERNAL_SERVER_ERROR),
@@ -38,8 +44,6 @@ public class ExceptionMapper {
             Map.entry(InstantiationException.class, HttpStatus.INTERNAL_SERVER_ERROR),
             Map.entry(IllegalAccessException.class, HttpStatus.INTERNAL_SERVER_ERROR),
             Map.entry(InvocationTargetException.class, HttpStatus.INTERNAL_SERVER_ERROR),
-            Map.entry(NoSuchMethodException.class, HttpStatus.INTERNAL_SERVER_ERROR),
-            Map.entry(NoSuchFieldException.class, HttpStatus.INTERNAL_SERVER_ERROR),
             Map.entry(NoSuchFileException.class, HttpStatus.NOT_FOUND),
             Map.entry(NoSuchElementException.class, HttpStatus.NOT_FOUND),
             Map.entry(InterruptedException.class, HttpStatus.SERVICE_UNAVAILABLE),
@@ -48,12 +52,12 @@ public class ExceptionMapper {
             Map.entry(NoClassDefFoundError.class, HttpStatus.INTERNAL_SERVER_ERROR),
             Map.entry(AssertionError.class, HttpStatus.INTERNAL_SERVER_ERROR),
             Map.entry(LinkageError.class, HttpStatus.INTERNAL_SERVER_ERROR),
-            Map.entry(VirtualMachineError.class, HttpStatus.INTERNAL_SERVER_ERROR)
+            Map.entry(VirtualMachineError.class, HttpStatus.INTERNAL_SERVER_ERROR),
+            Map.entry(Exception.class, HttpStatus.INTERNAL_SERVER_ERROR)
     );
 
     public HttpStatus mapException(Throwable t) {
-        System.out.println(t.getClass());
-        System.out.println(EXCEPTION_CODE_MAP.get(t.getClass()));
+        t.getCause().printStackTrace();
         return this.EXCEPTION_CODE_MAP.getOrDefault(t.getCause().getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -6,7 +6,7 @@ import org.app.service.TestObjectService;
 import org.server.annotations.controller.mapping.methods.*;
 import org.server.annotations.controller.mapping.parameters.RequestBody;
 import org.server.httpServer.utils.response.HttpStatus;
-import org.server.httpServer.utils.responseEntity.ResponseEntity;
+import org.server.httpServer.utils.responseEntity.ResponseSuccessful;
 import org.server.annotations.controller.Controller;
 
 import java.util.List;
@@ -21,8 +21,8 @@ public class TestObjectController {
     }
 
     @GetMapping("/get-by-id/{integer}")
-    public ResponseEntity<TestObject> getById(Integer id) {
-        return ResponseEntity.<TestObject>builder()
+    public ResponseSuccessful<TestObject> getById(Integer id) {
+        return ResponseSuccessful.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(this.TEST_OBJECT_SERVICE.findById(id))
@@ -30,8 +30,8 @@ public class TestObjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TestObject>> getAll() {
-        return ResponseEntity.<List<TestObject>>builder()
+    public ResponseSuccessful<List<TestObject>> getAll() {
+        return ResponseSuccessful.<List<TestObject>>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(this.TEST_OBJECT_SERVICE.findAll())
@@ -39,8 +39,8 @@ public class TestObjectController {
     }
 
     @PostMapping
-    public ResponseEntity<TestObject> create(@RequestBody TestObject testObject) {
-        return ResponseEntity.<TestObject>builder()
+    public ResponseSuccessful<TestObject> create(@RequestBody TestObject testObject) {
+        return ResponseSuccessful.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(this.TEST_OBJECT_SERVICE.create(testObject))
@@ -48,8 +48,8 @@ public class TestObjectController {
     }
 
     @DeleteMapping("/{integer}")
-    public ResponseEntity<Boolean> delete(Integer id) {
-        return ResponseEntity.<Boolean>builder()
+    public ResponseSuccessful<Boolean> delete(Integer id) {
+        return ResponseSuccessful.<Boolean>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(this.TEST_OBJECT_SERVICE.delete(id))
@@ -57,8 +57,8 @@ public class TestObjectController {
     }
 
     @PutMapping("/put/var/{integer}")
-    public ResponseEntity<TestObject> update(@RequestBody TestObject testObject, Integer id) {
-        return ResponseEntity.<TestObject>builder()
+    public ResponseSuccessful<TestObject> update(@RequestBody TestObject testObject, Integer id) {
+        return ResponseSuccessful.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(testObject)
@@ -66,8 +66,8 @@ public class TestObjectController {
     }
 
     @PutMapping("/put/{integer}")
-    public ResponseEntity<Integer> update(Integer id) {
-        return ResponseEntity.<Integer>builder()
+    public ResponseSuccessful<Integer> update(Integer id) {
+        return ResponseSuccessful.<Integer>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(id)
@@ -75,8 +75,8 @@ public class TestObjectController {
     }
 
     @PutMapping("/put/id/{integer}")
-    public ResponseEntity<TestObject> update(@RequestBody TestObjectDto testObjectDto, Integer id) {
-        return ResponseEntity.<TestObject>builder()
+    public ResponseSuccessful<TestObject> update(@RequestBody TestObjectDto testObjectDto, Integer id) {
+        return ResponseSuccessful.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(this.TEST_OBJECT_SERVICE.update(testObjectDto, id))
@@ -84,8 +84,8 @@ public class TestObjectController {
     }
 
     @PatchMethod("/patch/{integer}")
-    public ResponseEntity<TestObject> modify(@RequestBody TestObjectDto testObjectDto, Integer id) {
-        return ResponseEntity.<TestObject>builder()
+    public ResponseSuccessful<TestObject> modify(@RequestBody TestObjectDto testObjectDto, Integer id) {
+        return ResponseSuccessful.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
                 .setData(this.TEST_OBJECT_SERVICE.modify(testObjectDto, id))

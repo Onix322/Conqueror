@@ -12,6 +12,7 @@ import org.server.parsers.primitiveParser.PrimitiveParser;
 import org.server.annotations.component.Component;
 
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.NoSuchObjectException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,24 +28,28 @@ public final class RouteProcessor {
         this.PRIMITIVE_PARSER = primitiveParser;
     }
 
-    public RouteMetaData process(HttpRequest request) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    public RouteMetaData process(HttpRequest request) {
+        try{
+            ControllerMetaData controllerMetaData = this.processControllerMetaData(request.getStartLine());
+            MethodMetaData methodMetaData = this.processMethodMetaData(controllerMetaData, request.getStartLine());
 
-        ControllerMetaData controllerMetaData = this.processControllerMetaData(request.getStartLine());
-        MethodMetaData methodMetaData = this.processMethodMetaData(controllerMetaData, request.getStartLine());
+            //if methodMetaData has parameters, then is expecting some values
+            //that have to gather them from request.
+            int pathVarsCount = this.countPathVariables(methodMetaData);
 
-        //if methodMetaData has parameters, then is expecting some values
-        //that have to gather them from request.
-        int pathVarsCount = this.countPathVariables(methodMetaData);
-        if(pathVarsCount > 0){
-            System.out.println(methodMetaData.getPath().getRoute());
-            PathVariable[] pathVariables = this.processPathVariables(request.getStartLine(),
-                    controllerMetaData.getPath().getRoute() + methodMetaData.getPath().getRoute());
-            return new RouteMetaData(controllerMetaData, methodMetaData, pathVariables);
+            if(pathVarsCount > 0){
+                System.out.println(methodMetaData.getPath().getRoute());
+                PathVariable[] pathVariables = this.processPathVariables(request.getStartLine(),
+                        controllerMetaData.getPath().getRoute() + methodMetaData.getPath().getRoute());
+                return new RouteMetaData(controllerMetaData, methodMetaData, pathVariables);
+            }
+            return new RouteMetaData(controllerMetaData, methodMetaData, new PathVariable[0]);
+        } catch (NoSuchObjectException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
         }
-        return new RouteMetaData(controllerMetaData, methodMetaData, new PathVariable[0]);
     }
 
-    private ControllerMetaData processControllerMetaData(HttpRequestStartLine startLine) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    private ControllerMetaData processControllerMetaData(HttpRequestStartLine startLine) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, NoSuchObjectException {
         String path = startLine.getPath().getRawPath();
         String[] fragments = this.pathFragments(path);
         StringBuilder controllerPathBuilder = new StringBuilder();
@@ -61,13 +66,13 @@ public final class RouteProcessor {
         }
 
         if (controllerMetaData == null) {
-            throw new NoSuchElementException("No controller for path/route: " + path);
+            throw new NoSuchObjectException("No controller for path/route: " + path);
         }
 
         return controllerMetaData;
     }
 
-    private MethodMetaData processMethodMetaData(ControllerMetaData controllerMetaData, HttpRequestStartLine startLine) {
+    private MethodMetaData processMethodMetaData(ControllerMetaData controllerMetaData, HttpRequestStartLine startLine) throws NoSuchMethodException {
 
         String path = startLine.getPath().getRawPath().replaceAll(controllerMetaData.getPath().getRoute(), "");
 
@@ -108,7 +113,7 @@ public final class RouteProcessor {
         }
 
         if (methodMetaData == null) {
-            throw new NoSuchElementException("No method for path/route: " + path);
+            throw new NoSuchMethodException("No method for path/route: " + path);
         }
 
         return methodMetaData;

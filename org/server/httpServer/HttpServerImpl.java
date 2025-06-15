@@ -10,6 +10,8 @@ import org.server.httpServer.utils.response.HttpConnectionType;
 import org.server.httpServer.utils.response.HttpStatus;
 import org.server.httpServer.utils.response.httpResponse.HttpResponse;
 import org.server.httpServer.utils.response.httpResponse.HttpResponseFactory;
+import org.server.httpServer.utils.responseEntity.ResponseFailed;
+import org.server.httpServer.utils.responseEntity.ResponseSuccessful;
 import org.server.metadata.RouteMetaData;
 import org.server.parsers.json.JsonService;
 import org.server.parsers.json.utils.types.JsonType;
@@ -71,6 +73,7 @@ public final class HttpServerImpl implements HttpServer {
                 this.listen(clientSocket);
             }
         } catch (Exception e) {
+            System.out.println("START method: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -81,8 +84,9 @@ public final class HttpServerImpl implements HttpServer {
     }
 
     private void listen(Socket clientSocket){
+
         EXECUTOR_SERVICE.submit(() -> {
-            try (clientSocket) {
+            try {
                 //* STEP 1: handle request
                 HttpRequest request = this.handleRequest(clientSocket);
                 RouteMetaData routeMetaData = this.ROUTE_PROCESSOR.process(request);
@@ -96,8 +100,8 @@ public final class HttpServerImpl implements HttpServer {
                 //* STEP 4: send response
                 this.sendResponse(clientSocket, response);
             } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getLocalizedMessage());
+                HttpResponse err = this.handleError(e);
+                this.sendResponse(clientSocket, err);
             }
         });
     }
@@ -134,13 +138,32 @@ public final class HttpServerImpl implements HttpServer {
         );
     }
 
-    private void sendResponse(Socket clientSocket, HttpResponse httpResponse) throws Exception {
-        clientSocket.getOutputStream()
-                .write(httpResponse.getResponseString()
-                        .getBytes(StandardCharsets.UTF_8)
-                );
+    private HttpResponse handleError(Exception e){
+        HttpStatus httpStatus = this.EXCEPTION_MAPPER.mapException(e);
+        ResponseFailed responseFailed = new ResponseFailed(httpStatus, e.getCause().getLocalizedMessage());
+        try {
+            return HttpResponseFactory.create(
+                    "HTTP/1.1",
+                    httpStatus,
+                    "application/json",
+                    HttpConnectionType.CLOSED,
+                    this.JSON_SERVICE.mapJson(responseFailed)
+            );
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-        clientSocket.shutdownOutput();
+    private void sendResponse(Socket clientSocket, HttpResponse httpResponse) {
+        try {
+            clientSocket.getOutputStream()
+                    .write(httpResponse.getResponseString()
+                            .getBytes(StandardCharsets.UTF_8)
+                    );
+            clientSocket.shutdownOutput();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

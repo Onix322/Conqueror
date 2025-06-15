@@ -93,11 +93,20 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
     public boolean removeById(Class<T> entity, ID id) {
         try {
             String sql = this.SQL_STATEMENTS.removeByIdSql(entity, id);
-            return this.SCHEMA_MANAGER.preparedStatement(sql)
+            boolean status =  this.SCHEMA_MANAGER.preparedStatement(sql)
                     .executeUpdate() > 0;
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return false;
+
+            if(!status){
+                throw new NoSuchEntity("No entity found in table: "
+                        + entity.getAnnotation(Entity.class).name()
+                        + " for id: " + id);
+            }
+
+            return true;
+        } catch (NoSuchEntity e) {
+            throw new NoSuchEntity(e.getLocalizedMessage());
+        } catch (SQLException | NoSuchFieldException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
