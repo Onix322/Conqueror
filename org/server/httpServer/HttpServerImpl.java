@@ -3,6 +3,7 @@ package org.server.httpServer;
 import org.server.configuration.Configuration;
 import org.server.handlers.RouteHandler;
 import org.server.handlers.TransformationHandler;
+import org.server.httpServer.utils.ExceptionMapper;
 import org.server.httpServer.utils.httpMethod.BodyRequirement;
 import org.server.httpServer.utils.request.httpRequest.HttpRequest;
 import org.server.httpServer.utils.response.HttpConnectionType;
@@ -31,19 +32,23 @@ public final class HttpServerImpl implements HttpServer {
     private final RouteHandler ROUTE_HANDLER;
     private final JsonService JSON_SERVICE;
     private final RouteProcessor ROUTE_PROCESSOR;
+    private final ExceptionMapper EXCEPTION_MAPPER;
 
     private HttpServerImpl(Configuration configuration,
                            ExecutorService executorService,
                            TransformationHandler transformationHandler,
                            RouteHandler routeHandler,
                            JsonService jsonService,
-                           RouteProcessor routeProcessor) {
+                           RouteProcessor routeProcessor,
+                           ExceptionMapper exceptionMapper
+    ) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
         this.TRANSFORMATION_HANDLER = transformationHandler;
         this.ROUTE_HANDLER = routeHandler;
         this.JSON_SERVICE = jsonService;
         this.ROUTE_PROCESSOR = routeProcessor;
+        this.EXCEPTION_MAPPER = exceptionMapper;
     }
 
     @Override
