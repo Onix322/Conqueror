@@ -2,7 +2,6 @@ package org.server.handlers;
 
 import org.server.annotations.component.Component;
 import org.server.annotations.controller.mapping.parameters.RequestBody;
-import org.server.annotations.entity.Column;
 import org.server.exceptions.AnnotationException;
 import org.server.httpServer.utils.request.httpRequest.HttpRequest;
 import org.server.httpServer.utils.route.PathVariable;
@@ -100,36 +99,32 @@ public final class RouteHandler {
     }
 
     private Object handlePatchMapping(RouteMetaData route, HttpRequest request, Object instanceController)
-            throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-
-        System.err.println("IMPLEMENTING PATCH_MAPPING");
-
-        Object body = request.getHttpRequestBody().getBody();
-
-        if (body == null) {
-            throw new IllegalArgumentException("PATCH body is null!");
-        }
+            throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException, NoSuchFieldException {
 
         Parameter bodyParameter = Arrays.stream(route.getMethodMetaData().getParameters())
                 .filter(p -> p.isAnnotationPresent(RequestBody.class))
                 .findFirst()
                 .orElseThrow(() -> new AnnotationException("@RequestBody parameter not found!"));
 
+        Object requestBody = request.getHttpRequestBody().getBody();
+
+        if (requestBody == null) {
+            throw new IllegalArgumentException("PATCH body is null!");
+        }
+
         Object targetInstance = bodyParameter.getType().getConstructor().newInstance();
 
-        Class<?> bodyClass = body.getClass();
+        Class<?> requestBodyClass = requestBody.getClass();
         Class<?> targetClass = targetInstance.getClass();
 
-        for (Field sourceField : bodyClass.getDeclaredFields()) {
+        for (Field sourceField : requestBodyClass.getDeclaredFields()) {
             sourceField.setAccessible(true);
-            try {
-                Field targetField = targetClass.getDeclaredField(sourceField.getName());
-                targetField.setAccessible(true);
-                Object value = sourceField.get(body);
-                if (value != null) {
-                    targetField.set(targetInstance, value);
-                }
-            } catch (NoSuchFieldException ignored) {}
+            Field targetField = targetClass.getDeclaredField(sourceField.getName());
+            targetField.setAccessible(true);
+            Object value = sourceField.get(requestBody);
+            if (value != null) {
+                targetField.set(targetInstance, value);
+            }
         }
 
         List<Object> args = new ArrayList<>();
@@ -138,7 +133,7 @@ public final class RouteHandler {
         }
         args.add(targetInstance);
 
-        List<Object> finalArgs = repositionParameters(route.getMethodMetaData().getParameters(), args);
+        List<Object> finalArgs = this.repositionParameters(route.getMethodMetaData().getParameters(), args);
 
         return returnTypeInstance(instanceController, route, finalArgs);
     }

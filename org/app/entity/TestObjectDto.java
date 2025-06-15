@@ -1,22 +1,25 @@
 package org.app.entity;
 
 public class TestObjectDto {
-    private Integer id;
+
     private Integer age;
+    private Integer number;
 
     public TestObjectDto() {
     }
 
+    public Integer getAge() {
+        return age;
+    }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setAge(Integer age) {
+        this.age = age;
     }
 
     @Override
     public String toString() {
         return "TestObjectDto{" +
-                "id=" + id +
-                ", age=" + age +
+                "age=" + age +
                 '}';
     }
 }

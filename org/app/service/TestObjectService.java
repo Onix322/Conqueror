@@ -1,6 +1,7 @@
 package org.app.service;
 
 import org.app.entity.TestObject;
+import org.app.entity.TestObjectDto;
 import org.app.repository.Repository;
 import org.server.exceptions.NoSuchEntity;
 import org.server.annotations.component.Component;
@@ -31,6 +32,14 @@ public class TestObjectService {
 
     public boolean delete(Integer id) {
         return this.REPOSITORY.removeById(TestObject.class, id);
+    }
+
+    public TestObject update(TestObjectDto testObjectDto, Integer id){
+        return this.REPOSITORY.update(TestObject.class, testObjectDto, id);
+    }
+
+    public TestObject modify(TestObjectDto testObjectDto, Integer id){
+        return this.REPOSITORY.modify(TestObject.class, testObjectDto, id);
     }
 }
 

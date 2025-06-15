@@ -75,23 +75,20 @@ public class TestObjectController {
     }
 
     @PutMapping("/put/id/{integer}")
-    public ResponseEntity<TestObjectDto> update(@RequestBody TestObjectDto testObjectDto, Integer id) {
-        testObjectDto.setId(id);
-        System.out.println(testObjectDto);
-        return ResponseEntity.<TestObjectDto>builder()
+    public ResponseEntity<TestObject> update(@RequestBody TestObjectDto testObjectDto, Integer id) {
+        return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData(testObjectDto)
+                .setData(this.TEST_OBJECT_SERVICE.update(testObjectDto, id))
                 .build();
     }
 
     @PatchMethod("/patch/{integer}")
-    public ResponseEntity<TestObject> modify(@RequestBody TestObject testObjectDto, Integer id) {
-        System.out.println(testObjectDto);
+    public ResponseEntity<TestObject> modify(@RequestBody TestObjectDto testObjectDto, Integer id) {
         return ResponseEntity.<TestObject>builder()
                 .setHttpStatus(HttpStatus.OK.getCode())
                 .setMessage(HttpStatus.OK.getMessage())
-                .setData(testObjectDto)
+                .setData(this.TEST_OBJECT_SERVICE.modify(testObjectDto, id))
                 .build();
     }
 }

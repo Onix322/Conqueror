@@ -12,6 +12,7 @@ import org.server.database.mysql.utils.schemaHandler.schemaManager.FieldConverto
 import org.server.database.mysql.utils.schemaHandler.schemaManager.SchemaManager;
 import org.server.database.mysql.utils.schemaHandler.schemaManager.SqlStatements;
 import org.server.exceptions.AnnotationException;
+import org.server.exceptions.NoSuchEntity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,10 +20,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /*
 * Implementation of Persistence.class (interface)
@@ -115,6 +115,85 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
             return entity;
         } catch (NoSuchFieldException | SQLException | IllegalAccessException e) {
             throw new RuntimeException("Can't save the entity in database. " + e.getMessage());
+        }
+    }
+
+
+    @Override
+    public T update(Class<T> entityClass, Object updater, ID id){
+        Optional<T> box = this.findById(entityClass, id);
+        if(box.isEmpty()) throw new NoSuchEntity("No such entity found!");
+        T obj = box.get();
+
+        for(Field sf : updater.getClass().getDeclaredFields()){
+            try {
+                sf.setAccessible(true);
+                Field objField = obj.getClass().getDeclaredField(sf.getName());
+                objField.setAccessible(true);
+                objField.set(obj, sf.get(updater));
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        this.removeById(entityClass, id);
+        this.save(obj);
+        return obj;
+    }
+
+    @Override
+    public T modify(Class<T> entity, Object modifier, ID id){
+        if (!entity.isAnnotationPresent(Entity.class)) {
+            throw new AnnotationException("@Entity is not present for: " + entity.getName());
+        }
+        Map<String, Object> fieldsData = Arrays.stream(modifier.getClass().getDeclaredFields())
+                .collect(Collectors.toMap(field -> {
+                    field.setAccessible(true);
+                    return field.getName();
+                }, field -> {
+                    try {
+                        field.setAccessible(true);
+                        return field.get(modifier);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
+
+        Optional<Field> idField = Arrays.stream(entity.getDeclaredFields())
+                .filter(f -> f.getAnnotation(Column.class).idColumn())
+                .findFirst();
+
+        if(idField.isEmpty()) try {
+            throw new NoSuchFieldException("Id field not found!");
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+
+        Entity entityAnnotation = entity.getAnnotation(Entity.class);
+        String baseSql = "UPDATE " + entityAnnotation.name() + " SET ";
+        StringBuilder sql = new StringBuilder(baseSql);
+
+        AtomicInteger index = new AtomicInteger();
+        fieldsData.forEach((k, v) -> {
+            sql.append(k)
+                    .append("=")
+                    .append(v);
+            if(index.get() != fieldsData.size() - 1){
+                sql.append(", ");
+            }
+            index.getAndIncrement();
+        });
+        sql.append(" WHERE ")
+                .append(idField.get().getName())
+                .append("=")
+                .append(id);
+
+        System.out.println(sql);
+        try {
+            this.SCHEMA_MANAGER.preparedStatement(sql.toString()).execute();
+            return this.findById(entity, id).get();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
