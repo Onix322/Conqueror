@@ -1,6 +1,8 @@
-package org.server.httpServer.utils;
+package org.server.managers;
 
 import org.server.annotations.component.Component;
+import org.server.configuration.Configuration;
+import org.server.environment.Environment;
 import org.server.exceptions.NoSuchEntity;
 import org.server.httpServer.utils.response.HttpStatus;
 
@@ -15,9 +17,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Component
-public class ExceptionMapper {
+public class ExceptionManager {
 
-    private ExceptionMapper(){}
+    private final Environment ENV;
+
+    private ExceptionManager(Configuration configuration){
+        this.ENV = Environment.getConfigEnv(configuration);
+    }
 
     private final Map<Class<? extends Throwable>, HttpStatus> EXCEPTION_CODE_MAP = Map.ofEntries(
             // Client error (4xx)
@@ -53,11 +59,26 @@ public class ExceptionMapper {
             Map.entry(AssertionError.class, HttpStatus.INTERNAL_SERVER_ERROR),
             Map.entry(LinkageError.class, HttpStatus.INTERNAL_SERVER_ERROR),
             Map.entry(VirtualMachineError.class, HttpStatus.INTERNAL_SERVER_ERROR),
-            Map.entry(Exception.class, HttpStatus.INTERNAL_SERVER_ERROR)
+            Map.entry(Exception.class, HttpStatus.INTERNAL_SERVER_ERROR),
+            Map.entry(RuntimeException.class, HttpStatus.INTERNAL_SERVER_ERROR)
     );
 
     public HttpStatus mapException(Throwable t) {
-        t.getCause().printStackTrace();
+        System.out.println(t.getCause().getClass());
+
+        if(this.ENV.equals(Environment.PROD)){
+            System.out.println(t.getCause().getMessage());
+        } else if (this.ENV.equals(Environment.DEBUG)) {
+            StackTraceElement[] stackTrace = t.getCause().getStackTrace();
+            System.err.println(t.getCause().getMessage()
+                    + "\n"
+                    + t.getCause().getLocalizedMessage()
+                    + "\n"
+                    + stackTrace[0]
+            );
+        } else {
+            t.getCause().printStackTrace();
+        }
         return this.EXCEPTION_CODE_MAP.getOrDefault(t.getCause().getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
