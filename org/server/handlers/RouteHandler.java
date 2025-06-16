@@ -21,16 +21,21 @@ public final class RouteHandler {
         this.CONTEXT_PROCESSOR = applicationContext;
     }
 
-    public Object handleRoute(RouteMetaData route, HttpRequest request) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException, InstantiationException {
+    public Object handleRoute(RouteMetaData route, HttpRequest request) {
         Object instanceController = this.CONTEXT_PROCESSOR.requestInstance(route.getControllerMetaData().getClassOf());
-        return switch (route.getMethodMetaData().getHttpMethod()) {
-            case GET -> this.handleGetMapping(route, instanceController);
-            case POST -> this.handlePostMapping(route, request, instanceController);
-            case DELETE -> this.handleDeleteMapping(route, instanceController);
-            case PUT -> this.handlePutMapping(route, request, instanceController);
-            case PATCH -> this.handlePatchMapping(route, request, instanceController);
-            default -> throw new NoSuchMethodException(route.getMethodMetaData().getHttpMethod() + " has not been implemented yet.");
-        };
+
+        try{
+            return switch (route.getMethodMetaData().getHttpMethod()) {
+                case GET -> this.handleGetMapping(route, instanceController);
+                case POST -> this.handlePostMapping(route, request, instanceController);
+                case DELETE -> this.handleDeleteMapping(route, instanceController);
+                case PUT -> this.handlePutMapping(route, request, instanceController);
+                case PATCH -> this.handlePatchMapping(route, request, instanceController);
+                default -> throw new NoSuchMethodException(route.getMethodMetaData().getHttpMethod() + " has not been implemented yet.");
+            };
+        } catch (Exception e){
+            throw new RuntimeException(e.getCause());
+        }
     }
 
     private Object handleGetMapping(RouteMetaData route, Object instanceController) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -83,6 +88,7 @@ public final class RouteHandler {
         List<Object> finalArgs = args.isEmpty()
                 ? List.of(new Object[0])
                 : repositionParameters(route.getMethodMetaData().getParameters(), args);
+
 
         return returnTypeInstance(instanceController, route, finalArgs);
     }

@@ -1,9 +1,10 @@
 package org.server.httpServer;
 
+import org.server.annotations.component.Component;
 import org.server.configuration.Configuration;
 import org.server.handlers.RouteHandler;
 import org.server.handlers.TransformationHandler;
-import org.server.httpServer.utils.ExceptionMapper;
+import org.server.managers.ExceptionManager;
 import org.server.httpServer.utils.httpMethod.BodyRequirement;
 import org.server.httpServer.utils.request.httpRequest.HttpRequest;
 import org.server.httpServer.utils.response.HttpConnectionType;
@@ -11,14 +12,16 @@ import org.server.httpServer.utils.response.HttpStatus;
 import org.server.httpServer.utils.response.httpResponse.HttpResponse;
 import org.server.httpServer.utils.response.httpResponse.HttpResponseFactory;
 import org.server.httpServer.utils.responseEntity.ResponseFailed;
-import org.server.httpServer.utils.responseEntity.ResponseSuccessful;
+import org.server.logger.Logger;
 import org.server.metadata.RouteMetaData;
 import org.server.parsers.json.JsonService;
 import org.server.parsers.json.utils.types.JsonType;
-import org.server.annotations.component.Component;
 import org.server.processors.route.RouteProcessor;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -34,7 +37,7 @@ public final class HttpServerImpl implements HttpServer {
     private final RouteHandler ROUTE_HANDLER;
     private final JsonService JSON_SERVICE;
     private final RouteProcessor ROUTE_PROCESSOR;
-    private final ExceptionMapper EXCEPTION_MAPPER;
+    private final ExceptionManager EXCEPTION_MAPPER;
 
     private HttpServerImpl(Configuration configuration,
                            ExecutorService executorService,
@@ -42,7 +45,7 @@ public final class HttpServerImpl implements HttpServer {
                            RouteHandler routeHandler,
                            JsonService jsonService,
                            RouteProcessor routeProcessor,
-                           ExceptionMapper exceptionMapper
+                           ExceptionManager exceptionManager
     ) {
         this.CONFIGURATION = configuration;
         this.EXECUTOR_SERVICE = executorService;
@@ -50,7 +53,7 @@ public final class HttpServerImpl implements HttpServer {
         this.ROUTE_HANDLER = routeHandler;
         this.JSON_SERVICE = jsonService;
         this.ROUTE_PROCESSOR = routeProcessor;
-        this.EXCEPTION_MAPPER = exceptionMapper;
+        this.EXCEPTION_MAPPER = exceptionManager;
     }
 
     @Override
@@ -60,20 +63,19 @@ public final class HttpServerImpl implements HttpServer {
 
     @Override
     public void start() {
-        System.out.println("Starting server...");
-
+        Logger.log(this.getClass(), "Starting server...");
         int port = (Integer.parseInt(getConfig().readProperty("server.port")));
         String address = getConfig().readProperty("server.hostname");
 
         InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
 
-        try(ServerSocket serverSocket = new ServerSocket(inetSocketAddress.getPort(), 0, inetSocketAddress.getAddress())) {
+        try (ServerSocket serverSocket = new ServerSocket(inetSocketAddress.getPort(), 0, inetSocketAddress.getAddress())) {
+            Logger.log(this.getClass(), "Server is running!");
             while (serverSocket.isBound() && !serverSocket.isClosed()) {
                 Socket clientSocket = serverSocket.accept();
                 this.listen(clientSocket);
             }
         } catch (Exception e) {
-            System.out.println("START method: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -83,7 +85,7 @@ public final class HttpServerImpl implements HttpServer {
         EXECUTOR_SERVICE.close();
     }
 
-    private void listen(Socket clientSocket){
+    private void listen(Socket clientSocket) {
 
         EXECUTOR_SERVICE.submit(() -> {
             try {
@@ -107,7 +109,7 @@ public final class HttpServerImpl implements HttpServer {
     }
 
     private HttpRequest handleCasting(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
-        if(!request.getStartLine().getMethod().hasBody().equals(BodyRequirement.FORBIDDEN)){
+        if (!request.getStartLine().getMethod().hasBody().equals(BodyRequirement.FORBIDDEN)) {
             return this.TRANSFORMATION_HANDLER.handleCasting(routeMetaData, request);
         }
         return request;
@@ -138,7 +140,7 @@ public final class HttpServerImpl implements HttpServer {
         );
     }
 
-    private HttpResponse handleError(Exception e){
+    private HttpResponse handleError(Exception e) {
         HttpStatus httpStatus = this.EXCEPTION_MAPPER.mapException(e);
         ResponseFailed responseFailed = new ResponseFailed(httpStatus, e.getCause().getLocalizedMessage());
         try {

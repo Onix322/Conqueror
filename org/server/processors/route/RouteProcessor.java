@@ -44,7 +44,7 @@ public final class RouteProcessor {
                 return new RouteMetaData(controllerMetaData, methodMetaData, pathVariables);
             }
             return new RouteMetaData(controllerMetaData, methodMetaData, new PathVariable[0]);
-        } catch (NoSuchObjectException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

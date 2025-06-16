@@ -1,10 +1,11 @@
 package org.server.processors.context;
 
-import org.server.configuration.Configuration;
-import org.server.exceptions.CircularDependencyException;
 import org.server.annotations.component.Component;
 import org.server.annotations.controller.Controller;
 import org.server.annotations.entity.Entity;
+import org.server.configuration.Configuration;
+import org.server.exceptions.CircularDependencyException;
+import org.server.logger.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,8 +70,9 @@ public final class ApplicationContext {
         while (iteratorAllComponents.hasNext()) {
             Class<?> component = iteratorAllComponents.next();
 
+            this.handleLogging(component);
+
             if (component.isAnnotationPresent(Entity.class)) {
-                System.out.println("[" + this.getClass().getSimpleName() + "] Register Entity -> " + component.getName());
                 APPLICATION_ENTITIES.add(component);
                 iteratorAllComponents.remove();
                 continue;
@@ -82,9 +84,8 @@ public final class ApplicationContext {
             }
 
             Optional<Object> instance = this.safeInstance(component);
-            if(instance.isEmpty()) continue;
+            if (instance.isEmpty()) continue;
 
-            System.out.println("[" + this.getClass().getSimpleName() + "] Initialization -> " + component.getName());
             APPLICATION_COMPONENTS.put(component, instance.get());
             iteratorAllComponents.remove();
             circularDependency = component;
@@ -93,9 +94,16 @@ public final class ApplicationContext {
 
         if (!allComponents.isEmpty()) {
             allComponents.forEach(System.err::println);
-            System.err.println(circularDependency);
-            throw new CircularDependencyException("Circular dependency or missing @Component: " + allComponents);
+            throw new CircularDependencyException("Circular dependency or missing @Component: " + circularDependency);
         }
+    }
+
+    private void handleLogging(Class<?> component) {
+        if (component.isAnnotationPresent(Entity.class)) {
+            Logger.log(this.getClass(), "Register Entity: " + component.getName());
+            return;
+        }
+        Logger.log(this.getClass(), "Initialization component: " + component.getName());
     }
 
     private List<Class<?>> gather(List<File> files, String packageName) throws ClassNotFoundException, IOException {
@@ -124,7 +132,7 @@ public final class ApplicationContext {
     }
 
     private Constructor<?> getConstructor(Class<?> clazz) throws InstantiationException {
-        if(clazz.isInterface()){
+        if (clazz.isInterface()) {
             throw new InstantiationException("Can't instantiate an interface: " + clazz.getName());
         }
         return Arrays.stream(clazz.getDeclaredConstructors())
@@ -150,7 +158,7 @@ public final class ApplicationContext {
                 .toList();
     }
 
-    private Optional<Object> safeInstance(Class<?> component){
+    private Optional<Object> safeInstance(Class<?> component) {
         try {
             Constructor<?> constructor = getConstructor(component);
             constructor.setAccessible(true);

@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /*
-* Implementation of Persistence.class (interface)
-* */
+ * Implementation of Persistence.class (interface)
+ * */
 @Component
 public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID> {
 
@@ -36,7 +36,11 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
     private final PreparedStatementSetter STATEMENT_SETTER;
     private final ColumnValueConvertor COLUMN_VALUE_CONVERTOR;
 
-    protected MySqlPersistence(SqlStatements sqlStatements, FieldConvertor fieldConvertor, SchemaManager schemaManager, PreparedStatementSetter statementSetter, ColumnValueConvertor columnValueConvertor) {
+    protected MySqlPersistence(SqlStatements sqlStatements,
+                               FieldConvertor fieldConvertor,
+                               SchemaManager schemaManager,
+                               PreparedStatementSetter statementSetter,
+                               ColumnValueConvertor columnValueConvertor) {
         this.SQL_STATEMENTS = sqlStatements;
         this.FIELD_CONVERTOR = fieldConvertor;
         this.SCHEMA_MANAGER = schemaManager;
@@ -93,10 +97,10 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
     public boolean removeById(Class<T> entity, ID id) {
         try {
             String sql = this.SQL_STATEMENTS.removeByIdSql(entity, id);
-            boolean status =  this.SCHEMA_MANAGER.preparedStatement(sql)
+            boolean status = this.SCHEMA_MANAGER.preparedStatement(sql)
                     .executeUpdate() > 0;
 
-            if(!status){
+            if (!status) {
                 throw new NoSuchEntity("No entity found in table: "
                         + entity.getAnnotation(Entity.class).name()
                         + " for id: " + id);
@@ -129,12 +133,12 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
 
 
     @Override
-    public T update(Class<T> entityClass, Object updater, ID id){
+    public T update(Class<T> entityClass, Object updater, ID id) {
         Optional<T> box = this.findById(entityClass, id);
-        if(box.isEmpty()) throw new NoSuchEntity("No such entity found!");
+        if (box.isEmpty()) throw new NoSuchEntity("No such entity found!");
         T obj = box.get();
 
-        for(Field sf : updater.getClass().getDeclaredFields()){
+        for (Field sf : updater.getClass().getDeclaredFields()) {
             try {
                 sf.setAccessible(true);
                 Field objField = obj.getClass().getDeclaredField(sf.getName());
@@ -151,7 +155,7 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
     }
 
     @Override
-    public T modify(Class<T> entity, Object modifier, ID id){
+    public T modify(Class<T> entity, Object modifier, ID id) {
         if (!entity.isAnnotationPresent(Entity.class)) {
             throw new AnnotationException("@Entity is not present for: " + entity.getName());
         }
@@ -172,7 +176,7 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
                 .filter(f -> f.getAnnotation(Column.class).idColumn())
                 .findFirst();
 
-        if(idField.isEmpty()) try {
+        if (idField.isEmpty()) try {
             throw new NoSuchFieldException("Id field not found!");
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
@@ -187,7 +191,7 @@ public class MySqlPersistence<T, ID extends Number> implements Persistence<T, ID
             sql.append(k)
                     .append("=")
                     .append(v);
-            if(index.get() != fieldsData.size() - 1){
+            if (index.get() != fieldsData.size() - 1) {
                 sql.append(", ");
             }
             index.getAndIncrement();

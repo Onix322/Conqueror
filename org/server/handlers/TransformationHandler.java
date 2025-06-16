@@ -122,7 +122,7 @@ public final class TransformationHandler {
         return request;
     }
 
-    private Class<?> getRequestBodyParam(MethodMetaData method) {
+    private Class<?> getRequestBodyParam(MethodMetaData method) throws NoSuchElementException {
         List<Parameter> parameters = Arrays.stream(method.getParameters())
                 .filter(p -> p.isAnnotationPresent(RequestBody.class))
                 .toList();

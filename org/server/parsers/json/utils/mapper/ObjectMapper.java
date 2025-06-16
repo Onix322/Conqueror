@@ -1,5 +1,6 @@
 package org.server.parsers.json.utils.mapper;
 
+import org.server.exceptions.NoSuchJsonPropertyError;
 import org.server.parsers.json.utils.properties.JsonProperty;
 import org.server.parsers.json.utils.properties.JsonValue;
 import org.server.parsers.json.utils.types.JsonArray;
@@ -19,29 +20,34 @@ public final class ObjectMapper {
     private ObjectMapper() {
     }
 
-    public <T> T mapObject(JsonObject jsonObject, Class<T> clazz) throws ReflectiveOperationException {
-        T instance = this.createInstance(clazz);
-        Field[] fields = instance.getClass().getDeclaredFields();
+    public <T> T mapObject(JsonObject jsonObject, Class<T> clazz) {
+        try {
+            T instance = this.createInstance(clazz);
+            Field[] fields = instance.getClass().getDeclaredFields();
 
-        if (fields.length != jsonObject.get().length) {
-            throw new ClassCastException("JSON must have same properties as: " + clazz);
-        }
-        for (Field field : fields) {
-            JsonProperty jsonProperty = jsonObject.getProperty(field.getName());
-            JsonValue jsonValue = jsonProperty.value();
-            field.setAccessible(true);
-            if (jsonValue.get() instanceof JsonArray valueArray) {
-                field.set(instance, this.mapToArray(valueArray, LinkedList.class));
-            } else if (jsonValue.get() instanceof JsonObject valueObject) {
-                field.set(instance, this.mapObject(valueObject, field.getType()));
-            } else if (field.getType().isEnum()) {
-                field.set(instance, this.enumResolver(jsonValue, field));
-            } else {
-                field.set(instance, jsonValue.get(field.getType()));
+            if (fields.length != jsonObject.get().length) {
+                throw new ClassCastException("JSON must have same properties as: " + clazz);
             }
-        }
 
-        return instance;
+            for (Field field : fields) {
+                JsonProperty jsonProperty = jsonObject.getProperty(field.getName());
+                JsonValue jsonValue = jsonProperty.value();
+                field.setAccessible(true);
+                if (jsonValue.get() instanceof JsonArray valueArray) {
+                    field.set(instance, this.mapToArray(valueArray, LinkedList.class));
+                } else if (jsonValue.get() instanceof JsonObject valueObject) {
+                    field.set(instance, this.mapObject(valueObject, field.getType()));
+                } else if (field.getType().isEnum()) {
+                    field.set(instance, this.enumResolver(jsonValue, field));
+                } else {
+                    field.set(instance, jsonValue.get(field.getType()));
+                }
+            }
+            return instance;
+        } catch (NoSuchJsonPropertyError | IllegalArgumentException | ReflectiveOperationException |
+                 ClassCastException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Object enumResolver(JsonValue jsonValue, Field field) {
@@ -70,7 +76,7 @@ public final class ObjectMapper {
     }
 
     public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass)
-            throws ReflectiveOperationException {
+            throws Exception {
         return this.mapToArray(jsonArray, collectionClass);
     }
 

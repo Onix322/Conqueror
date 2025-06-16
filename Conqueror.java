@@ -1,5 +1,6 @@
 import org.server.configuration.Configuration;
 import org.server.configuration.ConfigurationImpl;
+import org.server.logger.Logger;
 import org.server.managers.entityManager.EntityManager;
 import org.server.httpServer.HttpServer;
 import org.server.processors.context.ApplicationContext;
