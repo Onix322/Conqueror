@@ -1,4 +1,4 @@
-package org.dependencyManager.util;
+package loader.util;
 
 public class Exclusion {
     private final String groupId;

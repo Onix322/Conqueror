@@ -1,4 +1,4 @@
-package org.dependencyManager.util;
+package loader.util;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,0 +1,8 @@
+<dependencies>
+    <dependency
+        groupId="org.junit.jupiter"
+        artifactId="junit-jupiter-api"
+
+        scope="test">
+    </dependency>
+</dependencies>
