@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.http.HttpRequest;
 
 public class ConnectionManager {
 
@@ -21,10 +20,8 @@ public class ConnectionManager {
 
     public InputStream open(URL url) {
         try {
+            System.out.println(url);
             URLConnection urlConnection = url.openConnection();
-            System.out.println();
-            urlConnection.getHeaderFields()
-                    .forEach((k, v) -> System.out.println(k + " = " + v));
             return urlConnection.getInputStream();
         } catch (IOException e) {
             throw new RuntimeException(e);

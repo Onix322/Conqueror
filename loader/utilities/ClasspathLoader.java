@@ -36,8 +36,9 @@ public class ClasspathLoader {
 
     public void start(String[] args){
         File dependenciesDir = new File(dependenciesLocation);
-
         try {
+            String projectPath = dependenciesDir.getCanonicalPath().replace(dependenciesLocation, "");
+            System.out.println(projectPath);
             String classpath = "E:\\Projects\\conqueror;" + dependenciesDir.getCanonicalPath() + "\\*";
 
             ProcessBuilder processB = this.processBuilder

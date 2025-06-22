@@ -13,7 +13,7 @@ public class Conqueror {
 
         //* Start App
         Loader.load(configuration, args);
-        App.start(configuration);
+//        App.start(configuration);
 
     }
 }

@@ -45,10 +45,8 @@ public class JarResolver {
         return JarResolver.Holder.INSTANCE;
     }
 
-    public Set<Link> resolve() throws IOException {
+    public Set<Link> resolve() {
 
-        File pomFile = new File(pomFileLocation);
-        System.out.println(pomFile.getCanonicalPath());
         var document = this.pomReader.readString(pomFileLocation);
         var nodeDependencies = this.pomReader.extractFullDependencies(document);
         var dependencies = this.factory.buildDependencies(nodeDependencies);

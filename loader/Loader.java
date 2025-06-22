@@ -1,5 +1,6 @@
 package loader;
 
+import org.xml.sax.SAXNotRecognizedException;
 import src.com.server.configuration.Configuration;
 import loader.objects.link.Link;
 import loader.utilities.*;
@@ -11,7 +12,7 @@ import java.io.IOException;
 import java.util.Set;
 
 public class Loader {
-    public static void load(Configuration configuration, String[] args) throws ParserConfigurationException, IOException {
+    public static void load(Configuration configuration, String[] args) throws ParserConfigurationException, SAXNotRecognizedException {
 
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
@@ -20,9 +21,13 @@ public class Loader {
 
         ConnectionManager connectionManager = ConnectionManager.getInstance();
 
+        VersionHandler.init();
+        VersionHandler versionHandler = new VersionHandler();
+
         LinkGenerator.init(
                 pomReader,
-                connectionManager
+                connectionManager,
+                versionHandler
         );
         LinkGenerator linkGenerator = LinkGenerator.getInstance();
         Factory factory = Factory.getInstance();
