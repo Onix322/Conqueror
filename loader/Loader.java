@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Set;
 
 public class Loader {
-    public static void load(Configuration configuration, String[] args) throws ParserConfigurationException, SAXNotRecognizedException {
+    public static void load(Configuration configuration, String[] args) throws ParserConfigurationException {
 
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
@@ -21,8 +21,11 @@ public class Loader {
 
         ConnectionManager connectionManager = ConnectionManager.getInstance();
 
-        VersionHandler.init();
-        VersionHandler versionHandler = new VersionHandler();
+        VersionComparator.init();
+        VersionComparator versionComparator = VersionComparator.getInstance();
+
+        VersionHandler.init(pomReader, connectionManager, versionComparator);
+        VersionHandler versionHandler = VersionHandler.getInstance();
 
         LinkGenerator.init(
                 pomReader,

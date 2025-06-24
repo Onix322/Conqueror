@@ -46,7 +46,7 @@ public class LinkGenerator {
 
         if (version == null) {
             MetadataLink metadataLink = this.generateMetadataLink(dependency);
-            version = this.versionHandler.handleVersion(metadataLink, pomReader, connectionManager)
+            version = this.versionHandler.handleVersion(metadataLink)
                     .getVersion();
         }
 
