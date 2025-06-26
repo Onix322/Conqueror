@@ -19,6 +19,10 @@ public class Version {
         return version;
     }
 
+    public String asString(){
+        return String.join(".", this.version);
+    }
+
     public void setVersion(String[] version) {
         this.version = version;
     }

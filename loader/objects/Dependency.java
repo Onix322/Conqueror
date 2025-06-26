@@ -2,6 +2,7 @@ package loader.objects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Dependency {
 
@@ -74,6 +75,18 @@ public class Dependency {
                 ", optional=" + optional +
                 ", exclusions=" + exclusions +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        Dependency that = (Dependency) object;
+        return Objects.equals(getGroupId(), that.getGroupId()) && Objects.equals(getArtifactId(), that.getArtifactId()) && Objects.equals(getVersion(), that.getVersion()) && Objects.equals(getType(), that.getType()) && Objects.equals(getClassifier(), that.getClassifier()) && Objects.equals(getScope(), that.getScope()) && Objects.equals(getOptional(), that.getOptional()) && Objects.equals(getExclusions(), that.getExclusions());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getGroupId(), getArtifactId(), getVersion(), getType(), getClassifier(), getScope(), getOptional(), getExclusions());
     }
 
     // Builder

@@ -59,6 +59,7 @@ public class JarResolver {
         Set<Dependency> allDps = new HashSet<>(loadedDps);
 
         for (Dependency dp : loadedDps) {
+            if(dp.getScope() != null && dp.getScope().equals("test")) continue;
             Link pomLink = this.linkGenerator.generateLink(dp, LinkExtension.POM);
             if (visited.contains(pomLink)) {
                 continue;

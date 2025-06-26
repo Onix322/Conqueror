@@ -7,6 +7,8 @@ import loader.objects.link.MetadataLink;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LinkGenerator {
 
@@ -43,8 +45,8 @@ public class LinkGenerator {
         String groupId = this.refactorGroupId(dependency);
         String artifactId = dependency.getArtifactId();
         String version = dependency.getVersion();
-
-        if (version == null) {
+        if ((version == null) || (version.matches("([\\[(]).+"))) {
+            System.out.println(version);
             MetadataLink metadataLink = this.generateMetadataLink(dependency);
             version = this.versionHandler.handleVersion(metadataLink)
                     .getVersion();
