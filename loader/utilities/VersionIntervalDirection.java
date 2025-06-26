@@ -10,7 +10,7 @@ package loader.utilities;
 public enum VersionIntervalDirection {
     BIGGER_OR_EQUAL("["),
     LESS_OR_EQUAL("]"),
-    EQUAL("="),
+    EQUAL(""),
     BIGGER("("),
     LESS(")");
 

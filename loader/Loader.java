@@ -21,10 +21,13 @@ public class Loader {
 
         ConnectionManager connectionManager = ConnectionManager.getInstance();
 
-        VersionComparator.init();
-        VersionComparator versionComparator = VersionComparator.getInstance();
+        XmlNavigator.init(pomReader);
+        XmlNavigator xmlNavigator = XmlNavigator.getInstance();
 
-        VersionHandler.init(pomReader, connectionManager, versionComparator);
+        VersionParser.init();
+        VersionParser versionParser = VersionParser.getInstance();
+
+        VersionHandler.init(pomReader, connectionManager, xmlNavigator, versionParser);
         VersionHandler versionHandler = VersionHandler.getInstance();
 
         LinkGenerator.init(
