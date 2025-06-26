@@ -1,15 +1,11 @@
 package loader.utilities;
 
 import loader.objects.Dependency;
-import loader.objects.link.LinkExtension;
 import loader.objects.link.MetadataLink;
 import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,13 +16,13 @@ import java.util.stream.Collectors;
 public class VersionHandler {
 
     private final PomReader pomReader;
-    private final ConnectionManager connectionManager;
+    private final UrlAccessor urlAccessor;
     private final VersionParser versionParser;
     private final XmlNavigator xmlNavigator;
 
-    public VersionHandler(PomReader pomReader, ConnectionManager connectionManager, XmlNavigator xmlNavigator, VersionParser versionParser) {
+    public VersionHandler(PomReader pomReader, UrlAccessor urlAccessor, XmlNavigator xmlNavigator, VersionParser versionParser) {
         this.pomReader = pomReader;
-        this.connectionManager = connectionManager;
+        this.urlAccessor = urlAccessor;
         this.versionParser = versionParser;
         this.xmlNavigator = xmlNavigator;
     }
@@ -35,7 +31,7 @@ public class VersionHandler {
         private static VersionHandler INSTANCE = null;
     }
 
-    public static synchronized void init(PomReader pomReader, ConnectionManager connectionManager, XmlNavigator xmlNavigator, VersionParser versionParser) {
+    public static synchronized void init(PomReader pomReader, UrlAccessor connectionManager, XmlNavigator xmlNavigator, VersionParser versionParser) {
         if (VersionHandler.Holder.INSTANCE == null) {
             VersionHandler.Holder.INSTANCE = new VersionHandler(pomReader, connectionManager, xmlNavigator, versionParser);
         }
@@ -55,7 +51,7 @@ public class VersionHandler {
     }
 
     private String handleURL(MetadataLink metadataLink) {
-        try (InputStream inputStream = connectionManager.open(metadataLink.getUri().toURL())) {
+        try (InputStream inputStream = urlAccessor.open(metadataLink.getUri().toURL())) {
             Document document = pomReader.readStream(inputStream);
             Map<String, String> versions = pomReader.extractTagsAsMap("version", document);
             String version = versions.get("version");
@@ -78,13 +74,9 @@ public class VersionHandler {
         Version first = this.versionParser.split(versionSplit[0]);
         Version second = this.versionParser.split(versionSplit[1]);
 
-        System.out.println(first);
-        System.out.println(second);
-
         List<Version> versions = this.extractVersions(metadataLink);
         List<Version> intervalVersions = this.findIntervalVersion(first, second, versions);
 
-        intervalVersions.forEach(iv -> System.out.println("IV : " + iv));
         return intervalVersions.getLast();
     }
 
@@ -102,8 +94,6 @@ public class VersionHandler {
     private List<Version> findIntervalVersion(Version v1, Version v2, List<Version> versions) {
         List<Version> v1versions = this.findVersions(v1, versions);
         if(v2.getRankingPoints() == 0){
-            System.out.println(v2.getRankingPoints());
-            System.out.println(v1.getRankingPoints());
             return v1versions;
         }
         List<Version> v2versions = this.findVersions(v2, versions);
@@ -115,7 +105,6 @@ public class VersionHandler {
     private List<Version> findVersions(Version v, List<Version> versions) {
 
         int points = v.getRankingPoints();
-        System.out.println(points);
         VersionIntervalDirection direction = v.getDirection();
 
         return switch (direction){
@@ -135,34 +124,5 @@ public class VersionHandler {
                     .filter(vs -> points > vs.getRankingPoints())
                     .collect(Collectors.toCollection(ArrayList::new));
         };
-    }
-
-
-    public static void main(String[] args) {
-        try {
-            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
-            PomReader.init(documentBuilder);
-            PomReader pomReader = PomReader.getInstance();
-
-            ConnectionManager connectionManager = ConnectionManager.getInstance();
-
-            XmlNavigator.init(pomReader);
-            XmlNavigator xmlNavigator = XmlNavigator.getInstance();
-
-            VersionParser.init();
-            VersionParser versionParser = VersionParser.getInstance();
-
-            VersionHandler.init(pomReader, connectionManager, xmlNavigator, versionParser);
-            VersionHandler versionHandler = VersionHandler.getInstance();
-
-            URI uri = new URI("https://repo1.maven.org/maven2/junit/junit/maven-metadata.xml");
-            MetadataLink metadataLink = new MetadataLink(null, uri, LinkExtension.XML);
-            versionHandler.handleInterval("[4.13-rc-2,)", metadataLink);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
     }
 }

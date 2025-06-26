@@ -14,18 +14,18 @@ import java.util.Set;
 public class Downloader {
 
     private final String dependenciesLocation;
-    private final ConnectionManager connectionManager;
+    private final UrlAccessor urlAccessor;
 
-    private Downloader(Configuration configuration, ConnectionManager connectionManager) {
+    private Downloader(Configuration configuration, UrlAccessor urlAccessor) {
         this.dependenciesLocation = configuration.readProperty("dependencies.location");
-        this.connectionManager = connectionManager;
+        this.urlAccessor = urlAccessor;
     }
 
     private static class Holder {
         private static Downloader INSTANCE = null;
     }
 
-    public static synchronized void init(Configuration configuration, ConnectionManager connectionManager) {
+    public static synchronized void init(Configuration configuration, UrlAccessor connectionManager) {
         if (Downloader.Holder.INSTANCE == null) {
             Downloader.Holder.INSTANCE = new Downloader(configuration, connectionManager);
         }
@@ -39,9 +39,16 @@ public class Downloader {
     }
 
     public void download(Set<Link> links) {
+        System.out.println("[" + this.getClass().getSimpleName() + "] -> Downloading jars...");
         File dir = new File(dependenciesLocation);
         for(Link link : links){
-            try (InputStream stream = connectionManager.open(link.getUri().toURL())){
+            try (InputStream stream = urlAccessor.open(link.getUri().toURL())){
+                System.out.println("[" + this.getClass().getSimpleName() + "] -> Downloading "
+                        + link.getDependency().getGroupId()
+                        + "::" + link.getDependency().getArtifactId()
+                        + "::" + link.getDependency().getVersion()
+                );
+
                 Path fileName = Path.of(dir.getCanonicalPath() + '/'
                         + link.getDependency().getArtifactId() + '-'
                         + link.getDependency().getVersion() + '.'

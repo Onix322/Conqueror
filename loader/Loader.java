@@ -1,6 +1,5 @@
 package loader;
 
-import org.xml.sax.SAXNotRecognizedException;
 import src.com.server.configuration.Configuration;
 import loader.objects.link.Link;
 import loader.utilities.*;
@@ -8,7 +7,6 @@ import loader.utilities.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.util.Set;
 
 public class Loader {
@@ -19,7 +17,8 @@ public class Loader {
         PomReader.init(documentBuilder);
         PomReader pomReader = PomReader.getInstance();
 
-        ConnectionManager connectionManager = ConnectionManager.getInstance();
+        UrlAccessor.init();
+        UrlAccessor urlAccessor = UrlAccessor.getInstance();
 
         XmlNavigator.init(pomReader);
         XmlNavigator xmlNavigator = XmlNavigator.getInstance();
@@ -27,37 +26,39 @@ public class Loader {
         VersionParser.init();
         VersionParser versionParser = VersionParser.getInstance();
 
-        VersionHandler.init(pomReader, connectionManager, xmlNavigator, versionParser);
+        VersionHandler.init(pomReader, urlAccessor, xmlNavigator, versionParser);
         VersionHandler versionHandler = VersionHandler.getInstance();
 
         LinkGenerator.init(
-                pomReader,
-                connectionManager,
                 versionHandler
         );
         LinkGenerator linkGenerator = LinkGenerator.getInstance();
         Factory factory = Factory.getInstance();
 
+        ArtifactValidator.init(configuration);
+        ArtifactValidator artifactValidator = ArtifactValidator.getInstance();
+
         JarResolver.init(
                 pomReader,
                 linkGenerator,
                 factory,
+                artifactValidator,
                 configuration
         );
         JarResolver jarResolver = JarResolver.getInstance();
 
         Downloader.init(
                 configuration,
-                connectionManager
+                urlAccessor
         );
         Downloader downloader = Downloader.getInstance();
 
         ProcessBuilder processBuilder = new ProcessBuilder();
-        ClasspathLoader.init(
+        ClassPathLoader.init(
                 configuration,
                 processBuilder
         );
-        ClasspathLoader classpathLoader = ClasspathLoader.getInstance();
+        ClassPathLoader classpathLoader = ClassPathLoader.getInstance();
 
         Set<Link> jarLinks = jarResolver.resolve();
         downloader.download(jarLinks);

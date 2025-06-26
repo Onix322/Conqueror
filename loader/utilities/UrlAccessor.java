@@ -5,22 +5,27 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class ConnectionManager {
+public class UrlAccessor {
 
-    public ConnectionManager() {
+    private UrlAccessor() {
     }
 
     private static class Holder {
-        private static final ConnectionManager INSTANCE = new ConnectionManager();
+        private static UrlAccessor INSTANCE = null;
     }
 
-    public static ConnectionManager getInstance() {
-        return ConnectionManager.Holder.INSTANCE;
+    public static synchronized void init() {
+        if (UrlAccessor.Holder.INSTANCE == null) {
+            UrlAccessor.Holder.INSTANCE = new UrlAccessor();
+        }
+    }
+
+    public static UrlAccessor getInstance() {
+        return UrlAccessor.Holder.INSTANCE;
     }
 
     public InputStream open(URL url) {
         try {
-            System.out.println(url);
             URLConnection urlConnection = url.openConnection();
             return urlConnection.getInputStream();
         } catch (IOException e) {

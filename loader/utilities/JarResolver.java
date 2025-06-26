@@ -19,12 +19,14 @@ public class JarResolver {
     private final PomReader pomReader;
     private final Factory factory;
     private final String pomFileLocation;
+    private final ArtifactValidator artifactValidator;
     private final Set<Link> visited = new HashSet<>();
 
-    public JarResolver(PomReader pomReader, LinkGenerator linkGenerator, Factory factory, Configuration configuration) {
+    public JarResolver(PomReader pomReader, LinkGenerator linkGenerator, Factory factory, ArtifactValidator artifactValidator,Configuration configuration) {
         this.linkGenerator = linkGenerator;
         this.pomReader = pomReader;
         this.factory = factory;
+        this.artifactValidator = artifactValidator;
         this.pomFileLocation = configuration.readProperty("pom.location");
     }
 
@@ -32,9 +34,9 @@ public class JarResolver {
         private static JarResolver INSTANCE = null;
     }
 
-    public static synchronized void init(PomReader pomReader, LinkGenerator linkGenerator, Factory factory, Configuration configuration) {
+    public static synchronized void init(PomReader pomReader, LinkGenerator linkGenerator, Factory factory, ArtifactValidator artifactValidator, Configuration configuration) {
         if (JarResolver.Holder.INSTANCE == null) {
-            JarResolver.Holder.INSTANCE = new JarResolver(pomReader, linkGenerator, factory, configuration);
+            JarResolver.Holder.INSTANCE = new JarResolver(pomReader, linkGenerator, factory, artifactValidator, configuration);
         }
     }
 
@@ -46,6 +48,8 @@ public class JarResolver {
     }
 
     public Set<Link> resolve() {
+
+        System.out.println("[" + this.getClass().getSimpleName() + "] -> Resolving pom.xml...");
 
         var document = this.pomReader.readString(pomFileLocation);
         var nodeDependencies = this.pomReader.extractFullDependencies(document);
@@ -61,6 +65,14 @@ public class JarResolver {
         for (Dependency dp : loadedDps) {
             if(dp.getScope() != null && dp.getScope().equals("test")) continue;
             Link pomLink = this.linkGenerator.generateLink(dp, LinkExtension.POM);
+            if(this.artifactValidator.verifyExistence(dp)){
+                System.out.println("[" + this.getClass().getSimpleName()
+                        + "] -> Existing dependency: "
+                        + dp.getArtifactId() + "::"
+                        + dp.getVersion()
+                );
+                continue;
+            }
             if (visited.contains(pomLink)) {
                 continue;
             }
