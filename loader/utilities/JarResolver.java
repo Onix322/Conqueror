@@ -7,8 +7,6 @@ import loader.objects.link.LinkExtension;
 import src.com.server.configuration.Configuration;
 import org.w3c.dom.Document;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +20,7 @@ public class JarResolver {
     private final ArtifactValidator artifactValidator;
     private final Set<Link> visited = new HashSet<>();
 
-    public JarResolver(PomReader pomReader, LinkGenerator linkGenerator, Factory factory, ArtifactValidator artifactValidator,Configuration configuration) {
+    public JarResolver(PomReader pomReader, LinkGenerator linkGenerator, Factory factory, ArtifactValidator artifactValidator, Configuration configuration) {
         this.linkGenerator = linkGenerator;
         this.pomReader = pomReader;
         this.factory = factory;
@@ -42,7 +40,7 @@ public class JarResolver {
 
     public static JarResolver getInstance() {
         if (JarResolver.Holder.INSTANCE == null) {
-            throw new IllegalStateException("Loader is not initialized. Use Loader.init().");
+            throw new IllegalStateException("JarResolver is not initialized. Use JarResolver.init().");
         }
         return JarResolver.Holder.INSTANCE;
     }
@@ -63,26 +61,14 @@ public class JarResolver {
         Set<Dependency> allDps = new HashSet<>(loadedDps);
 
         for (Dependency dp : loadedDps) {
-            if(dp.getScope() != null && dp.getScope().equals("test")) continue;
             Link pomLink = this.linkGenerator.generateLink(dp, LinkExtension.POM);
-            if(this.artifactValidator.verifyExistence(dp)){
-                System.out.println("[" + this.getClass().getSimpleName()
-                        + "] -> Existing dependency: "
-                        + dp.getArtifactId() + "::"
-                        + dp.getVersion()
-                );
-                continue;
-            }
-            if (visited.contains(pomLink)) {
-                continue;
-            }
+            boolean checking = mustCheck(pomLink, visited, allDps, dp);
+            if(!checking) continue;
             visited.add(pomLink);
             try {
                 Document document = this.pomReader.readString(pomLink.getUri().toURL().toString());
-
                 var nodeDependencies = this.pomReader.extractFullDependencies(document);
                 var dependencies = new HashSet<>(this.factory.buildDependencies(nodeDependencies));
-
                 allDps.addAll(this.recursiveResolve(dependencies, visited));
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
@@ -90,6 +76,28 @@ public class JarResolver {
         }
 
         return allDps;
+    }
+
+    private boolean mustCheck(Link pomLink, Set<Link> visited, Set<Dependency> allDps, Dependency dp){
+        // taken dependency from pomLink
+        // because it includes a version
+        if(this.artifactValidator.verifyExistence(pomLink)){
+            System.out.println("[" + this.getClass().getSimpleName()
+                    + "] -> Existing dependency: "
+                    + dp.getArtifactId() + "::"
+                    + dp.getVersion()
+            );
+            allDps.remove(dp);
+            return false;
+        }
+        if(dp.getScope() != null && dp.getScope().equals("test")) {
+            return false;
+        }
+        if (visited.contains(pomLink)) {
+            return false;
+        }
+
+        return true;
     }
 
     private Set<Link> generateJarLinks(Set<Dependency> dependencies) {

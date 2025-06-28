@@ -1,6 +1,7 @@
 package loader.utilities;
 
 import loader.objects.Dependency;
+import loader.objects.link.Link;
 import src.com.server.configuration.Configuration;
 
 import java.io.File;
@@ -35,6 +36,11 @@ public class ArtifactValidator {
         return ArtifactValidator.Holder.INSTANCE;
     }
 
+    public boolean verifyExistence(Link link) {
+        Dependency dependency = link.getDependency();
+        return this.verifyExistence(dependency);
+    }
+
     public boolean verifyExistence(Dependency dependency) {
         Path path = Path.of(classesFile.getPath()
                 + '\\'
@@ -42,6 +48,7 @@ public class ArtifactValidator {
                 + '-'
                 + dependency.getVersion()
                 + ".jar");
+
         try {
             return Files.exists(path.toFile().getCanonicalFile().toPath());
         } catch (IOException e) {

@@ -5,14 +5,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
 
 import javax.xml.parsers.DocumentBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -166,53 +164,14 @@ public class PomReader {
         return map;
     }
 
-    public Map<Node, String> toMapNode(List<Node> list) {
-        Map<Node, String> map = new HashMap<>();
-
-        for (Node n : list) {
-            Map.Entry<Node, String> entry = this.toEntryNode(n);
-            map.put(entry.getKey(), entry.getValue());
-        }
-
-        return map;
-    }
-
     public Map.Entry<String, String> toEntry(Node node) {
         return Map.entry(node.getNodeName(), node.getTextContent());
-    }
-
-    public Map.Entry<Node, String> toEntryNode(Node node) {
-        return Map.entry(node, node.getTextContent());
     }
 
     public Map<String, String> extractTagsAsMap(String tagName, Document document) {
         NodeList nodeList = document.getElementsByTagName(tagName);
         List<Node> list = this.toList(nodeList);
         return this.toMap(list);
-    }
-
-    public List<Map.Entry<String, String>> extractTagsAsList(String tagName, Node node) {
-        List<Map.Entry<String, String>> listEntries = new LinkedList<>();
-        NodeList nodeList = node.getChildNodes();
-        List<Node> list = this.toList(nodeList);
-        for(Node n : list){
-            if(n.getNodeName().equals(tagName)){
-                listEntries.add(this.toEntry(n));
-            }
-        }
-        return listEntries;
-    }
-
-    public List<Map.Entry<Node, String>> extractTagsAsListNode(String tagName, Node node) {
-        List<Map.Entry<Node, String>> listEntries = new LinkedList<>();
-        NodeList nodeList = node.getChildNodes();
-        List<Node> list = this.toList(nodeList);
-        for(Node n : list){
-            if(n.getNodeName().equals(tagName)){
-                listEntries.add(this.toEntryNode(n));
-            }
-        }
-        return listEntries;
     }
 
     public String resolveVariable(String var, Document document) {

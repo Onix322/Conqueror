@@ -2,6 +2,7 @@ package loader.utilities;
 
 import loader.objects.Dependency;
 import loader.objects.link.MetadataLink;
+import loader.objects.link.Version;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -54,9 +55,10 @@ public class VersionHandler {
         try (InputStream inputStream = urlAccessor.open(metadataLink.getUri().toURL())) {
             Document document = pomReader.readStream(inputStream);
             Map<String, String> versions = pomReader.extractTagsAsMap("version", document);
-            String version = versions.get("version");
-            metadataLink.getDependency().setVersion(version);
-            return version;
+            String rawVersion = versions.get("version");
+            Version handledVersion = this.handleInterval(rawVersion, metadataLink);
+            metadataLink.getDependency().setVersion(handledVersion.asString());
+            return handledVersion.asString();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }

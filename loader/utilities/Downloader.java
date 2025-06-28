@@ -39,6 +39,11 @@ public class Downloader {
     }
 
     public void download(Set<Link> links) {
+        if(links.isEmpty()){
+            System.out.println("[" + this.getClass().getSimpleName() + "] -> No jars for downloading...");
+            return;
+        }
+
         System.out.println("[" + this.getClass().getSimpleName() + "] -> Downloading jars...");
         File dir = new File(dependenciesLocation);
         for(Link link : links){
@@ -61,5 +66,7 @@ public class Downloader {
                 throw new RuntimeException(e);
             }
         }
+
+        System.out.println("[" + this.getClass().getSimpleName() + "] -> Download finished!");
     }
 }

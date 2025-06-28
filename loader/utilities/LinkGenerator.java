@@ -39,6 +39,7 @@ public class LinkGenerator {
         String groupId = this.refactorGroupId(dependency);
         String artifactId = dependency.getArtifactId();
         String version = dependency.getVersion();
+
         if ((version == null) || (version.matches("([\\[(]).+"))) {
             MetadataLink metadataLink = this.generateMetadataLink(dependency);
             version = this.versionHandler.handleVersion(metadataLink)

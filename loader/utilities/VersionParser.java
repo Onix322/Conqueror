@@ -1,7 +1,8 @@
 package loader.utilities;
 
+import loader.objects.link.Version;
+
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Map;
 
 public class VersionParser {

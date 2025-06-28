@@ -1,4 +1,6 @@
-package loader.utilities;
+package loader.objects.link;
+
+import loader.utilities.VersionIntervalDirection;
 
 import java.util.Arrays;
 import java.util.Objects;
