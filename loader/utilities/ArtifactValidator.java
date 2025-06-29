@@ -1,7 +1,9 @@
 package loader.utilities;
 
-import loader.objects.Dependency;
-import loader.objects.link.Link;
+
+import loader.utilities.linkGenerator.link.VersionedLink;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
 import src.com.server.configuration.Configuration;
 
 import java.io.File;
@@ -36,17 +38,17 @@ public class ArtifactValidator {
         return ArtifactValidator.Holder.INSTANCE;
     }
 
-    public boolean verifyExistence(Link link) {
-        Dependency dependency = link.getDependency();
+    public boolean verifyExistence(VersionedLink versionedLink) {
+        VersionedArtifact dependency = versionedLink.getArtifact();
         return this.verifyExistence(dependency);
     }
 
-    public boolean verifyExistence(Dependency dependency) {
+    public boolean verifyExistence(VersionedArtifact dependency) {
         Path path = Path.of(classesFile.getPath()
                 + '\\'
                 + dependency.getArtifactId()
                 + '-'
-                + dependency.getVersion()
+                + dependency.getVersion().asString()
                 + ".jar");
 
         try {

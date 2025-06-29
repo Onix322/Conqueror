@@ -1,11 +1,14 @@
 package loader.utilities;
 
 
-import loader.objects.Dependency;
-import loader.objects.link.Link;
-import loader.objects.link.LinkExtension;
+import loader.utilities.linkGenerator.LinkGenerator;
+import loader.utilities.linkGenerator.link.VersionedLink;
+import loader.utilities.linkGenerator.link.LinkExtension;
+import loader.utilities.pomReader.PomReader;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.project.Project;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
 import src.com.server.configuration.Configuration;
-import org.w3c.dom.Document;
 
 import java.net.MalformedURLException;
 import java.util.HashSet;
@@ -15,15 +18,13 @@ public class JarResolver {
 
     private final LinkGenerator linkGenerator;
     private final PomReader pomReader;
-    private final Factory factory;
     private final String pomFileLocation;
     private final ArtifactValidator artifactValidator;
-    private final Set<Link> visited = new HashSet<>();
+    private final Set<VersionedLink> visited = new HashSet<>();
 
-    public JarResolver(PomReader pomReader, LinkGenerator linkGenerator, Factory factory, ArtifactValidator artifactValidator, Configuration configuration) {
+    public JarResolver(PomReader pomReader, LinkGenerator linkGenerator, ArtifactValidator artifactValidator, Configuration configuration) {
         this.linkGenerator = linkGenerator;
         this.pomReader = pomReader;
-        this.factory = factory;
         this.artifactValidator = artifactValidator;
         this.pomFileLocation = configuration.readProperty("pom.location");
     }
@@ -32,9 +33,9 @@ public class JarResolver {
         private static JarResolver INSTANCE = null;
     }
 
-    public static synchronized void init(PomReader pomReader, LinkGenerator linkGenerator, Factory factory, ArtifactValidator artifactValidator, Configuration configuration) {
+    public static synchronized void init(PomReader pomReader, LinkGenerator linkGenerator, ArtifactValidator artifactValidator, Configuration configuration) {
         if (JarResolver.Holder.INSTANCE == null) {
-            JarResolver.Holder.INSTANCE = new JarResolver(pomReader, linkGenerator, factory, artifactValidator, configuration);
+            JarResolver.Holder.INSTANCE = new JarResolver(pomReader, linkGenerator, artifactValidator, configuration);
         }
     }
 
@@ -45,31 +46,30 @@ public class JarResolver {
         return JarResolver.Holder.INSTANCE;
     }
 
-    public Set<Link> resolve() {
+    public Set<VersionedLink> resolve() {
 
         System.out.println("[" + this.getClass().getSimpleName() + "] -> Resolving pom.xml...");
 
-        var document = this.pomReader.readString(pomFileLocation);
-        var nodeDependencies = this.pomReader.extractFullDependencies(document);
-        var dependencies = this.factory.buildDependencies(nodeDependencies);
+        Project project = this.pomReader.readString(pomFileLocation);
+        Dependencies dependencies = project.getDependencies();
 
         Set<Dependency> allDps = this.recursiveResolve(new HashSet<>(dependencies), visited);
         return this.generateJarLinks(allDps);
     }
 
-    private Set<Dependency> recursiveResolve(Set<Dependency> loadedDps, Set<Link> visited) {
+    private Set<Dependency> recursiveResolve(Set<Dependency> loadedDps, Set<VersionedLink> visited) {
         Set<Dependency> allDps = new HashSet<>(loadedDps);
 
         for (Dependency dp : loadedDps) {
-            Link pomLink = this.linkGenerator.generateLink(dp, LinkExtension.POM);
-            boolean checking = mustCheck(pomLink, visited, allDps, dp);
-            if(!checking) continue;
-            visited.add(pomLink);
+            VersionedLink pomVersionedLink = this.linkGenerator.generateLink(dp, LinkExtension.POM);
+            boolean checking = mustCheck(pomVersionedLink, visited, allDps, dp);
+            if (!checking) continue;
+            visited.add(pomVersionedLink);
             try {
-                Document document = this.pomReader.readString(pomLink.getUri().toURL().toString());
-                var nodeDependencies = this.pomReader.extractFullDependencies(document);
-                var dependencies = new HashSet<>(this.factory.buildDependencies(nodeDependencies));
-                allDps.addAll(this.recursiveResolve(dependencies, visited));
+                Project project = this.pomReader.readString(pomVersionedLink.getUri().toURL().toString());
+                Dependencies dependencies = project.getDependencies();
+
+                allDps.addAll(this.recursiveResolve(new HashSet<>(dependencies), visited));
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
@@ -78,38 +78,38 @@ public class JarResolver {
         return allDps;
     }
 
-    private boolean mustCheck(Link pomLink, Set<Link> visited, Set<Dependency> allDps, Dependency dp){
+    private boolean mustCheck(VersionedLink pomVersionedLink, Set<VersionedLink> visited, Set<Dependency> allDps, Dependency dp) {
         // taken dependency from pomLink
         // because it includes a version
-        if(this.artifactValidator.verifyExistence(pomLink)){
+        if (this.artifactValidator.verifyExistence(pomVersionedLink)) {
             System.out.println("[" + this.getClass().getSimpleName()
                     + "] -> Existing dependency: "
                     + dp.getArtifactId() + "::"
-                    + dp.getVersion()
+                    + dp.getVersion().asString()
             );
             allDps.remove(dp);
             return false;
         }
-        if(dp.getScope() != null && dp.getScope().equals("test")) {
+        if (dp.getScope() != null && dp.getScope().equals("test")) {
             return false;
         }
-        if (visited.contains(pomLink)) {
+        if (visited.contains(pomVersionedLink)) {
             return false;
         }
 
         return true;
     }
 
-    private Set<Link> generateJarLinks(Set<Dependency> dependencies) {
+    private Set<VersionedLink> generateJarLinks(Set<Dependency> dependencies) {
 
-        Set<Link> links = new HashSet<>();
+        Set<VersionedLink> versionedLinks = new HashSet<>();
 
         for (Dependency dependency : dependencies) {
-            Link jarLink = this.linkGenerator.generateLink(dependency, LinkExtension.JAR);
-            links.add(jarLink);
+            VersionedLink jarVersionedLink = this.linkGenerator.generateLink(dependency, LinkExtension.JAR);
+            versionedLinks.add(jarVersionedLink);
         }
 
-        return links;
+        return versionedLinks;
     }
 
 }

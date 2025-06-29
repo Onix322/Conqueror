@@ -1,6 +1,6 @@
 package loader.utilities;
 
-import loader.objects.link.Link;
+import loader.utilities.linkGenerator.link.VersionedLink;
 import src.com.server.configuration.Configuration;
 
 import java.io.File;
@@ -38,26 +38,26 @@ public class Downloader {
         return Downloader.Holder.INSTANCE;
     }
 
-    public void download(Set<Link> links) {
-        if(links.isEmpty()){
+    public void download(Set<VersionedLink> versionedLinks) {
+        if(versionedLinks.isEmpty()){
             System.out.println("[" + this.getClass().getSimpleName() + "] -> No jars for downloading...");
             return;
         }
 
         System.out.println("[" + this.getClass().getSimpleName() + "] -> Downloading jars...");
         File dir = new File(dependenciesLocation);
-        for(Link link : links){
-            try (InputStream stream = urlAccessor.open(link.getUri().toURL())){
+        for(VersionedLink versionedLink : versionedLinks){
+            try (InputStream stream = urlAccessor.open(versionedLink.getUri().toURL())){
                 System.out.println("[" + this.getClass().getSimpleName() + "] -> Downloading "
-                        + link.getDependency().getGroupId()
-                        + "::" + link.getDependency().getArtifactId()
-                        + "::" + link.getDependency().getVersion()
+                        + versionedLink.getArtifact().getGroupId()
+                        + "::" + versionedLink.getArtifact().getArtifactId()
+                        + "::" + versionedLink.getArtifact().getVersion().asString()
                 );
 
                 Path fileName = Path.of(dir.getCanonicalPath() + '/'
-                        + link.getDependency().getArtifactId() + '-'
-                        + link.getDependency().getVersion() + '.'
-                        + link.getExtension().getValue()
+                        + versionedLink.getArtifact().getArtifactId() + '-'
+                        + versionedLink.getArtifact().getVersion().asString() + '.'
+                        + versionedLink.getLinkExtension().getValue()
                 );
 
                 Files.write(fileName, stream.readAllBytes(), StandardOpenOption.CREATE);

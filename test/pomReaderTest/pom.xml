@@ -1,0 +1,50 @@
+<project>
+    <modelVersion>1.0.0</modelVersion>
+    <artifactId>conqueror</artifactId>
+    <groupId>conqueror</groupId>
+    <packaging>jar</packaging>
+    <name>conqueror</name>
+
+<!--    working on -->
+    <parent>
+        <groupId>parent</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>management</groupId>
+                <artifactId>management</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>2</groupId>
+                <artifactId>2</artifactId>
+                <version>10.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+<!--    working on -->
+    <properties>
+        <junitScope>test</junitScope>
+    </properties>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/junit/junit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>EXCLUSION 1</groupId>
+                    <artifactId>exclusion 1</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</project>
+

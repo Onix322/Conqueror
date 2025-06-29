@@ -1,47 +1,50 @@
 package loader;
 
-import src.com.server.configuration.Configuration;
-import loader.objects.link.Link;
 import loader.utilities.*;
+import loader.utilities.linkGenerator.LinkGenerator;
+import loader.utilities.linkGenerator.link.VersionedLink;
+import loader.utilities.pomReader.PomReader;
+import loader.utilities.pomReader.handlers.ProjectHandler;
+import loader.utilities.version.versionHandler.VersionParser;
+import loader.utilities.version.versionHandler.VersionHandler;
+import org.xml.sax.SAXException;
+import src.com.server.configuration.Configuration;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.util.Set;
 
 public class Loader {
-    public static void load(Configuration configuration, String[] args) throws ParserConfigurationException {
+    public static void load(Configuration configuration, String[] args) throws ParserConfigurationException, SAXException {
 
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
-        PomReader.init(documentBuilder);
-        PomReader pomReader = PomReader.getInstance();
+        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+        SAXParser saxParser = saxParserFactory.newSAXParser();
 
         UrlAccessor.init();
         UrlAccessor urlAccessor = UrlAccessor.getInstance();
 
-        XmlNavigator.init(pomReader);
-        XmlNavigator xmlNavigator = XmlNavigator.getInstance();
+        LinkGenerator.init();
+        LinkGenerator linkGenerator = LinkGenerator.getInstance();
 
-        VersionParser.init();
-        VersionParser versionParser = VersionParser.getInstance();
-
-        VersionHandler.init(pomReader, urlAccessor, xmlNavigator, versionParser);
+        VersionHandler.init(urlAccessor, linkGenerator);
         VersionHandler versionHandler = VersionHandler.getInstance();
 
-        LinkGenerator.init(
-                versionHandler
-        );
-        LinkGenerator linkGenerator = LinkGenerator.getInstance();
-        Factory factory = Factory.getInstance();
+        VersionParser.init(versionHandler);
+        VersionParser versionParser = VersionParser.getInstance();
+
+        ProjectHandler.init(versionParser);
+        ProjectHandler projectHandler = ProjectHandler.getInstance();
+
+        PomReader.init(saxParser, projectHandler);
+        PomReader pomReaderNew = PomReader.getInstance();
 
         ArtifactValidator.init(configuration);
         ArtifactValidator artifactValidator = ArtifactValidator.getInstance();
 
         JarResolver.init(
-                pomReader,
+                pomReaderNew,
                 linkGenerator,
-                factory,
                 artifactValidator,
                 configuration
         );
@@ -60,8 +63,8 @@ public class Loader {
         );
         ClassPathLoader classpathLoader = ClassPathLoader.getInstance();
 
-        Set<Link> jarLinks = jarResolver.resolve();
-        downloader.download(jarLinks);
+        Set<VersionedLink> jarVersionedLinks = jarResolver.resolve();
+        downloader.download(jarVersionedLinks);
         classpathLoader.start(args);
     }
 }
