@@ -1,6 +1,8 @@
 package loader.utilities.pomReader.handlers;
 
-import loader.utilities.pomReader.supportedTagsClasses.artifact.project.Project;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Metadata;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import loader.utilities.pomReader.supportedTagsClasses.TagElement;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
@@ -16,10 +18,11 @@ import org.xml.sax.helpers.DefaultHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProjectHandler extends DefaultHandler {
+public class XMLHandler extends DefaultHandler {
 
-    private Project project;
+    private XMLParsed xmlParsed;
     private Project.Builder projectBuilder;
+    private Metadata.Builder metadataBuilder;
     private Dependencies dependencies;
     private Dependency.Builder dependency;
     private Exclusion.Builder exclusion;
@@ -33,29 +36,30 @@ public class ProjectHandler extends DefaultHandler {
     //changes the turn so the end tags will not get confused
     private TagElement turn = TagElement.NONE;
     private TagElement context = TagElement.NONE;
+    private TagElement xmlType = TagElement.NONE;
 
     private final VersionParser versionParser;
 
-    private ProjectHandler(VersionParser versionParser) {
+    private XMLHandler(VersionParser versionParser) {
         super();
         this.versionParser = versionParser;
     }
 
     private static class Holder {
-        private static ProjectHandler INSTANCE = null;
+        private static XMLHandler INSTANCE = null;
     }
 
     public static synchronized void init(VersionParser versionParser) {
-        if (ProjectHandler.Holder.INSTANCE == null) {
-            ProjectHandler.Holder.INSTANCE = new ProjectHandler(versionParser);
+        if (XMLHandler.Holder.INSTANCE == null) {
+            XMLHandler.Holder.INSTANCE = new XMLHandler(versionParser);
         }
     }
 
-    public static ProjectHandler getInstance() {
-        if (ProjectHandler.Holder.INSTANCE == null) {
+    public static XMLHandler getInstance() {
+        if (XMLHandler.Holder.INSTANCE == null) {
             throw new IllegalStateException("ProjectHandler is not initialized. Use ProjectHandler.init().");
         }
-        return ProjectHandler.Holder.INSTANCE;
+        return XMLHandler.Holder.INSTANCE;
     }
 
     @Override
@@ -67,17 +71,20 @@ public class ProjectHandler extends DefaultHandler {
     }
 
     @Override
-    public void startDocument() {
-        this.projectBuilder = Project.builder();
-        this.context = TagElement.PROJECT;
+    public void startDocument() throws SAXException {
+        super.startDocument();
+
     }
 
     @Override
     public void endDocument() throws SAXException {
         super.endDocument();
 //        projectBuilder = versionParser.fillVersions(projectBuilder);
-        System.out.println(projectBuilder.build());
-        project = projectBuilder.build();
+        if(this.xmlType == TagElement.PROJECT){
+            xmlParsed = projectBuilder.build();
+        } else {
+            xmlParsed = metadataBuilder.build(); //FOR Metadata
+        }
     }
 
     //Defined objects
@@ -85,7 +92,16 @@ public class ProjectHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         TagElement tagElement = TagElement.find(qName);
         switch (tagElement) {
+            case METADATA:
+                this.projectBuilder = Project.builder();
+                this.context = TagElement.METADATA;
+                this.xmlType = TagElement.METADATA;
+                turn = TagElement.METADATA;
+                break;
             case PROJECT:
+                this.projectBuilder = Project.builder();
+                this.context = TagElement.PROJECT;
+                this.xmlType = TagElement.PROJECT;
                 turn = TagElement.PROJECT;
                 break;
             case PARENT:
@@ -178,11 +194,17 @@ public class ProjectHandler extends DefaultHandler {
                         dependency.version(version);
                     }
                     case PROJECT -> {
-                        Version version = versionParser.split(elementValue.toString().trim());
+                        Version version = this.versionParser.handleVariable(
+                                elementValue.toString().trim(),
+                                this.properties
+                        );
                         projectBuilder.setVersion(version);
                     }
                     case PARENT -> {
-                        Version version = versionParser.split(elementValue.toString().trim());
+                        Version version = this.versionParser.handleVariable(
+                                elementValue.toString().trim(),
+                                this.properties
+                        );
                         parent.setVersion(version);
                     }
                 }
@@ -219,7 +241,7 @@ public class ProjectHandler extends DefaultHandler {
                 break;
             case MODEL_VERSION: {
                 if (turn.equals(TagElement.PROJECT)) {
-                    Version version = versionParser.split(elementValue.toString().trim());
+                    Version version = versionParser.parse(elementValue.toString().trim());
                     projectBuilder.setModelVersion(version);
                 }
                 break;
@@ -244,7 +266,7 @@ public class ProjectHandler extends DefaultHandler {
         elementValue.setLength(0);
     }
 
-    public Project getProjectBuilder() {
-        return project;
+    public XMLParsed getXmlParsed() {
+        return xmlParsed;
     }
 }

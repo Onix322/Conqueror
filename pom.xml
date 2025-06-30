@@ -4,16 +4,11 @@
     <packaging>jar</packaging>
     <name>conqueror</name>
 
-    <properties>
-        <junit.version>4.13.2</junit.version>
-    </properties>
-
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core -->
         <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>7.0.3.Final</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>[30.0,32.0)</version>
         </dependency>
     </dependencies>
 </project>

@@ -3,6 +3,7 @@ package loader.utilities.pomReader.supportedTagsClasses;
 public enum TagElement {
     NONE(""),
     PROJECT("project"),
+    METADATA("metadata"),
     DEPENDENCIES("dependencies"),
     DEPENDENCY("dependency"),
     EXCLUSION("exclusion"),

@@ -1,6 +1,5 @@
 package loader.utilities.pomReader.supportedTagsClasses.artifact.parent;
 
-import loader.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
 import loader.utilities.version.Version;
 
@@ -22,7 +21,7 @@ public class Parent extends VersionedArtifact {
         this.relativePath = relativePath;
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -48,13 +47,14 @@ public class Parent extends VersionedArtifact {
                 '}';
     }
 
-    public static class Builder{
+    public static class Builder {
         private String groupId;
         private String artifactId;
         private Version version;
         private String relativePath;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public String getGroupId() {
             return groupId;
@@ -92,7 +92,7 @@ public class Parent extends VersionedArtifact {
             return this;
         }
 
-        public Parent build(){
+        public Parent build() {
             return new Parent(this);
         }
     }

@@ -1,15 +1,16 @@
-package loader.utilities.pomReader.supportedTagsClasses.artifact.project;
+package loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project;
 
 import loader.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.DependencyManagement;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.parent.Parent;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
 import loader.utilities.version.Version;
 
 import java.util.Map;
 import java.util.Objects;
 
-public class Project extends Artifact {
+public class Project extends Artifact implements XMLParsed {
 
     private Version version;
     private Version modelVersion;
@@ -126,6 +127,11 @@ public class Project extends Artifact {
                 ", dependencyManagement=" + dependencyManagement +
                 ", proprieties=" + proprieties +
                 '}';
+    }
+
+    @Override
+    public Project getAs() {
+        return this;
     }
 
     public static class Builder {

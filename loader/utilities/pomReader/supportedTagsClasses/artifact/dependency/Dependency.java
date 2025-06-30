@@ -1,9 +1,9 @@
 package loader.utilities.pomReader.supportedTagsClasses.artifact.dependency;
 
 
-import loader.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.exclusion.Exclusion;
+import loader.utilities.version.FixedVersion;
 import loader.utilities.version.Version;
 
 import java.util.ArrayList;

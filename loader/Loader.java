@@ -4,7 +4,7 @@ import loader.utilities.*;
 import loader.utilities.linkGenerator.LinkGenerator;
 import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.pomReader.PomReader;
-import loader.utilities.pomReader.handlers.ProjectHandler;
+import loader.utilities.pomReader.handlers.XMLHandler;
 import loader.utilities.version.versionHandler.VersionParser;
 import loader.utilities.version.versionHandler.VersionHandler;
 import org.xml.sax.SAXException;
@@ -33,10 +33,10 @@ public class Loader {
         VersionParser.init(versionHandler);
         VersionParser versionParser = VersionParser.getInstance();
 
-        ProjectHandler.init(versionParser);
-        ProjectHandler projectHandler = ProjectHandler.getInstance();
+        XMLHandler.init(versionParser);
+        XMLHandler xmlHandler = XMLHandler.getInstance();
 
-        PomReader.init(saxParser, projectHandler);
+        PomReader.init(saxParser, xmlHandler);
         PomReader pomReaderNew = PomReader.getInstance();
 
         ArtifactValidator.init(configuration);

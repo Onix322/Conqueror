@@ -1,11 +1,10 @@
 package loader.utilities.version.versionHandler;
 
-import loader.utilities.pomReader.PomReader;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.project.Project;
+import loader.utilities.version.FixedVersion;
+import loader.utilities.version.IntervalVersion;
 import loader.utilities.version.Version;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 
 public class VersionParser {
 
@@ -51,13 +50,31 @@ public class VersionParser {
         }
         return VersionParser.Holder.INSTANCE;
     }
-
-    public Version split(String rawVersion) {
+    public Version parse(String rawVersion) {
+        if (rawVersion.contains("[") || rawVersion.contains("(")) {
+            return parseInterval(rawVersion);
+        } else {
+            return parseFixed(rawVersion);
+        }
+    }
+    public FixedVersion parseFixed(String rawVersion) {
         VersionIntervalDirection direction = this.extractIntervalDirection(rawVersion);
         String[] version = rawVersion.replace(direction.getValue(), "")
                 .split("\\.");
         int rank = this.rankCalculator(version);
-        return new Version(version, rank, direction);
+        return new FixedVersion(version, rank, direction);
+    }
+
+    public IntervalVersion parseInterval(String rawInterval) {
+        String[] rawVersions = rawInterval.split(",");
+        List<FixedVersion> list = new LinkedList<>();
+
+        for (String rv : rawVersions){
+            list.add(this.parseFixed(rv.trim()));
+        }
+
+        System.out.println(list);
+        return new IntervalVersion(list.getFirst(), list.getLast());
     }
 
     public int rankCalculator(String[] version) {
@@ -82,7 +99,7 @@ public class VersionParser {
         String key = "final";
         for (String sb : version){
             if(!sb.matches("\\d+-\\w+(?:-\\d+|)")) continue;
-            key = sb.replaceAll("(\\d|\\W)", "");
+            key = sb.replaceAll("(\\d|\\W)", "").toLowerCase(Locale.ROOT);
         }
         return key;
     }
@@ -108,6 +125,7 @@ public class VersionParser {
 
     public int findMinorVersion(String[] version){
         StringBuilder sb = new StringBuilder();
+        if(version.length <= 1) return 0;
         String rawVersion = version[1];
 
         for (int i = 0; i < rawVersion.length(); i++) {
@@ -130,26 +148,16 @@ public class VersionParser {
         return VersionIntervalDirection.EQUAL;
     }
 
-    public Integer[] parse(String[] numbersLike) {
+    public Integer[] parseInt(String[] numbersLike) {
         return Arrays.stream(numbersLike).map(Integer::parseInt)
                 .toArray(Integer[]::new);
     }
 
     public Version handleVariable(String rawVersion, Map<String, String> properties){
         if (rawVersion.contains("${")) {
-            for (Map.Entry<String, String> e : properties.entrySet()) {
-                rawVersion = rawVersion.replace("${" + e.getKey() + "}", e.getValue());
-            }
+            rawVersion = rawVersion.replaceAll("[${}]", "");
+            rawVersion = properties.get(rawVersion);
         }
-        return this.split(rawVersion);
-    }
-
-    public Version handleInterval(String rawVersion){
-        return this.versionHandler.handleInterval(rawVersion, this);
-    }
-
-    //! MUST IMPLEMENT
-    public Project.Builder fillVersions(Project.Builder project, PomReader pomReader){
-        return this.versionHandler.handleVersion(project, pomReader);
+        return this.parse(rawVersion);
     }
 }

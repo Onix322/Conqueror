@@ -1,7 +1,7 @@
 package loader.utilities.pomReader;
 
-import loader.utilities.pomReader.handlers.ProjectHandler;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.project.Project;
+import loader.utilities.pomReader.handlers.XMLHandler;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.SAXParser;
@@ -12,20 +12,20 @@ import java.io.InputStream;
 public class PomReader {
 
     private final SAXParser saxParser;
-    private final ProjectHandler projectHandler;
+    private final XMLHandler XMLHandler;
 
-    private PomReader(SAXParser saxParser, ProjectHandler projectHandler) {
+    private PomReader(SAXParser saxParser, XMLHandler XMLHandler) {
         this.saxParser = saxParser;
-        this.projectHandler = projectHandler;
+        this.XMLHandler = XMLHandler;
     }
 
     private static class Holder {
         private static PomReader INSTANCE = null;
     }
 
-    public static synchronized void init(SAXParser saxParser, ProjectHandler projectHandler) {
+    public static synchronized void init(SAXParser saxParser, XMLHandler XMLHandler) {
         if (Holder.INSTANCE == null) {
-            Holder.INSTANCE = new PomReader(saxParser, projectHandler);
+            Holder.INSTANCE = new PomReader(saxParser, XMLHandler);
         }
     }
 
@@ -36,27 +36,27 @@ public class PomReader {
         return Holder.INSTANCE;
     }
 
-    public Project readString(String uri) {
+    public XMLParsed readString(String uri) {
         return this.read(uri);
     }
 
-    public Project readStream(InputStream stream) {
+    public XMLParsed readStream(InputStream stream) {
         return this.read(stream);
     }
 
-    public Project readFile(File file) {
+    public XMLParsed readFile(File file) {
         return this.read(file);
     }
 
-    private Project read(Object o) {
+    private XMLParsed read(Object o) {
         try {
             switch (o) {
-                case String uri -> this.saxParser.parse(uri, projectHandler);
-                case InputStream stream -> this.saxParser.parse(stream, projectHandler);
-                case File file -> this.saxParser.parse(file, projectHandler);
+                case String uri -> this.saxParser.parse(uri, XMLHandler);
+                case InputStream stream -> this.saxParser.parse(stream, XMLHandler);
+                case File file -> this.saxParser.parse(file, XMLHandler);
                 case null, default -> throw new IllegalArgumentException("Class type not supported");
             }
-            return projectHandler.getProjectBuilder();
+            return XMLHandler.getXmlParsed();
         } catch (IllegalArgumentException | SAXException | IOException e) {
             throw new RuntimeException(e);
         }

@@ -5,6 +5,7 @@ import loader.utilities.linkGenerator.link.LinkExtension;
 import loader.utilities.linkGenerator.link.Link;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
+import loader.utilities.version.FixedVersion;
 import loader.utilities.version.Version;
 
 import java.net.URI;

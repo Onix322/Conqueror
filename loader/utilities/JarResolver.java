@@ -5,7 +5,8 @@ import loader.utilities.linkGenerator.LinkGenerator;
 import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.linkGenerator.link.LinkExtension;
 import loader.utilities.pomReader.PomReader;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.project.Project;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
 import src.com.server.configuration.Configuration;
@@ -50,8 +51,8 @@ public class JarResolver {
 
         System.out.println("[" + this.getClass().getSimpleName() + "] -> Resolving pom.xml...");
 
-        Project project = this.pomReader.readString(pomFileLocation);
-        Dependencies dependencies = project.getDependencies();
+        XMLParsed project = this.pomReader.readString(pomFileLocation);
+        Dependencies dependencies = project.<Project>getAs().getDependencies();
 
         Set<Dependency> allDps = this.recursiveResolve(new HashSet<>(dependencies), visited);
         return this.generateJarLinks(allDps);
@@ -66,7 +67,8 @@ public class JarResolver {
             if (!checking) continue;
             visited.add(pomVersionedLink);
             try {
-                Project project = this.pomReader.readString(pomVersionedLink.getUri().toURL().toString());
+                Project project = this.pomReader.readString(pomVersionedLink.getUri().toURL().toString())
+                        .getAs();
                 Dependencies dependencies = project.getDependencies();
 
                 allDps.addAll(this.recursiveResolve(new HashSet<>(dependencies), visited));
