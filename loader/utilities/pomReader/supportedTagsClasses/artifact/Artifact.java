@@ -3,8 +3,8 @@ package loader.utilities.pomReader.supportedTagsClasses.artifact;
 import java.util.Objects;
 
 public abstract class Artifact {
-    public String groupId;
-    public String artifactId;
+    private String groupId;
+    private String artifactId;
 
     public Artifact(String groupId, String artifactId) {
         this.groupId = groupId;

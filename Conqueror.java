@@ -1,7 +1,11 @@
+import loader.Loader;
 import src.com.App;
 import src.com.server.configuration.Configuration;
 import src.com.server.configuration.ConfigurationImpl;
-import loader.Loader;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 public class Conqueror {
 
@@ -11,9 +15,14 @@ public class Conqueror {
         ConfigurationImpl.init();
         Configuration configuration = ConfigurationImpl.getInstance();
 
+        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
+
         //* Start App
-        Loader.load(configuration, args);
-//        App.start(configuration);
+        Loader.load(configuration, executorService, args);
+        App.start(configuration, executorService);
+
 
     }
+
 }

@@ -2,6 +2,8 @@ package loader.utilities.pomReader.handlers;
 
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Metadata;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Versioning;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Versions;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import loader.utilities.pomReader.supportedTagsClasses.TagElement;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
@@ -9,20 +11,25 @@ import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Depen
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.DependencyManagement;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.exclusion.Exclusion;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.parent.Parent;
+import loader.utilities.version.FixedVersion;
 import loader.utilities.version.Version;
 import loader.utilities.version.versionHandler.VersionParser;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class XMLHandler extends DefaultHandler {
 
+    // final product
     private XMLParsed xmlParsed;
+
+    // XMLType <project>
     private Project.Builder projectBuilder;
-    private Metadata.Builder metadataBuilder;
     private Dependencies dependencies;
     private Dependency.Builder dependency;
     private Exclusion.Builder exclusion;
@@ -30,36 +37,25 @@ public class XMLHandler extends DefaultHandler {
     private DependencyManagement.Builder dependencyManagement;
     private Map<String, String> properties;
 
-    //value
+    // XMLType <metadata>
+    private Metadata.Builder metadataBuilder;
+    private Versioning.Builder versioning;
+    private Versions versions;
+
+    // Extracted characters (value)
     private StringBuilder elementValue = new StringBuilder();
 
-    //changes the turn so the end tags will not get confused
-    private TagElement turn = TagElement.NONE;
-    private TagElement context = TagElement.NONE;
-    private TagElement xmlType = TagElement.NONE;
+    // Turn-dictating variables
+    private TagElement current = TagElement.NONE; // keeps the counting of each start tag
+    private TagElement context = TagElement.NONE; // keeps parent counted, because some variables have the same children.
+    private TagElement xmlType = TagElement.NONE; // used for telling the XML type
 
+    // Injections
     private final VersionParser versionParser;
 
-    private XMLHandler(VersionParser versionParser) {
+    public XMLHandler(VersionParser versionParser) {
         super();
         this.versionParser = versionParser;
-    }
-
-    private static class Holder {
-        private static XMLHandler INSTANCE = null;
-    }
-
-    public static synchronized void init(VersionParser versionParser) {
-        if (XMLHandler.Holder.INSTANCE == null) {
-            XMLHandler.Holder.INSTANCE = new XMLHandler(versionParser);
-        }
-    }
-
-    public static XMLHandler getInstance() {
-        if (XMLHandler.Holder.INSTANCE == null) {
-            throw new IllegalStateException("ProjectHandler is not initialized. Use ProjectHandler.init().");
-        }
-        return XMLHandler.Holder.INSTANCE;
     }
 
     @Override
@@ -73,119 +69,176 @@ public class XMLHandler extends DefaultHandler {
     @Override
     public void startDocument() throws SAXException {
         super.startDocument();
-
     }
 
     @Override
     public void endDocument() throws SAXException {
         super.endDocument();
-//        projectBuilder = versionParser.fillVersions(projectBuilder);
-        if(this.xmlType == TagElement.PROJECT){
-            xmlParsed = projectBuilder.build();
-        } else {
-            xmlParsed = metadataBuilder.build(); //FOR Metadata
+        switch (this.xmlType){
+            case PROJECT -> xmlParsed = projectBuilder.build();
+            case METADATA -> xmlParsed = metadataBuilder.build();
         }
     }
 
-    //Defined objects
+    /// Make actions at the START of the element. E.g., start element <element>
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         TagElement tagElement = TagElement.find(qName);
         switch (tagElement) {
             case METADATA:
-                this.projectBuilder = Project.builder();
-                this.context = TagElement.METADATA;
+                this.metadataBuilder = Metadata.builder();
                 this.xmlType = TagElement.METADATA;
-                turn = TagElement.METADATA;
+                this.current = TagElement.METADATA;
+                break;
+            case VERSIONING:
+                this.versioning = Versioning.builder();
+                this.current = TagElement.VERSIONING;
+                break;
+            case VERSIONS:
+                this.versions = new Versions();
+                this.versioning.setVersions(versions);
+                this.current = TagElement.VERSIONS;
                 break;
             case PROJECT:
                 this.projectBuilder = Project.builder();
-                this.context = TagElement.PROJECT;
                 this.xmlType = TagElement.PROJECT;
-                turn = TagElement.PROJECT;
+                this.context = TagElement.PROJECT;
+                this.current = TagElement.PROJECT;
                 break;
             case PARENT:
-                parent = Parent.builder();
-                turn = TagElement.PARENT;
+                this.parent = Parent.builder();
+                this.current = TagElement.PARENT;
+                break;
+            case PROFILE:
+                this.context = TagElement.PROFILE;
+                this.current = TagElement.PROFILE;
                 break;
             case DEPENDENCY_MANAGEMENT:
                 dependencyManagement = DependencyManagement.builder();
-                context = TagElement.DEPENDENCY_MANAGEMENT;
-                turn = TagElement.DEPENDENCY_MANAGEMENT;
+                this.context = TagElement.DEPENDENCY_MANAGEMENT;
+                this.current = TagElement.DEPENDENCY_MANAGEMENT;
                 break;
             case DEPENDENCIES:
-                dependencies = new Dependencies();
-                switch (context) {
-                    case DEPENDENCY_MANAGEMENT:
-                        dependencyManagement.setDependencies(dependencies);
-                        break;
-                    case PROJECT:
-                        projectBuilder.setDependencies(dependencies);
-                        break;
-                }
-                turn = TagElement.DEPENDENCIES;
+                this.dependencies = new Dependencies();
+                this.current = TagElement.DEPENDENCIES;
                 break;
             case EXCLUSION:
-                exclusion = Exclusion.builder();
-                turn = TagElement.EXCLUSION;
+                this.exclusion = Exclusion.builder();
+                this.current = TagElement.EXCLUSION;
                 break;
             case DEPENDENCY:
-                dependency = Dependency.builder();
-                turn = TagElement.DEPENDENCY;
+                this.dependency = Dependency.builder();
+                this.current = TagElement.DEPENDENCY;
+                break;
+            case PLUGIN:
+                this.context = TagElement.PLUGIN;
+                this.current = TagElement.PLUGIN;
                 break;
             case PROPERTIES:
-                properties = new HashMap<>();
-                turn = TagElement.PROPERTIES;
+                if(properties == null){
+                    properties = new HashMap<>();
+                }
+                this.current = TagElement.PROPERTIES;
+                break;
+            case PREREQUISITES:
+                if(properties == null){
+                    properties = new HashMap<>();
+                }
+                this.current = TagElement.PREREQUISITES;
                 break;
         }
-        elementValue.setLength(0);
     }
 
-
-    /// /Get end elements values
+    /// Make actions at the END of the element. E.g., end element </element>
     @Override
     public void endElement(String uri, String localName, String qName) {
         TagElement tagElement = TagElement.find(qName);
         switch (tagElement) {
+            case METADATA:
+                metadataBuilder.setVersioning(versioning.build());
+                break;
+            case LAST_UPDATED:
+                if(current == TagElement.VERSIONING){
+                    versioning.setLastUpdated(System.currentTimeMillis());
+                }
+                break;
+            case LATEST:
+                if(current == TagElement.VERSIONING){
+                    Version version = this.versionParser.parse(elementValue.toString().trim());
+                    if(version instanceof FixedVersion fixedVersion){
+                        versioning.setLatest(fixedVersion);
+                    }
+                }
+            case RELEASE:
+                if(current == TagElement.VERSIONING){
+                    Version version = this.versionParser.parse(elementValue.toString().trim());
+                    if(version instanceof FixedVersion fixedVersion){
+                        versioning.setRelease(fixedVersion);
+                    }
+                }
+                break;
             case PROJECT:
-                projectBuilder.setDependencies(dependencies);
-                projectBuilder.setProprieties(properties);
+                if(properties == null){
+                    projectBuilder.setProprieties(new HashMap<>());
+                }
+                if(dependencies == null){
+                    projectBuilder.setDependencies(new Dependencies());
+                }
+                if(dependencyManagement == null){
+                    projectBuilder.setDependencyManagement(DependencyManagement.builder().build());
+                }
+                break;
+            case PROFILE, PLUGIN:
+                this.current = TagElement.PROJECT;
+                this.context = TagElement.PROJECT;
                 break;
             case DEPENDENCY:
-                if (context == TagElement.DEPENDENCY_MANAGEMENT) {
-                    dependencyManagement.getDependencies().add(dependency.build());
-                } else {
-                    dependencies.add(dependency.build());
+                switch(context){
+                    case DEPENDENCY_MANAGEMENT -> dependencyManagement.getDependencies().add(dependency.build());
+                    case PROJECT -> dependencies.add(dependency.build());
                 }
+                break;
+            case DEPENDENCIES:
+                switch(context){
+                    case DEPENDENCY_MANAGEMENT -> dependencyManagement.setDependencies(dependencies);
+                    case PROJECT -> projectBuilder.setDependencies(dependencies);
+                }
+                break;
+            case PROPERTIES:
+                projectBuilder.setProprieties(properties);
+                this.current = TagElement.PROJECT;
                 break;
             case EXCLUSION:
                 dependency.addExclusion(exclusion.build());
                 break;
             case PARENT:
                 projectBuilder.setParent(parent.build());
+                this.current = TagElement.PROJECT;
                 break;
             case DEPENDENCY_MANAGEMENT:
                 projectBuilder.setDependencyManagement(dependencyManagement.build());
-                context = TagElement.NONE;
+                this.context = TagElement.PROJECT;
                 break;
             case GROUP_ID:
-                switch (turn) {
+                switch (current) {
                     case PROJECT -> projectBuilder.setGroupId(elementValue.toString().trim());
+                    case METADATA -> metadataBuilder.setGroupId(elementValue.toString().trim());
                     case DEPENDENCY -> dependency.groupId(elementValue.toString().trim());
                     case EXCLUSION -> exclusion.setGroupId(elementValue.toString().trim());
                     case PARENT -> parent.setGroupId(elementValue.toString().trim());
                 }
                 break;
             case ARTIFACT_ID:
-                switch (turn) {
+                switch (current) {
                     case PROJECT -> projectBuilder.setArtifactId(elementValue.toString().trim());
+                    case METADATA -> metadataBuilder.setArtifactId(elementValue.toString().trim());
                     case DEPENDENCY -> dependency.artifactId(elementValue.toString().trim());
                     case EXCLUSION -> exclusion.setArtifactId(elementValue.toString().trim());
                     case PARENT -> parent.setArtifactId(elementValue.toString().trim());
                 }
                 break;
             case VERSION:
-                switch (turn) {
+                switch (current) {
                     case DEPENDENCY -> {
                         Version version = this.versionParser.handleVariable(
                                 elementValue.toString().trim(),
@@ -207,61 +260,71 @@ public class XMLHandler extends DefaultHandler {
                         );
                         parent.setVersion(version);
                     }
+                    case VERSIONS -> {
+                        Version version = this.versionParser.parse(elementValue.toString().trim());
+                        if(version instanceof FixedVersion fixedVersion){
+                            versions.add(fixedVersion);
+                        }
+                    }
                 }
                 break;
             case TYPE:
-                if (turn.equals(TagElement.DEPENDENCY)) {
+                if (current.equals(TagElement.DEPENDENCY)) {
                     dependency.type(elementValue.toString().trim());
                 }
                 break;
             case CLASSIFIER:
-                if (turn.equals(TagElement.DEPENDENCY)) {
+                if (current.equals(TagElement.DEPENDENCY)) {
                     dependency.classifier(elementValue.toString().trim());
                 }
                 break;
             case SCOPE:
-                if (turn.equals(TagElement.DEPENDENCY)) {
+                if (current.equals(TagElement.DEPENDENCY)) {
                     dependency.scope(elementValue.toString().trim());
                 }
                 break;
             case OPTIONAL:
-                if (turn.equals(TagElement.DEPENDENCY)) {
+                if (current.equals(TagElement.DEPENDENCY)) {
                     dependency.optional(Boolean.parseBoolean(elementValue.toString().trim()));
                 }
                 break;
             case RELATIVE_PATH:
-                if (turn.equals(TagElement.PARENT)) {
+                if (current.equals(TagElement.PARENT)) {
                     parent.setRelativePath(elementValue.toString().trim());
                 }
                 break;
             case NAME:
-                if (turn.equals(TagElement.PROJECT)) {
+                if (context.equals(TagElement.PROJECT)) {
                     projectBuilder.setName(elementValue.toString().trim());
                 }
                 break;
             case MODEL_VERSION: {
-                if (turn.equals(TagElement.PROJECT)) {
+                if (current.equals(TagElement.PROJECT)) {
                     Version version = versionParser.parse(elementValue.toString().trim());
                     projectBuilder.setModelVersion(version);
                 }
                 break;
             }
             case PACKAGING: {
-                if (turn.equals(TagElement.PROJECT)) {
+                if (context.equals(TagElement.PROJECT)) {
                     projectBuilder.setPackaging(elementValue.toString().trim());
                 }
                 break;
             }
             default:
-                switch (turn) {
-                    //added in default because properties can contain
-                    //custom tags
-                    case PROPERTIES -> {
-                        if (tagElement == TagElement.NONE) {
-                            properties.put(qName, elementValue.toString().trim());
+                //added in default because properties can contain custom tags
+                switch (current){
+                    case PROPERTIES , PREREQUISITES -> {
+                        switch (tagElement){
+                            case TagElement.NONE -> properties.put(qName, elementValue.toString().trim());
+                            case TagElement.MAVEN -> properties.put(
+                                    "project.prerequisites.maven",
+                                    elementValue.toString().trim()
+                            );
                         }
                     }
                 }
+                break;
         }
         elementValue.setLength(0);
     }

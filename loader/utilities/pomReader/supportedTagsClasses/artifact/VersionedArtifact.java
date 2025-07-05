@@ -1,11 +1,10 @@
 package loader.utilities.pomReader.supportedTagsClasses.artifact;
 
-import loader.utilities.version.FixedVersion;
 import loader.utilities.version.Version;
 
 import java.util.Objects;
 
-public class VersionedArtifact extends Artifact{
+public class VersionedArtifact extends Artifact {
     private Version version;
 
     public VersionedArtifact(String groupId, String artifactId, Version version) {

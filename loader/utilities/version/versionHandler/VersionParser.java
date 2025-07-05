@@ -1,5 +1,7 @@
 package loader.utilities.version.versionHandler;
 
+import loader.utilities.pomReader.PomReader;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import loader.utilities.version.FixedVersion;
 import loader.utilities.version.IntervalVersion;
 import loader.utilities.version.Version;
@@ -50,6 +52,63 @@ public class VersionParser {
         }
         return VersionParser.Holder.INSTANCE;
     }
+
+    public Version handleVariable(String rawVersion, Map<String, String> properties) {
+        if (rawVersion.startsWith("[${") || rawVersion.startsWith("(${")) {
+            return handleIntervalVariable(rawVersion, properties);
+        }
+        return handleFixedVariable(rawVersion, properties);
+    }
+
+    public Version handleIntervalVariable(String rawVersion, Map<String, String> properties) {
+        String[] split = rawVersion.split(",");
+
+        String v1Raw = split[0].substring(1);
+        FixedVersion v1 = this.handleFixedVariable(
+                        v1Raw.isEmpty() ? String.valueOf(0) : v1Raw,
+                        properties
+        ).getAs(FixedVersion.class);
+        v1.setDirection(VersionIntervalDirection.getDirection(String.valueOf(rawVersion.charAt(0))));
+
+        String v2Raw = split[1].replaceAll("[)]]", "");
+        FixedVersion v2 = this.handleFixedVariable(
+                v2Raw.isEmpty() ? String.valueOf(0) : v2Raw,
+                properties
+        ).getAs(FixedVersion.class);
+        v2.setDirection(VersionIntervalDirection.getDirection(String.valueOf(rawVersion.charAt(rawVersion.length() - 1))));
+
+        return new IntervalVersion(v1, v2);
+    }
+
+    public Version handleFixedVariable(String rawVersion, Map<String, String> properties) {
+        if (!rawVersion.startsWith("${")) return this.parse(rawVersion);
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        String replaced = rawVersion.replaceAll("[${}]", "");
+        String prop = properties.getOrDefault(replaced, DefaultProperties.get(replaced));
+        if (prop == null) {
+            return null;
+        }
+        if (prop.startsWith("${")) {
+            return this.handleFixedVariable(prop, properties);
+        }
+        return this.parse(prop);
+    }
+
+    public Integer parseInt(String integer) {
+        try {
+            if(integer.isBlank()) return 0;
+            return Integer.parseInt(integer);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("String could not be parsed: " + integer + " -> integer");
+        }
+    }
+
+    public Project handleVersions(Project project, PomReader pomReader) {
+        return this.versionHandler.handleVersion(project, pomReader);
+    }
+
     public Version parse(String rawVersion) {
         if (rawVersion.contains("[") || rawVersion.contains("(")) {
             return parseInterval(rawVersion);
@@ -57,6 +116,7 @@ public class VersionParser {
             return parseFixed(rawVersion);
         }
     }
+
     public FixedVersion parseFixed(String rawVersion) {
         VersionIntervalDirection direction = this.extractIntervalDirection(rawVersion);
         String[] version = rawVersion.replace(direction.getValue(), "")
@@ -69,36 +129,35 @@ public class VersionParser {
         String[] rawVersions = rawInterval.split(",");
         List<FixedVersion> list = new LinkedList<>();
 
-        for (String rv : rawVersions){
+        for (String rv : rawVersions) {
             list.add(this.parseFixed(rv.trim()));
         }
-
-        System.out.println(list);
         return new IntervalVersion(list.getFirst(), list.getLast());
     }
 
     public int rankCalculator(String[] version) {
-        if(version[0].isEmpty()) return 0;
+        if (version[0].isEmpty()) return 0;
         //find qualifier / gather data
         String qualifier = this.findQualifier(version);
+        int qualifierPoints = this.QUALIFIER_ORDER.get(qualifier) == null ? 1 : this.QUALIFIER_ORDER.get(qualifier);
         Integer iteration = this.findQualifierIteration(version);
         int majorVersion = this.findMajorVersion(version);
         int minorVersion = this.findMinorVersion(version);
-        int last = version.length > 2 ? Integer.parseInt(version[2]) : 0;
+        int last = findLast(version);
         //calculate rank
         return (majorVersion * 1000)
                 + (minorVersion * 100) + iteration
                 + last
                 + version.length
                 + this.DEFAULT_RANK_POINTS
-                - this.QUALIFIER_ORDER.get(qualifier)
+                - qualifierPoints
                 + iteration;
     }
 
-    public String findQualifier(String[] version){
+    public String findQualifier(String[] version) {
         String key = "final";
-        for (String sb : version){
-            if(!sb.matches("\\d+-\\w+(?:-\\d+|)")) continue;
+        for (String sb : version) {
+            if (!sb.matches("\\d+-\\w+(?:-\\d+|)")) continue;
             key = sb.replaceAll("(\\d|\\W)", "").toLowerCase(Locale.ROOT);
         }
         return key;
@@ -116,23 +175,31 @@ public class VersionParser {
             }
         }
 
-        return rawIteration.isEmpty() ? 0 : Integer.parseInt(rawIteration.reverse().toString());
+        return rawIteration.isEmpty() ? 0 : this.parseInt(rawIteration.reverse().toString());
     }
 
-    public int findMajorVersion(String[] version){
-        return Integer.parseInt(version[0]);
+    public int findMajorVersion(String[] version) {
+//        System.out.println(version[0]);
+        return this.parseInt(version[0].replaceAll("\\D", ""));
     }
 
-    public int findMinorVersion(String[] version){
+    public int findMinorVersion(String[] version) {
         StringBuilder sb = new StringBuilder();
-        if(version.length <= 1) return 0;
+        if (version.length <= 1) return 0;
         String rawVersion = version[1];
 
         for (int i = 0; i < rawVersion.length(); i++) {
             if (!Character.isDigit(rawVersion.charAt(i))) break;
             sb.append(rawVersion.charAt(i));
         }
-        return Integer.parseInt(sb.toString());
+        return this.parseInt(sb.toString());
+    }
+
+    public int findLast(String[] version) {
+        if (version.length <= 2) return 0;
+        String rawVersion = version[2].replaceAll("\\D+", "");
+//        System.out.println(Arrays.toString(version));
+        return this.parseInt(rawVersion);
     }
 
     public VersionIntervalDirection extractIntervalDirection(String rawVersion) {
@@ -146,18 +213,5 @@ public class VersionParser {
         if (dirEnd != null) return dirEnd;
 
         return VersionIntervalDirection.EQUAL;
-    }
-
-    public Integer[] parseInt(String[] numbersLike) {
-        return Arrays.stream(numbersLike).map(Integer::parseInt)
-                .toArray(Integer[]::new);
-    }
-
-    public Version handleVariable(String rawVersion, Map<String, String> properties){
-        if (rawVersion.contains("${")) {
-            rawVersion = rawVersion.replaceAll("[${}]", "");
-            rawVersion = properties.get(rawVersion);
-        }
-        return this.parse(rawVersion);
     }
 }

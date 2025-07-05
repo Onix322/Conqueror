@@ -15,8 +15,8 @@ public class Exclusion extends Artifact {
     @Override
     public String toString() {
         return "Exclusion{" +
-                "groupId='" + super.groupId + '\'' +
-                ", artifactId='" + super.artifactId + '\'' +
+                "groupId='" + super.getGroupId() + '\'' +
+                ", artifactId='" + super.getArtifactId() + '\'' +
                 '}';
     }
 

@@ -4,9 +4,9 @@ import loader.utilities.*;
 import loader.utilities.linkGenerator.LinkGenerator;
 import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.pomReader.PomReader;
-import loader.utilities.pomReader.handlers.XMLHandler;
-import loader.utilities.version.versionHandler.VersionParser;
+import loader.utilities.pomReader.handlers.XMLHandlerFactory;
 import loader.utilities.version.versionHandler.VersionHandler;
+import loader.utilities.version.versionHandler.VersionParser;
 import org.xml.sax.SAXException;
 import src.com.server.configuration.Configuration;
 
@@ -14,9 +14,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 public class Loader {
-    public static void load(Configuration configuration, String[] args) throws ParserConfigurationException, SAXException {
+    public static void load(Configuration configuration, ExecutorService executorService, String[] args) throws ParserConfigurationException, SAXException {
 
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         SAXParser saxParser = saxParserFactory.newSAXParser();
@@ -33,10 +34,10 @@ public class Loader {
         VersionParser.init(versionHandler);
         VersionParser versionParser = VersionParser.getInstance();
 
-        XMLHandler.init(versionParser);
-        XMLHandler xmlHandler = XMLHandler.getInstance();
+        XMLHandlerFactory.init(versionParser);
+        XMLHandlerFactory xmlHandlerFactory = XMLHandlerFactory.getInstance();
 
-        PomReader.init(saxParser, xmlHandler);
+        PomReader.init(saxParser, xmlHandlerFactory, versionParser);
         PomReader pomReaderNew = PomReader.getInstance();
 
         ArtifactValidator.init(configuration);

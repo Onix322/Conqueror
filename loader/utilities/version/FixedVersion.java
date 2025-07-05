@@ -41,6 +41,14 @@ public class FixedVersion implements Version {
         return Integer.compare(this.getRankingPoints(), version.getRankingPoints());
     }
 
+    public static FixedVersion unknown() {
+        return new FixedVersion(
+                new String[]{"0", "0", "0"},
+                -1,
+                VersionIntervalDirection.EQUAL
+        );
+    }
+
     @Override
     public String asString(){
         return String.join(".", this.version);

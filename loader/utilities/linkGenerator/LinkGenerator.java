@@ -1,11 +1,10 @@
 package loader.utilities.linkGenerator;
 
-import loader.utilities.linkGenerator.link.VersionedLink;
-import loader.utilities.linkGenerator.link.LinkExtension;
 import loader.utilities.linkGenerator.link.Link;
+import loader.utilities.linkGenerator.link.LinkExtension;
+import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
-import loader.utilities.version.FixedVersion;
 import loader.utilities.version.Version;
 
 import java.net.URI;
@@ -50,9 +49,7 @@ public class LinkGenerator {
                     .replace("{artifactId}", artifactId)
                     .replace("{version}", version.asString())
                     .replace("{extension}", extension.getValue());
-            System.out.println(link);
             URI uri = new URI(link);
-            System.out.println(uri);
             return new VersionedLink(versionedArtifact, uri, extension);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);

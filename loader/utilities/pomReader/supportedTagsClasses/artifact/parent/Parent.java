@@ -42,8 +42,8 @@ public class Parent extends VersionedArtifact {
     public String toString() {
         return "Parent{" +
                 "relativePath='" + relativePath + '\'' +
-                ", groupId='" + groupId + '\'' +
-                ", artifactId='" + artifactId + '\'' +
+                ", groupId='" + super.getGroupId() + '\'' +
+                ", artifactId='" + super.getArtifactId() + '\'' +
                 '}';
     }
 

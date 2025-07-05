@@ -3,6 +3,7 @@ package test.pomReaderTest;
 import loader.utilities.UrlAccessor;
 import loader.utilities.linkGenerator.LinkGenerator;
 import loader.utilities.pomReader.handlers.XMLHandler;
+import loader.utilities.pomReader.handlers.XMLHandlerFactory;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import loader.utilities.version.versionHandler.VersionHandler;
 import loader.utilities.version.versionHandler.VersionParser;
@@ -29,10 +30,12 @@ public class PomReaderTest {
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
             SAXParser saxParser = saxParserFactory.newSAXParser();
 
-            XMLHandler.init(versionParser);
-            XMLHandler xmlHandler = XMLHandler.getInstance();
+            XMLHandlerFactory.init(versionParser);
+            XMLHandlerFactory xmlHandlerFactory = XMLHandlerFactory.getInstance();
 
-            saxParser.parse("./pom.xml", xmlHandler);
+            XMLHandler xmlHandler = xmlHandlerFactory.create();
+
+            saxParser.parse("./test/pomReaderTest/pom.xml", xmlHandler);
 
             return xmlHandler;
         } catch (ParserConfigurationException | SAXException | IOException e) {

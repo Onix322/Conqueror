@@ -1,31 +1,34 @@
 package loader.utilities.pomReader;
 
 import loader.utilities.pomReader.handlers.XMLHandler;
+import loader.utilities.pomReader.handlers.XMLHandlerFactory;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
-import org.xml.sax.SAXException;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
+import loader.utilities.version.versionHandler.VersionParser;
 
 import javax.xml.parsers.SAXParser;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class PomReader {
 
     private final SAXParser saxParser;
-    private final XMLHandler XMLHandler;
+    private final XMLHandlerFactory xmlHandlerFactory;
+    private final VersionParser versionParser;
 
-    private PomReader(SAXParser saxParser, XMLHandler XMLHandler) {
+    private PomReader(SAXParser saxParser, XMLHandlerFactory xmlHandlerFactory, VersionParser versionParser) {
         this.saxParser = saxParser;
-        this.XMLHandler = XMLHandler;
+        this.xmlHandlerFactory = xmlHandlerFactory;
+        this.versionParser = versionParser;
     }
 
     private static class Holder {
         private static PomReader INSTANCE = null;
     }
 
-    public static synchronized void init(SAXParser saxParser, XMLHandler XMLHandler) {
+    public static synchronized void init(SAXParser saxParser, XMLHandlerFactory xmlHandlerFactory, VersionParser versionParser) {
         if (Holder.INSTANCE == null) {
-            Holder.INSTANCE = new PomReader(saxParser, XMLHandler);
+            Holder.INSTANCE = new PomReader(saxParser, xmlHandlerFactory, versionParser);
         }
     }
 
@@ -49,16 +52,24 @@ public class PomReader {
     }
 
     private XMLParsed read(Object o) {
+        XMLHandler xmlHandler = xmlHandlerFactory.create();
+        XMLParsed rawParsed;
         try {
             switch (o) {
-                case String uri -> this.saxParser.parse(uri, XMLHandler);
-                case InputStream stream -> this.saxParser.parse(stream, XMLHandler);
-                case File file -> this.saxParser.parse(file, XMLHandler);
+                case String uri -> this.saxParser.parse(uri, xmlHandler);
+                case InputStream stream -> this.saxParser.parse(stream, xmlHandler);
+                case File file -> this.saxParser.parse(file, xmlHandler);
                 case null, default -> throw new IllegalArgumentException("Class type not supported");
             }
-            return XMLHandler.getXmlParsed();
-        } catch (IllegalArgumentException | SAXException | IOException e) {
-            throw new RuntimeException(e);
+            rawParsed = xmlHandler.getXmlParsed();
+            if (rawParsed instanceof Project project) {
+                return versionParser.handleVersions(project.getAs(), this);
+            }
+            return rawParsed;
+        } catch (Exception e) {
+//            e.printStackTrace();
+            System.err.println("[" + this.getClass().getSimpleName() + "] -> Dependency not found in repository maybe is a ghost...\n");
+            return null;
         }
     }
 }

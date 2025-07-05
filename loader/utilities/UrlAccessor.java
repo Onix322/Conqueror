@@ -29,7 +29,7 @@ public class UrlAccessor {
             URLConnection urlConnection = url.openConnection();
             return urlConnection.getInputStream();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return InputStream.nullInputStream();
         }
     }
 }

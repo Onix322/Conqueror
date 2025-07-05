@@ -47,8 +47,8 @@ public class Metadata extends Artifact implements XMLParsed {
     public String toString() {
         return "Metadata{" +
                 "versioning=" + versioning +
-                ", groupId='" + groupId + '\'' +
-                ", artifactId='" + artifactId + '\'' +
+                ", groupId='" + super.getGroupId() + '\'' +
+                ", artifactId='" + super.getArtifactId() + '\'' +
                 '}';
     }
 

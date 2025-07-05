@@ -116,8 +116,8 @@ public class Project extends Artifact implements XMLParsed {
     @Override
     public String toString() {
         return "Project{" +
-                "groupId='" + groupId + '\'' +
-                ", artifactId='" + artifactId + '\'' +
+                "groupId='" + super.getGroupId() + '\'' +
+                ", artifactId='" + super.getArtifactId() + '\'' +
                 ", version='" + version + '\'' +
                 ", modelVersion='" + modelVersion + '\'' +
                 ", name='" + name + '\'' +
@@ -135,16 +135,16 @@ public class Project extends Artifact implements XMLParsed {
     }
 
     public static class Builder {
-        private String groupId = null;
-        private String artifactId = null;
-        private Version version = null;
-        private Version modelVersion = null;
-        private String name = null;
-        private String packaging = null;
-        private Dependencies dependencies = null;
-        private Parent parent = null;
-        private DependencyManagement dependencyManagement = null;
-        private Map<String, String> proprieties = null;
+        private String groupId;
+        private String artifactId;
+        private Version version;
+        private Version modelVersion;
+        private String name;
+        private String packaging;
+        private Dependencies dependencies;
+        private Parent parent;
+        private DependencyManagement dependencyManagement;
+        private Map<String, String> proprieties;
 
         private Builder() {
         }

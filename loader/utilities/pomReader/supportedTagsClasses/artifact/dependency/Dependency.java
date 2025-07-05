@@ -3,7 +3,6 @@ package loader.utilities.pomReader.supportedTagsClasses.artifact.dependency;
 
 import loader.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.exclusion.Exclusion;
-import loader.utilities.version.FixedVersion;
 import loader.utilities.version.Version;
 
 import java.util.ArrayList;
@@ -82,8 +81,8 @@ public class Dependency extends VersionedArtifact {
     @Override
     public String toString() {
         return "Dependency{" +
-                "groupId='" + groupId + '\'' +
-                ", artifactId='" + artifactId + '\'' +
+                "groupId='" + super.getGroupId() + '\'' +
+                ", artifactId='" + super.getArtifactId() + '\'' +
                 ", version='" + version + '\'' +
                 ", type='" + type + '\'' +
                 ", classifier='" + classifier + '\'' +
@@ -96,13 +95,14 @@ public class Dependency extends VersionedArtifact {
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
+        if (!super.equals(object)) return false;
         Dependency that = (Dependency) object;
-        return Objects.equals(getGroupId(), that.getGroupId()) && Objects.equals(getArtifactId(), that.getArtifactId()) && Objects.equals(getVersion(), that.getVersion()) && Objects.equals(getType(), that.getType()) && Objects.equals(getClassifier(), that.getClassifier()) && Objects.equals(getScope(), that.getScope()) && Objects.equals(getOptional(), that.getOptional()) && Objects.equals(getExclusions(), that.getExclusions());
+        return Objects.equals(getVersion(), that.getVersion()) && Objects.equals(getType(), that.getType()) && Objects.equals(getClassifier(), that.getClassifier()) && Objects.equals(getScope(), that.getScope()) && Objects.equals(getOptional(), that.getOptional()) && Objects.equals(getExclusions(), that.getExclusions());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getGroupId(), getArtifactId(), getVersion(), getType(), getClassifier(), getScope(), getOptional(), getExclusions());
+        return Objects.hash(super.hashCode(), getVersion(), getType(), getClassifier(), getScope(), getOptional(), getExclusions());
     }
 
     // Builder
@@ -114,10 +114,10 @@ public class Dependency extends VersionedArtifact {
         private String groupId;
         private String artifactId;
         private Version version;
-        private String type;
-        private String classifier;
-        private String scope;
-        private Boolean optional;
+        private String type = "jar";
+        private String classifier = null;
+        private String scope = "compile";
+        private Boolean optional = false;
         private List<Exclusion> exclusions = new ArrayList<>();
 
         public Builder groupId(String groupId) {

@@ -53,6 +53,10 @@ public class Versioning {
         this.versions = versions;
     }
 
+    public static Builder builder(){
+        return new Builder();
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
@@ -118,6 +122,10 @@ public class Versioning {
         public Builder setLatest(FixedVersion latest) {
             this.latest = latest;
             return this;
+        }
+
+        public Versioning build(){
+            return new Versioning(this);
         }
     }
 }

@@ -2,16 +2,15 @@ package loader.utilities;
 
 
 import loader.utilities.linkGenerator.LinkGenerator;
-import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.linkGenerator.link.LinkExtension;
+import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.pomReader.PomReader;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import src.com.server.configuration.Configuration;
 
-import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,31 +49,26 @@ public class JarResolver {
     public Set<VersionedLink> resolve() {
 
         System.out.println("[" + this.getClass().getSimpleName() + "] -> Resolving pom.xml...");
-
-        XMLParsed project = this.pomReader.readString(pomFileLocation);
-        Dependencies dependencies = project.<Project>getAs().getDependencies();
-
+        XMLParsed xmlParsed = this.pomReader.readString(pomFileLocation);
+        if (xmlParsed == null) return Set.of();
+        Dependencies dependencies = xmlParsed.<Project>getAs().getDependencies();
         Set<Dependency> allDps = this.recursiveResolve(new HashSet<>(dependencies), visited);
-        return this.generateJarLinks(allDps);
+        return this.generateJarLinks(new HashSet<>(allDps));
     }
 
     private Set<Dependency> recursiveResolve(Set<Dependency> loadedDps, Set<VersionedLink> visited) {
-        Set<Dependency> allDps = new HashSet<>(loadedDps);
 
+        Set<Dependency> allDps = new HashSet<>(loadedDps);
         for (Dependency dp : loadedDps) {
             VersionedLink pomVersionedLink = this.linkGenerator.generateLink(dp, LinkExtension.POM);
             boolean checking = mustCheck(pomVersionedLink, visited, allDps, dp);
             if (!checking) continue;
             visited.add(pomVersionedLink);
-            try {
-                Project project = this.pomReader.readString(pomVersionedLink.getUri().toURL().toString())
-                        .getAs();
-                Dependencies dependencies = project.getDependencies();
-
-                allDps.addAll(this.recursiveResolve(new HashSet<>(dependencies), visited));
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
+            XMLParsed xmlParsed = this.pomReader.readString(pomVersionedLink.getUri().toString());
+            if (xmlParsed == null) continue;
+            Project project = xmlParsed.getAs();
+            Dependencies dependencies = project.getDependencies();
+            allDps.addAll(this.recursiveResolve(new HashSet<>(dependencies), visited));
         }
 
         return allDps;
@@ -83,6 +77,17 @@ public class JarResolver {
     private boolean mustCheck(VersionedLink pomVersionedLink, Set<VersionedLink> visited, Set<Dependency> allDps, Dependency dp) {
         // taken dependency from pomLink
         // because it includes a version
+        if (dp.getVersion().isUnknown(dp.getVersion())) {
+            System.out.println("[" + this.getClass().getSimpleName() + "] -> Ghost dependency detected "
+                    + dp.getGroupId()
+                    + "::"
+                    + dp.getArtifactId()
+                    + "::" + dp.getVersion()
+            );
+            allDps.remove(dp);
+            return false;
+        }
+
         if (this.artifactValidator.verifyExistence(pomVersionedLink)) {
             System.out.println("[" + this.getClass().getSimpleName()
                     + "] -> Existing dependency: "
@@ -92,9 +97,16 @@ public class JarResolver {
             allDps.remove(dp);
             return false;
         }
+
         if (dp.getScope() != null && dp.getScope().equals("test")) {
             return false;
         }
+
+        if (dp.getType() != null && !(dp.getType().equals("jar"))) {
+            allDps.remove(dp);
+            return false;
+        }
+
         if (visited.contains(pomVersionedLink)) {
             return false;
         }

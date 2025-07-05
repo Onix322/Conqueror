@@ -15,4 +15,10 @@ public interface Version {
             throw new IllegalArgumentException("Not an instance of " + clazz.getSimpleName());
         }
     }
+
+    default boolean isUnknown(Version version){
+        if(this.isFixed()){
+            return ((FixedVersion) version).getRankingPoints() == -1;
+        } else return version == null;
+    }
 }

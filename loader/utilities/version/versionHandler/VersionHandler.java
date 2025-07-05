@@ -3,19 +3,21 @@ package loader.utilities.version.versionHandler;
 import loader.utilities.UrlAccessor;
 import loader.utilities.linkGenerator.LinkGenerator;
 import loader.utilities.linkGenerator.link.Link;
-import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.linkGenerator.link.LinkExtension;
+import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.pomReader.PomReader;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Metadata;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.DependencyManagement;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.parent.Parent;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Metadata;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Versions;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import loader.utilities.version.FixedVersion;
+import loader.utilities.version.IntervalVersion;
+import loader.utilities.version.Version;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,21 +49,52 @@ public class VersionHandler {
         return Holder.INSTANCE;
     }
 
-    public Project.Builder handleVersion(Project.Builder project, PomReader pomReader, VersionParser parser) {
+    public Project handleVersion(Project project, PomReader pomReader) {
+        if (project.getDependencies() == null) {
+            project.setDependencies(new Dependencies());
+        }
         for (Dependency dependency : project.getDependencies()) {
-            if (dependency.getVersion() != null) continue;
-            //DependencyManagement search
-            Dependency dmVersion = this.searchDependencyManagement(dependency, project.getDependencyManagement());
-            if (dmVersion.getVersion() != null) continue;
-            //Parent search
-            Dependency parentVersion = this.searchParent(dependency, project.getParent(), pomReader);
-            if (parentVersion.getVersion() != null) continue;
-            Dependency dpsWithHandedInterval = this.handleInterval(dependency, pomReader, parser);
+
+            // Resolve null version
+            if (dependency.getVersion() == null) {
+                Version notNullVersion = this.handleNullVersion(dependency, pomReader);
+                dependency.setVersion(notNullVersion);
+            }
+            if (dependency.getVersion() != null && dependency.getVersion().isFixed()) continue;
+
+            // Interval treating
+            if (dependency.getVersion().isInterval()) {
+                Version versionFromInterval = this.handleInterval(dependency, pomReader);
+                dependency.setVersion(versionFromInterval);
+                continue;
+            }
+            // DependencyManagement search
+            Version dmVersion = this.searchDependencyManagement(dependency, project.getDependencyManagement());
+            if (dmVersion != null && dmVersion.isFixed()) {
+                dependency.setVersion(dmVersion);
+                continue;
+            }
+            // Parent search
+            Version parentVersion = this.searchParent(dependency, project.getParent(), pomReader);
+            if (dmVersion != null && dmVersion.isFixed()) {
+                dependency.setVersion(parentVersion);
+            }
+
         }
         return project;
     }
 
-    private Dependency searchDependencyManagement(Dependency dependency, DependencyManagement dependencyManagement) {
+    private Version handleNullVersion(Dependency dependency, PomReader pomReader) {
+        Link metadataLink = this.linkGenerator.generateMetadataLink(dependency);
+        XMLParsed xmlParsed = pomReader.readString(metadataLink.getUri().toString());
+        if (xmlParsed == null) return FixedVersion.unknown();
+        Metadata versionMetadata = xmlParsed.getAs();
+        return versionMetadata.getVersioning().getVersions().getLast();
+    }
+
+    private Version searchDependencyManagement(Dependency dependency, DependencyManagement dependencyManagement) {
+        if (dependencyManagement == null) return dependency.getVersion();
+
         Optional<Dependency> dmOptional = dependencyManagement.getDependencies()
                 .stream()
                 .filter(dm -> Objects.equals(dependency.getGroupId(), dm.getGroupId()) &&
@@ -69,109 +102,63 @@ public class VersionHandler {
                 )
                 .findFirst();
 
-        if (dmOptional.isPresent()) {
-            dependency.setVersion(dmOptional.get().getVersion());
-        } else {
-            dependency.setVersion(null);
-        }
-        return dependency;
+        return dmOptional.isPresent() ? dmOptional.get().getVersion() : dependency.getVersion();
     }
 
-    private Dependency searchParent(Dependency dependency, Parent parent, PomReader pomReader) {
+    private Version searchParent(Dependency dependency, Parent parent, PomReader pomReader) {
+        if (parent == null) return dependency.getVersion();
         VersionedLink versionedLink = this.linkGenerator.generateLink(parent, LinkExtension.POM);
-        Project parentPom = pomReader.readString(versionedLink.getUri().getRawPath())
+        Project parentPom = pomReader.readString(versionedLink.getUri().toString())
                 .getAs();
-        Dependency parentDependency = this.searchDependencyManagement(dependency, parentPom.getDependencyManagement());
-        dependency.setVersion(parentDependency.getVersion());
-        return dependency;
+        return this.searchDependencyManagement(dependency, parentPom.getDependencyManagement());
     }
 
-    //! MUST IMPLEMENT
-    public Dependency handleInterval(Dependency dependency, PomReader pomReader, VersionParser parser){
+    public Version handleInterval(Dependency dependency, PomReader pomReader) {
+
         if (!dependency.getVersion().isInterval()) {
-            return dependency;
+            return dependency.getVersion();
         }
+
         Link metadataLink = this.linkGenerator.generateMetadataLink(dependency);
         Metadata versionMetadata = pomReader.readString(metadataLink.getUri().toString())
                 .getAs();
 
-        return null;
+        IntervalVersion intervalVersion = dependency.getVersion().getAs(IntervalVersion.class);
+
+        Versions fixedVersions = this.findIntervalVersion(intervalVersion, versionMetadata.getVersioning().getVersions());
+        return fixedVersions.getLast();
     }
 
-//    private Version handleURL(Dependency dependency) {
-//        try (InputStream inputStream = urlAccessor.open(metadataLink.getUri().toURL())) {
-//            Document document = pomReader.readStream(inputStream);
-//            Map<String, String> versions = pomReader.extractTagsAsMap("version", document);
-//            String rawVersion = versions.get("version");
-//            Version handledVersion = this.handleInterval(rawVersion, metadataLink);
-//            metadataLink.getDependency().setVersion(handledVersion.asString());
-//            return handledVersion.asString();
-//        } catch (IOException ex) {
-//            throw new RuntimeException(ex);
-//        }
-//    }
-//
-//    public Version handleInterval(String v, Link metadataLink) {
-//
-//        Pattern pattern = Pattern.compile("^\\s*[\\[(]\\s*[^,\\[\\]()]*\\s*(?:,\\s*[^,\\[\\]()]*\\s*)?[])]\\s*$");
-//        Matcher matcher = pattern.matcher(v);
-//        if (!matcher.matches()) {
-//            return this.versionParser.split(v);
-//        }
-//
-//        String[] versionSplit = v.split(",");
-//        Version first = this.versionParser.split(versionSplit[0]);
-//        Version second = this.versionParser.split(versionSplit[1]);
-//
-//        List<Version> versions = this.extractVersions(metadataLink);
-//        List<Version> intervalVersions = this.findIntervalVersion(first, second, versions);
-//
-//        return intervalVersions.getLast();
-//    }
-//
-//    private List<Version> extractVersions(MetadataLink metadataLink) {
-//        var nodes = this.xmlNavigator.getAll(metadataLink.getUri().toString(), "metadata.versioning.versions.version");
-//        List<Version> versions = new ArrayList<>();
-//        for (var n : nodes) {
-//            String rv = n.getNode().getTextContent();
-//            Version v = this.versionParser.split(rv);
-//            versions.add(v);
-//        }
-//        return versions;
-//    }
-
-    private List<FixedVersion> findIntervalVersion(FixedVersion v1, FixedVersion v2, List<FixedVersion> versions) {
-        List<FixedVersion> v1versions = this.findVersions(v1, versions);
-        if(v2.getRankingPoints() == 0){
+    private Versions findIntervalVersion(IntervalVersion intervalVersion, Versions versions) {
+        Versions v1versions = this.findVersions(intervalVersion.getFirst(), versions);
+        if (intervalVersion.getSecond().getRankingPoints() == 0) {
             return v1versions;
         }
-        List<FixedVersion> v2versions = this.findVersions(v2, versions);
+        Versions v2versions = this.findVersions(intervalVersion.getSecond(), versions);
 
-        v2versions.retainAll(v1versions);
-        return v2versions;
+        v1versions.retainAll(v2versions);
+        return v1versions;
     }
 
-    private List<FixedVersion> findVersions(FixedVersion v, List<FixedVersion> versions) {
+    private Versions findVersions(FixedVersion v, Versions versions) {
 
-        int points = v.getRankingPoints();
         VersionIntervalDirection direction = v.getDirection();
-
-        return switch (direction){
+        return switch (direction) {
             case BIGGER_OR_EQUAL -> versions.stream()
-                    .filter(vs -> !(points >= vs.getRankingPoints()))
-                    .collect(Collectors.toCollection(ArrayList::new));
+                    .filter(vs -> vs.compareTo(v) == 1 || vs.compareTo(v) == 0)
+                    .collect(Collectors.toCollection(Versions::new));
             case LESS_OR_EQUAL -> versions.stream()
-                    .filter(vs -> points <= vs.getRankingPoints())
-                    .collect(Collectors.toCollection(ArrayList::new));
+                    .filter(vs -> vs.compareTo(v) == 0 || vs.compareTo(v) == -1)
+                    .collect(Collectors.toCollection(Versions::new));
             case LESS -> versions.stream()
-                    .filter(vs -> points < vs.getRankingPoints())
-                    .collect(Collectors.toCollection(ArrayList::new));
+                    .filter(vs -> vs.compareTo(v) == -1)
+                    .collect(Collectors.toCollection(Versions::new));
             case EQUAL -> versions.stream()
-                    .filter(vs -> points == vs.getRankingPoints())
-                    .collect(Collectors.toCollection(ArrayList::new));
+                    .filter(vs -> vs.compareTo(v) == 0)
+                    .collect(Collectors.toCollection(Versions::new));
             case BIGGER -> versions.stream()
-                    .filter(vs -> points > vs.getRankingPoints())
-                    .collect(Collectors.toCollection(ArrayList::new));
+                    .filter(vs -> vs.compareTo(v) == 1)
+                    .collect(Collectors.toCollection(Versions::new));
         };
     }
 

@@ -48,6 +48,7 @@ public class Downloader {
         File dir = new File(dependenciesLocation);
         for(VersionedLink versionedLink : versionedLinks){
             try (InputStream stream = urlAccessor.open(versionedLink.getUri().toURL())){
+                if(stream == null) return;
                 System.out.println("[" + this.getClass().getSimpleName() + "] -> Downloading "
                         + versionedLink.getArtifact().getGroupId()
                         + "::" + versionedLink.getArtifact().getArtifactId()

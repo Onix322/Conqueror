@@ -3,7 +3,6 @@ package loader.utilities.pomReader.supportedTagsClasses;
 public enum TagElement {
     NONE(""),
     PROJECT("project"),
-    METADATA("metadata"),
     DEPENDENCIES("dependencies"),
     DEPENDENCY("dependency"),
     EXCLUSION("exclusion"),
@@ -21,7 +20,18 @@ public enum TagElement {
     PARENT("parent"),
     DEPENDENCY_MANAGEMENT("dependencyManagement"),
     PROPERTIES("properties"),
-    RELATIVE_PATH("relativePath");
+    PREREQUISITES("prerequisites"),
+    MAVEN("maven"),
+    RELATIVE_PATH("relativePath"),
+    METADATA("metadata"),
+    PLUGIN("plugin"),
+    VERSIONING("versioning"),
+    LATEST("latest"),
+    RELEASE("release"),
+    VERSIONS("versions"),
+    LAST_UPDATED("lastUpdated"),
+    PROFILE("profile");
+
 
     private final String tagName;
 
