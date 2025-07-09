@@ -1,7 +1,7 @@
 package src.com.server.managers.entityManager;
 
 import src.com.server.annotations.component.Component;
-import src.com.server.database.mysql.utils.schemaHandler.SchemaHandler;
+import src.com.config.mysql.utils.schemaHandler.SchemaHandler;
 import src.com.server.processors.context.ApplicationContext;
 
 import java.sql.SQLException;

@@ -36,7 +36,7 @@ public class LinkGenerator {
     }
 
 
-    public VersionedLink generateLink(VersionedArtifact versionedArtifact, LinkExtension extension) {
+    public VersionedLink generateVersionedLink(VersionedArtifact versionedArtifact, LinkExtension extension) {
         if (versionedArtifact == null || extension == null) {
             throw new IllegalArgumentException("Parameters: groupId, artifactId, version, extension cannot be null or empty");
         }
@@ -56,7 +56,7 @@ public class LinkGenerator {
         }
     }
 
-    public Link generateMetadataLink(Artifact dependency) {
+    public Link generateLink(Artifact dependency) {
         String groupId = this.refactorGroupId(dependency);
         String link = MAVEN_METADATA_LINK.replace("{groupId}", groupId)
                 .replace("{artifactId}", dependency.getArtifactId())

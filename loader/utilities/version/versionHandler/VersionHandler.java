@@ -85,7 +85,7 @@ public class VersionHandler {
     }
 
     private Version handleNullVersion(Dependency dependency, PomReader pomReader) {
-        Link metadataLink = this.linkGenerator.generateMetadataLink(dependency);
+        Link metadataLink = this.linkGenerator.generateLink(dependency);
         XMLParsed xmlParsed = pomReader.readString(metadataLink.getUri().toString());
         if (xmlParsed == null) return FixedVersion.unknown();
         Metadata versionMetadata = xmlParsed.getAs();
@@ -107,7 +107,7 @@ public class VersionHandler {
 
     private Version searchParent(Dependency dependency, Parent parent, PomReader pomReader) {
         if (parent == null) return dependency.getVersion();
-        VersionedLink versionedLink = this.linkGenerator.generateLink(parent, LinkExtension.POM);
+        VersionedLink versionedLink = this.linkGenerator.generateVersionedLink(parent, LinkExtension.POM);
         Project parentPom = pomReader.readString(versionedLink.getUri().toString())
                 .getAs();
         return this.searchDependencyManagement(dependency, parentPom.getDependencyManagement());
@@ -119,7 +119,7 @@ public class VersionHandler {
             return dependency.getVersion();
         }
 
-        Link metadataLink = this.linkGenerator.generateMetadataLink(dependency);
+        Link metadataLink = this.linkGenerator.generateLink(dependency);
         Metadata versionMetadata = pomReader.readString(metadataLink.getUri().toString())
                 .getAs();
 

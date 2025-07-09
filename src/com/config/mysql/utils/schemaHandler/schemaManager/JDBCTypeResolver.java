@@ -1,4 +1,4 @@
-package src.com.server.database.mysql.utils.schemaHandler.schemaManager;
+package src.com.config.mysql.utils.schemaHandler.schemaManager;
 
 import src.com.server.annotations.component.Component;
 

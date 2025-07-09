@@ -1,4 +1,4 @@
-package src.com.server.database.mysql.utils.schemaHandler.schemaMode;
+package src.com.config.mysql.utils.schemaHandler.schemaMode;
 
 import src.com.server.exceptions.SchemaModeNotSupported;
 

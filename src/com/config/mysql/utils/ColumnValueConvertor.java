@@ -1,4 +1,4 @@
-package src.com.server.database.mysql.utils;
+package src.com.config.mysql.utils;
 
 import src.com.server.annotations.component.Component;
 

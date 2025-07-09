@@ -1,4 +1,4 @@
-package src.com.server.database.mysql.utils.driverManager;
+package src.com.config.mysql.utils.driverManager;
 
 import src.com.server.configuration.Configuration;
 import src.com.server.annotations.component.Component;

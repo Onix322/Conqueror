@@ -1,4 +1,4 @@
-package src.com.server.database.mysql.utils.driverManager;
+package src.com.config.mysql.utils.driverManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;

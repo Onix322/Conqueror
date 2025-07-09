@@ -1,16 +1,16 @@
-package src.com.server.database.mysql;
+package src.com.config.mysql;
 
 import src.com.server.annotations.component.Component;
 import src.com.server.annotations.entity.Column;
 import src.com.server.annotations.entity.Entity;
 import src.com.server.database.Persistence;
-import src.com.server.database.mysql.utils.ColumnValueConvertor;
-import src.com.server.database.mysql.utils.PreparedStatementSetter;
-import src.com.server.database.mysql.utils.entityData.EntityColumn;
-import src.com.server.database.mysql.utils.entityData.EntityTable;
-import src.com.server.database.mysql.utils.schemaHandler.schemaManager.FieldConvertor;
-import src.com.server.database.mysql.utils.schemaHandler.schemaManager.SchemaManager;
-import src.com.server.database.mysql.utils.schemaHandler.schemaManager.SqlStatements;
+import src.com.config.mysql.utils.ColumnValueConvertor;
+import src.com.config.mysql.utils.PreparedStatementSetter;
+import src.com.config.mysql.utils.entityData.EntityColumn;
+import src.com.config.mysql.utils.entityData.EntityTable;
+import src.com.config.mysql.utils.schemaHandler.schemaManager.FieldConvertor;
+import src.com.config.mysql.utils.schemaHandler.schemaManager.SchemaManager;
+import src.com.config.mysql.utils.schemaHandler.schemaManager.SqlStatements;
 import src.com.server.exceptions.AnnotationException;
 import src.com.server.exceptions.NoSuchEntity;
 

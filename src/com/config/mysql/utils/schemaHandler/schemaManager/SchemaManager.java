@@ -1,10 +1,10 @@
-package src.com.server.database.mysql.utils.schemaHandler.schemaManager;
+package src.com.config.mysql.utils.schemaHandler.schemaManager;
 
 import src.com.server.exceptions.AnnotationException;
 import src.com.server.exceptions.IllegalClassException;
-import src.com.server.database.mysql.utils.entityData.EntityColumn;
-import src.com.server.database.mysql.utils.entityData.EntityTable;
-import src.com.server.database.mysql.utils.driverManager.ConnectionManager;
+import src.com.config.mysql.utils.entityData.EntityColumn;
+import src.com.config.mysql.utils.entityData.EntityTable;
+import src.com.config.mysql.utils.driverManager.ConnectionManager;
 import src.com.server.annotations.component.Component;
 import src.com.server.annotations.entity.Entity;
 

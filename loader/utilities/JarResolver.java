@@ -7,12 +7,12 @@ import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.pomReader.PomReader;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
+import loader.utilities.pomReader.supportedTagsClasses.artifact.exclusion.Exclusion;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
 import src.com.server.configuration.Configuration;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class JarResolver {
 
@@ -46,43 +46,69 @@ public class JarResolver {
         return JarResolver.Holder.INSTANCE;
     }
 
+    //resolve root
     public Set<VersionedLink> resolve() {
-
         System.out.println("[" + this.getClass().getSimpleName() + "] -> Resolving pom.xml...");
         XMLParsed xmlParsed = this.pomReader.readString(pomFileLocation);
         if (xmlParsed == null) return Set.of();
         Dependencies dependencies = xmlParsed.<Project>getAs().getDependencies();
-        Set<Dependency> allDps = this.recursiveResolve(new HashSet<>(dependencies), visited);
-        return this.generateJarLinks(new HashSet<>(allDps));
+        List<Exclusion> exclusions = new LinkedList<>();
+        dependencies.forEach(d -> exclusions.addAll(d.getExclusions()));
+        Set<Dependency> allDps = this.recursiveResolve(new LinkedHashSet<>(dependencies), visited, exclusions);
+        return this.generateJarLinks(new LinkedHashSet<>(allDps));
     }
 
-    private Set<Dependency> recursiveResolve(Set<Dependency> loadedDps, Set<VersionedLink> visited) {
-
-        Set<Dependency> allDps = new HashSet<>(loadedDps);
+    //resolve recursive
+    private Set<Dependency> recursiveResolve(Set<Dependency> loadedDps, Set<VersionedLink> visited, List<Exclusion> exclusions) {
+        Set<Dependency> allDps = new LinkedHashSet<>(loadedDps);
         for (Dependency dp : loadedDps) {
-            VersionedLink pomVersionedLink = this.linkGenerator.generateLink(dp, LinkExtension.POM);
-            boolean checking = mustCheck(pomVersionedLink, visited, allDps, dp);
+            VersionedLink pomVersionedLink = this.linkGenerator.generateVersionedLink(dp, LinkExtension.POM);
+            boolean checking = mustCheck(pomVersionedLink, visited, allDps, dp, exclusions);
             if (!checking) continue;
             visited.add(pomVersionedLink);
             XMLParsed xmlParsed = this.pomReader.readString(pomVersionedLink.getUri().toString());
             if (xmlParsed == null) continue;
             Project project = xmlParsed.getAs();
             Dependencies dependencies = project.getDependencies();
-            allDps.addAll(this.recursiveResolve(new HashSet<>(dependencies), visited));
+            allDps.addAll(this.recursiveResolve(new LinkedHashSet<>(dependencies), visited, exclusions));
         }
-
         return allDps;
     }
 
-    private boolean mustCheck(VersionedLink pomVersionedLink, Set<VersionedLink> visited, Set<Dependency> allDps, Dependency dp) {
+    private Set<VersionedLink> generateJarLinks(Set<Dependency> dependencies) {
+
+        Set<VersionedLink> versionedLinks = new HashSet<>();
+
+        for (Dependency dependency : dependencies) {
+            VersionedLink jarVersionedLink = this.linkGenerator.generateVersionedLink(dependency, LinkExtension.JAR);
+            versionedLinks.add(jarVersionedLink);
+        }
+
+        return versionedLinks;
+    }
+
+    private boolean mustCheck(VersionedLink pomVersionedLink, Set<VersionedLink> visited, Set<Dependency> allDps, Dependency dp, List<Exclusion> exclusions) {
+        boolean removedExclusion = exclusions.removeIf(e -> e.getArtifactId().equals(dp.getArtifactId()) && e.getGroupId().equals(dp.getGroupId()));
+        if(removedExclusion){
+            visited.add(pomVersionedLink);
+            allDps.remove(dp);
+        }
+
         // taken dependency from pomLink
         // because it includes a version
+        boolean foundLinks = visited.stream()
+                .anyMatch(vl -> vl.getArtifact().getArtifactId().equals(pomVersionedLink.getArtifact().getArtifactId())
+                && vl.getArtifact().getGroupId().equals(pomVersionedLink.getArtifact().getGroupId()));
+        if(foundLinks){
+            visited.add(pomVersionedLink);
+        }
+
         if (dp.getVersion().isUnknown(dp.getVersion())) {
             System.out.println("[" + this.getClass().getSimpleName() + "] -> Ghost dependency detected "
                     + dp.getGroupId()
                     + "::"
                     + dp.getArtifactId()
-                    + "::" + dp.getVersion()
+                    + "::" + dp.getVersion().asString()
             );
             allDps.remove(dp);
             return false;
@@ -98,7 +124,8 @@ public class JarResolver {
             return false;
         }
 
-        if (dp.getScope() != null && dp.getScope().equals("test")) {
+        if (dp.getScope() != null && dp.getScope().equals("test") || dp.getScope().equals("system") || dp.getScope().equals("provided")) {
+            allDps.remove(dp);
             return false;
         }
 
@@ -108,22 +135,11 @@ public class JarResolver {
         }
 
         if (visited.contains(pomVersionedLink)) {
+            allDps.remove(dp);
             return false;
         }
 
         return true;
-    }
-
-    private Set<VersionedLink> generateJarLinks(Set<Dependency> dependencies) {
-
-        Set<VersionedLink> versionedLinks = new HashSet<>();
-
-        for (Dependency dependency : dependencies) {
-            VersionedLink jarVersionedLink = this.linkGenerator.generateLink(dependency, LinkExtension.JAR);
-            versionedLinks.add(jarVersionedLink);
-        }
-
-        return versionedLinks;
     }
 
 }

@@ -1,8 +1,8 @@
-package src.com.server.database.mysql.utils.schemaHandler;
+package src.com.config.mysql.utils.schemaHandler;
 
-import src.com.server.database.mysql.utils.schemaHandler.schemaManager.SchemaManager;
-import src.com.server.database.mysql.utils.schemaHandler.schemaMode.CurrentSchemaMode;
-import src.com.server.database.mysql.utils.schemaHandler.schemaMode.SchemaMode;
+import src.com.config.mysql.utils.schemaHandler.schemaManager.SchemaManager;
+import src.com.config.mysql.utils.schemaHandler.schemaMode.CurrentSchemaMode;
+import src.com.config.mysql.utils.schemaHandler.schemaMode.SchemaMode;
 import src.com.server.annotations.component.Component;
 import src.com.server.annotations.entity.Column;
 

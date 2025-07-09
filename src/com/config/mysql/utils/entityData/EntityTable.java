@@ -1,4 +1,4 @@
-package src.com.server.database.mysql.utils.entityData;
+package src.com.config.mysql.utils.entityData;
 
 import java.util.LinkedList;
 import java.util.List;

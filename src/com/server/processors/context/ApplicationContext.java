@@ -1,6 +1,8 @@
 package src.com.server.processors.context;
 
 import src.com.server.annotations.component.Component;
+import src.com.server.annotations.component.configuration.ComponentConfig;
+import src.com.server.annotations.component.configuration.ForceInstance;
 import src.com.server.annotations.controller.Controller;
 import src.com.server.annotations.entity.Entity;
 import src.com.server.configuration.Configuration;
@@ -11,11 +13,15 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public final class ApplicationContext {
 
@@ -33,8 +39,16 @@ public final class ApplicationContext {
         this.PACKAGE = configuration.readProperty("project.package");
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T requestInstance(Class<T> clazz) {
+        T instance = this.requestInstanceOrNull(clazz);
+        if (instance == null) {
+            throw new NoSuchElementException(clazz.getName() + " not registered in Application Context.");
+        }
+        return instance;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T requestInstanceOrNull(Class<T> clazz) {
         Object instance = APPLICATION_COMPONENTS.get(clazz);
 
         if (instance != null) {
@@ -50,7 +64,7 @@ public final class ApplicationContext {
             }
         }
 
-        throw new NoSuchElementException(clazz.getName() + " not registered in Application Context.");
+        return null;
     }
 
     public Map<Class<?>, Object> getComponents() {
@@ -77,6 +91,13 @@ public final class ApplicationContext {
                 iteratorAllComponents.remove();
                 continue;
             }
+
+            if (component.isAnnotationPresent(ComponentConfig.class)) {
+                this.handleComponentConfig(component);
+                iteratorAllComponents.remove();
+                continue;
+            }
+
             //already in context -> jump over
             if (APPLICATION_COMPONENTS.containsKey(component)) {
                 iteratorAllComponents.remove();
@@ -96,6 +117,49 @@ public final class ApplicationContext {
             allComponents.forEach(System.err::println);
             throw new CircularDependencyException("Circular dependency or missing @Component: " + circularDependency);
         }
+    }
+
+    private void handleComponentConfig(Class<?> componentConfig) {
+
+        Optional<Object> instanceComponentConfig = this.safeInstance(componentConfig);
+        Deque<Method> methods = Arrays.stream(componentConfig.getDeclaredMethods())
+                .filter(m -> m.isAnnotationPresent(ForceInstance.class))
+                .collect(Collectors.toCollection(LinkedBlockingDeque::new));
+
+        Iterator<Method> iterator = methods.iterator();
+
+        while (iterator.hasNext()) {
+            Method methodTurn = iterator.next();
+            Parameter[] parameters = methodTurn.getParameters();
+            if (!this.checkParameters(parameters)) {
+                methods.addLast(methods.removeFirst());
+                iterator = methods.iterator();
+                continue;
+            }
+
+            try {
+                if (methodTurn.getParameters().length == 0) {
+                    this.APPLICATION_COMPONENTS.put(methodTurn.getReturnType(), methodTurn.invoke(instanceComponentConfig.get()));
+                } else {
+                    List<Object> args = this.rezolveConstructorArgs(methodTurn.getParameterTypes());
+                    this.APPLICATION_COMPONENTS.put(methodTurn.getReturnType(), methodTurn.invoke(instanceComponentConfig.get(), args.toArray()));
+                }
+                iterator.remove();
+                Logger.log(this.getClass(), "Initialization from component config: " + methodTurn.getReturnType().getName());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private boolean checkParameters(Parameter[] parameters) {
+        for (Parameter p : parameters) {
+            System.out.println(p.getType());
+            if (this.requestInstanceOrNull(p.getType()) == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void handleLogging(Class<?> component) {
@@ -119,6 +183,7 @@ public final class ApplicationContext {
                 Class<?> classTest = classLoader.loadClass(packageName + fn.substring(0, fn.length() - 6));
                 if (classTest.isAnnotationPresent(Component.class) ||
                         classTest.isAnnotationPresent(Controller.class) ||
+                        classTest.isAnnotationPresent(ComponentConfig.class) ||
                         classTest.isAnnotationPresent(Entity.class)) {
                     allComponents.add(classTest);
                 }
@@ -141,7 +206,11 @@ public final class ApplicationContext {
     }
 
     private List<Object> rezolveConstructorArgs(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameterTypes())
+        return this.rezolveConstructorArgs(constructor.getParameterTypes());
+    }
+
+    private List<Object> rezolveConstructorArgs(Class<?>[] parameterTypes) {
+        return Arrays.stream(parameterTypes)
                 .map(p -> {
                     AtomicReference<Object> arg = new AtomicReference<>();
                     if (p.isInterface()) {
@@ -155,7 +224,7 @@ public final class ApplicationContext {
                     }
                     return arg.get();
                 })
-                .toList();
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     private Optional<Object> safeInstance(Class<?> component) {
