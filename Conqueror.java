@@ -1,7 +1,6 @@
+import configuration.Configuration;
+import configuration.ConfigurationImpl;
 import loader.Loader;
-import src.com.App;
-import src.com.server.configuration.Configuration;
-import src.com.server.configuration.ConfigurationImpl;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,8 +19,6 @@ public class Conqueror {
 
         //* Start App
         Loader.load(configuration, executorService, args);
-        App.start(configuration, executorService);
-
 
     }
 

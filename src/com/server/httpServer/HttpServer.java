@@ -1,6 +1,6 @@
 package src.com.server.httpServer;
 
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 
 public sealed interface HttpServer permits HttpServerImpl {
 

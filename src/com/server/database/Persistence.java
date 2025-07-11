@@ -23,7 +23,7 @@ public interface Persistence<T, ID extends Number> {
 
     T save(T entity);
 
-    T update(Class<T> entityClass, Object entity, ID id);
+    T update(Class<T> entityClass, T entity, ID id);
 
-    T modify(Class<T> entityClass, Object modifier, ID id);
+    T modify(Class<T> entityClass, T modifier, ID id);
 }

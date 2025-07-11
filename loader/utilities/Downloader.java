@@ -1,7 +1,7 @@
 package loader.utilities;
 
 import loader.utilities.linkGenerator.link.VersionedLink;
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;

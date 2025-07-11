@@ -1,29 +1,36 @@
 package loader.utilities;
 
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 
 public class ClassPathLoader {
 
     private final String dependenciesLocation;
-    private final String classpathLocation;
-    private final ProcessBuilder processBuilder;
+    private final Configuration configuration;
+    private final ExecutorService executorService;
 
-    private ClassPathLoader(Configuration configuration, ProcessBuilder processBuilder) {
+    private ClassPathLoader(Configuration configuration, ExecutorService executorService) {
         this.dependenciesLocation = configuration.readProperty("dependencies.location");
-        this.classpathLocation = configuration.readProperty("classpath.location");
-        this.processBuilder = processBuilder;
+        this.configuration = configuration;
+        this.executorService = executorService;
     }
 
     private static class Holder {
         private static ClassPathLoader INSTANCE = null;
     }
 
-    public static synchronized void init(Configuration configuration, ProcessBuilder processBuilder) {
+    public static synchronized void init(Configuration configuration, ExecutorService executorService) {
         if (ClassPathLoader.Holder.INSTANCE == null) {
-            ClassPathLoader.Holder.INSTANCE = new ClassPathLoader(configuration, processBuilder);
+            ClassPathLoader.Holder.INSTANCE = new ClassPathLoader(configuration, executorService);
         }
     }
 
@@ -34,20 +41,26 @@ public class ClassPathLoader {
         return ClassPathLoader.Holder.INSTANCE;
     }
 
-    public void start(String[] args){
-        File dependenciesDir = new File(dependenciesLocation);
-        try {
-            String classpath = "E:\\Projects\\conqueror;" + dependenciesDir.getCanonicalPath() + "\\*";
+    public void start(){
+        File libDir = new File(dependenciesLocation);
+        URL[] urls = Arrays.stream(Objects.requireNonNull(libDir.listFiles()))
+                .filter(f -> f.getName().endsWith(".jar"))
+                .map(f -> {
+                    try {
+                        return f.toURI().toURL();
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toArray(URL[]::new);
 
-            ProcessBuilder processB = this.processBuilder
-                    .command("java", "-cp", classpath, "Conqueror");
 
-            if (args != null) {
-                for (String arg : args) {
-                    processB.command().add(arg);
-                }
-            }
-        } catch (IOException e) {
+        try (URLClassLoader appClassLoader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());) {
+            Class<?> mainClass = appClassLoader.loadClass("src.com.App");
+            mainClass.getDeclaredMethod("start", Configuration.class, ExecutorService.class)
+                    .invoke(null, configuration, executorService);
+        } catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException | NoSuchMethodException |
+                 IOException e) {
             throw new RuntimeException(e);
         }
     }

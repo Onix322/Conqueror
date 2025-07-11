@@ -8,7 +8,7 @@ import loader.utilities.pomReader.handlers.XMLHandlerFactory;
 import loader.utilities.version.versionHandler.VersionHandler;
 import loader.utilities.version.versionHandler.VersionParser;
 import org.xml.sax.SAXException;
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -57,15 +57,14 @@ public class Loader {
         );
         Downloader downloader = Downloader.getInstance();
 
-        ProcessBuilder processBuilder = new ProcessBuilder();
         ClassPathLoader.init(
                 configuration,
-                processBuilder
+                executorService
         );
         ClassPathLoader classpathLoader = ClassPathLoader.getInstance();
 
         Set<VersionedLink> jarVersionedLinks = jarResolver.resolve();
         downloader.download(jarVersionedLinks);
-        classpathLoader.start(args);
+        classpathLoader.start();
     }
 }

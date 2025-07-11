@@ -1,7 +1,7 @@
 package src.com.server.managers;
 
 import src.com.server.annotations.component.Component;
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 import src.com.server.environment.Environment;
 import src.com.server.exceptions.NoSuchEntity;
 import src.com.server.httpServer.utils.response.HttpStatus;

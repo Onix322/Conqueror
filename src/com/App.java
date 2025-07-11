@@ -1,8 +1,11 @@
 package src.com;
 
-import src.com.server.configuration.Configuration;
+import jakarta.persistence.Entity;
+import src.com.server.annotations.component.Component;
+import src.com.server.annotations.component.configuration.ComponentConfig;
+import src.com.server.annotations.controller.Controller;
+import configuration.Configuration;
 import src.com.server.httpServer.HttpServer;
-import src.com.server.managers.entityManager.EntityManager;
 import src.com.server.processors.context.ApplicationContext;
 
 import java.util.concurrent.ExecutorService;
@@ -14,11 +17,11 @@ public class App {
 
         //* ApplicationContext Initialization
         ApplicationContext applicationContext = new ApplicationContext(configuration, executorService);
+        applicationContext.registerAnnotation(Entity.class);
+        applicationContext.registerAnnotation(ComponentConfig.class);
+        applicationContext.registerAnnotation(Component.class);
+        applicationContext.registerAnnotation(Controller.class);
         applicationContext.applicationContextInit();
-
-        //* Entities autoload
-        applicationContext.requestInstance(EntityManager.class)
-                .autoload();
 
         //* Server start
         applicationContext.requestInstance(HttpServer.class)

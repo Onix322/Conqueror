@@ -1,7 +1,7 @@
 package src.com.server.httpServer;
 
 import src.com.server.annotations.component.Component;
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 import src.com.server.handlers.RouteHandler;
 import src.com.server.handlers.TransformationHandler;
 import src.com.server.managers.ExceptionManager;

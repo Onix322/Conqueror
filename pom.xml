@@ -14,5 +14,11 @@
             <artifactId>mysql-connector-j</artifactId>
             <version>9.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>4.0.4</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 </project>

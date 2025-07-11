@@ -3,8 +3,7 @@ package loader.utilities;
 
 import loader.utilities.linkGenerator.link.VersionedLink;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
-import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;

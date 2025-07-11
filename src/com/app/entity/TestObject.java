@@ -1,12 +1,13 @@
 package src.com.app.entity;
 
-import src.com.server.annotations.entity.Column;
-import src.com.server.annotations.entity.Entity;
+import jakarta.persistence.*;
 
-@Entity(name = "test_object")
+@Entity
+@Table(name = "test_object")
 public class TestObject {
 
-    @Column(name = "id", primary = true, autoIncrement = true, nullable = false, idColumn = true)
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @Column(name = "name")
     private String name;

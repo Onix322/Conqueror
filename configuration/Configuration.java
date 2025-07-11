@@ -1,4 +1,4 @@
-package src.com.server.configuration;
+package configuration;
 
 import src.com.server.exceptions.ConfigPropertyNonExistent;
 

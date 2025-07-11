@@ -1,16 +1,15 @@
 package src.com.server.processors.context;
 
-import src.com.server.annotations.component.Component;
+import jakarta.persistence.Entity;
 import src.com.server.annotations.component.configuration.ComponentConfig;
 import src.com.server.annotations.component.configuration.ForceInstance;
-import src.com.server.annotations.controller.Controller;
-import src.com.server.annotations.entity.Entity;
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 import src.com.server.exceptions.CircularDependencyException;
 import src.com.server.logger.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,6 +28,7 @@ public final class ApplicationContext {
     private final File FILE;
     private final Map<Class<?>, Object> APPLICATION_COMPONENTS = new LinkedHashMap<>();
     private final Set<Class<?>> APPLICATION_ENTITIES = new LinkedHashSet<>();
+    private final Set<Class<? extends Annotation>> COMPONENT_ANNOTATIONS = new LinkedHashSet<>();
 
     public ApplicationContext(Configuration configuration, ExecutorService executorService) {
         this.force(configuration.getClass(), configuration);
@@ -37,6 +37,16 @@ public final class ApplicationContext {
         String path = configuration.readProperty("project.path");
         this.FILE = new File(path);
         this.PACKAGE = configuration.readProperty("project.package");
+    }
+
+    public void registerAnnotation(Class<? extends Annotation> annotation){
+        this.COMPONENT_ANNOTATIONS.add(annotation);
+    }
+
+    public boolean hasAcceptedAnnotations(Class<?> clazz) {
+        return Arrays.stream(clazz.getAnnotations())
+                .map(Annotation::annotationType)
+                .anyMatch(COMPONENT_ANNOTATIONS::contains);
     }
 
     public <T> T requestInstance(Class<T> clazz) {
@@ -115,6 +125,7 @@ public final class ApplicationContext {
 
         if (!allComponents.isEmpty()) {
             allComponents.forEach(System.err::println);
+            this.APPLICATION_COMPONENTS.entrySet().forEach(System.out::println);
             throw new CircularDependencyException("Circular dependency or missing @Component: " + circularDependency);
         }
     }
@@ -139,10 +150,12 @@ public final class ApplicationContext {
 
             try {
                 if (methodTurn.getParameters().length == 0) {
-                    this.APPLICATION_COMPONENTS.put(methodTurn.getReturnType(), methodTurn.invoke(instanceComponentConfig.get()));
+                    Object methodResult = methodTurn.invoke(instanceComponentConfig.get());
+                    this.APPLICATION_COMPONENTS.put(methodResult.getClass(), methodResult);
                 } else {
                     List<Object> args = this.rezolveConstructorArgs(methodTurn.getParameterTypes());
-                    this.APPLICATION_COMPONENTS.put(methodTurn.getReturnType(), methodTurn.invoke(instanceComponentConfig.get(), args.toArray()));
+                    Object methodResult = methodTurn.invoke(instanceComponentConfig.get(), args.toArray());
+                    this.APPLICATION_COMPONENTS.put(methodResult.getClass(), methodResult);
                 }
                 iterator.remove();
                 Logger.log(this.getClass(), "Initialization from component config: " + methodTurn.getReturnType().getName());
@@ -181,10 +194,7 @@ public final class ApplicationContext {
                 String fn = f.getName();
                 if (!fn.endsWith(".class")) continue;
                 Class<?> classTest = classLoader.loadClass(packageName + fn.substring(0, fn.length() - 6));
-                if (classTest.isAnnotationPresent(Component.class) ||
-                        classTest.isAnnotationPresent(Controller.class) ||
-                        classTest.isAnnotationPresent(ComponentConfig.class) ||
-                        classTest.isAnnotationPresent(Entity.class)) {
+                if (this.hasAcceptedAnnotations(classTest)) {
                     allComponents.add(classTest);
                 }
             }

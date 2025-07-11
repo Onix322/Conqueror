@@ -1,6 +1,6 @@
 package src.com.server.environment;
 
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 
 public enum Environment {
     PROD("prod"),

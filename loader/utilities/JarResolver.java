@@ -10,7 +10,7 @@ import loader.utilities.pomReader.supportedTagsClasses.artifact.dependency.Depen
 import loader.utilities.pomReader.supportedTagsClasses.artifact.exclusion.Exclusion;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
 import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
-import src.com.server.configuration.Configuration;
+import configuration.Configuration;
 
 import java.util.*;
 
@@ -124,7 +124,9 @@ public class JarResolver {
             return false;
         }
 
-        if (dp.getScope() != null && dp.getScope().equals("test") || dp.getScope().equals("system") || dp.getScope().equals("provided")) {
+        if (dp.getScope() != null && dp.getScope().equals("test") ||
+                dp.getScope().equals("system") ||
+                dp.getScope().equals("provided")) {
             allDps.remove(dp);
             return false;
         }
