@@ -2,6 +2,12 @@ package loader.utilities.pomReader.supportedTagsClasses.artifact.exclusion;
 
 import loader.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
 
+/**
+ * Represents an exclusion in a Maven POM file.
+ * This class extends Artifact to include groupId and artifactId
+ * for the excluded artifact.
+ * It provides a builder pattern for easy instantiation and modification.
+ */
 public class Exclusion extends Artifact {
 
     private Exclusion(Builder builder) {

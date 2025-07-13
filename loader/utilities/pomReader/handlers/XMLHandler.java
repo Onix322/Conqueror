@@ -23,41 +23,61 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/** XMLHandler is a SAX handler for parsing XML files related to Maven artifacts.
+    * It processes XML elements to build a structured representation of the artifact's metadata and project information.
+    * The handler supports both <project> and <metadata> XML types, extracting relevant data such as groupId, artifactId, version,
+    * dependencies, exclusions, parent information, and properties.
+
+    * This class is designed as a singleton and should be initialized with a VersionParser instance.
+* */
 public class XMLHandler extends DefaultHandler {
 
-    // final product
-    private XMLParsed xmlParsed;
+// Final parsed XML product
+// This variable holds the final parsed representation of the XML structure, either a <project> or <metadata> type.
+private XMLParsed xmlParsed;
 
-    // XMLType <project>
-    private Project.Builder projectBuilder;
-    private Dependencies dependencies;
-    private Dependency.Builder dependency;
-    private Exclusion.Builder exclusion;
-    private Parent.Builder parent;
-    private DependencyManagement.Builder dependencyManagement;
-    private Map<String, String> properties;
+// XMLType <project>
+// Variables used to build and store information related to Maven <project> XML elements.
+private Project.Builder projectBuilder;
+private Dependencies dependencies;
+private Dependency.Builder dependency;
+private Exclusion.Builder exclusion;
+private Parent.Builder parent;
+private DependencyManagement.Builder dependencyManagement;
+private Map<String, String> properties;
 
-    // XMLType <metadata>
-    private Metadata.Builder metadataBuilder;
-    private Versioning.Builder versioning;
-    private Versions versions;
+// XMLType <metadata>
+// Variables used to build and store information related to Maven <metadata> XML elements.
+private Metadata.Builder metadataBuilder;
+private Versioning.Builder versioning;
+private Versions versions;
 
-    // Extracted characters (value)
-    private StringBuilder elementValue = new StringBuilder();
+// Extracted characters (value)
+// A buffer to store the character data extracted from XML elements.
+private StringBuilder elementValue = new StringBuilder();
 
-    // Turn-dictating variables
-    private TagElement current = TagElement.NONE; // keeps the counting of each start tag
-    private TagElement context = TagElement.NONE; // keeps parent counted, because some variables have the same children.
-    private TagElement xmlType = TagElement.NONE; // used for telling the XML type
+// Turn-dictating variables
+// to track the current XML tag, its parent context, and the overall XML type being processed.
+private TagElement current = TagElement.NONE; // Keeps track of the current start tag.
+private TagElement context = TagElement.NONE; // Tracks the parent tag for nested elements.
+private TagElement xmlType = TagElement.NONE; // Identifies the type of XML being processed (e.g., <project>, <metadata>).
 
-    // Injections
-    private final VersionParser versionParser;
-
+// Injections
+// External dependencies injected into the handler, such as the VersionParser for handling version-related logic.
+private final VersionParser versionParser;
     public XMLHandler(VersionParser versionParser) {
         super();
         this.versionParser = versionParser;
     }
 
+    /** Handles character data within XML elements.
+     * This method accumulates character data into the elementValue StringBuilder,
+     * which is later processed in the endElement method to extract the value of the XML tag.
+     *
+     * @param ch The characters from the XML element.
+     * @param start The start position in the character array.
+     * @param length The number of characters to process.
+    * */
     @Override
     public void characters(char[] ch, int start, int length) {
         if (elementValue == null) {
@@ -66,11 +86,23 @@ public class XMLHandler extends DefaultHandler {
         elementValue.append(ch, start, length);
     }
 
+    /** Handles the start of the XML document.
+     * This method is called at the beginning of the XML parsing process.
+     * It initializes any necessary structures or variables before processing the XML elements.
+     *
+     * @throws SAXException if an error occurs during parsing. */
     @Override
     public void startDocument() throws SAXException {
         super.startDocument();
     }
 
+    /**
+     * Handles the end of the XML document.
+     * This method is called at the end of the XML parsing process.
+     * It finalizes the parsing and builds the final XMLParsed object based on the XML type.
+     *
+     * @throws SAXException if an error occurs during parsing.
+     */
     @Override
     public void endDocument() throws SAXException {
         super.endDocument();
@@ -80,7 +112,15 @@ public class XMLHandler extends DefaultHandler {
         }
     }
 
-    /// Make actions at the START of the element. E.g., start element <element>
+    /**
+     * Handles the start of an XML element by identifying the tag and initializing the appropriate builder.
+     * It sets the current context and prepares to collect data for the element.
+     *
+     * @param uri The namespace URI, or the empty string if the element has no namespace.
+     * @param localName The local name (without prefix), or the empty string if not available.
+     * @param qName The qualified name (with prefix), or the empty string if not available.
+     * @param attributes The attributes of the element, or null if there are none.
+    * */
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         TagElement tagElement = TagElement.find(qName);
@@ -149,7 +189,14 @@ public class XMLHandler extends DefaultHandler {
         }
     }
 
-    /// Make actions at the END of the element. E.g., end element </element>
+    /**
+     * Handles the end of an XML element by processing the collected data and updating the appropriate builder.
+     * It finalizes the current context and updates the metadata or project information as needed.
+     *
+     * @param uri The namespace URI, or the empty string if the element has no namespace.
+     * @param localName The local name (without prefix), or the empty string if not available.
+     * @param qName The qualified name (with prefix), or the empty string if not available.
+    * */
     @Override
     public void endElement(String uri, String localName, String qName) {
         TagElement tagElement = TagElement.find(qName);
@@ -328,7 +375,11 @@ public class XMLHandler extends DefaultHandler {
         }
         elementValue.setLength(0);
     }
-
+    /**
+     * Returns the final parsed XML structure.
+     *
+     * @return the parsed XML structure
+     */
     public XMLParsed getXmlParsed() {
         return xmlParsed;
     }

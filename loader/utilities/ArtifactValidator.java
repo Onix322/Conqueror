@@ -12,6 +12,12 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * ArtifactValidator is a singleton class responsible for validating the existence of artifacts
+ * in a specified directory based on the configuration provided.
+ * It reads the location of the classes from the configuration and checks if the specified
+ * artifacts exist in that location.
+ */
 public class ArtifactValidator {
 
     private final File classesFile;
@@ -37,11 +43,23 @@ public class ArtifactValidator {
         return ArtifactValidator.Holder.INSTANCE;
     }
 
+    /**
+     * Verifies the existence of a VersionedLink artifact in the specified classes directory.
+     *
+     * @param versionedLink the VersionedLink to verify
+     * @return true if the artifact exists, false otherwise
+     */
     public boolean verifyExistence(VersionedLink versionedLink) {
         VersionedArtifact dependency = versionedLink.getArtifact();
         return this.verifyExistence(dependency);
     }
 
+    /**
+     * Verifies the existence of a VersionedArtifact in the specified classes directory.
+     *
+     * @param dependency the VersionedArtifact to verify
+     * @return true if the artifact exists, false otherwise
+     */
     public boolean verifyExistence(VersionedArtifact dependency) {
         Path path = Path.of(classesFile.getPath()
                 + '\\'
@@ -57,6 +75,12 @@ public class ArtifactValidator {
         }
     }
 
+    /**
+     * Reads the configuration to get the location of the classes directory.
+     *
+     * @param configuration the Configuration object containing properties
+     * @return a File object representing the classes directory
+     */
     private File readConfig(Configuration configuration) {
         String classesLocation = configuration.readProperty("dependencies.location");
         try {

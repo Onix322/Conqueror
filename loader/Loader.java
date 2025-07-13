@@ -1,5 +1,6 @@
 package loader;
 
+import configuration.Configuration;
 import loader.utilities.*;
 import loader.utilities.linkGenerator.LinkGenerator;
 import loader.utilities.linkGenerator.link.VersionedLink;
@@ -8,7 +9,6 @@ import loader.utilities.pomReader.handlers.XMLHandlerFactory;
 import loader.utilities.version.versionHandler.VersionHandler;
 import loader.utilities.version.versionHandler.VersionParser;
 import org.xml.sax.SAXException;
-import configuration.Configuration;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -16,8 +16,22 @@ import javax.xml.parsers.SAXParserFactory;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * Loader is responsible for initializing and loading various components required for the application.
+ * It sets up the necessary configurations, parsers, and handlers to process Maven POM files and manage dependencies.
+ */
 public class Loader {
-    public static void load(Configuration configuration, ExecutorService executorService, String[] args) throws ParserConfigurationException, SAXException {
+    /**
+     * Initializes the Loader with the provided configuration and executor service.
+     * This method sets up the necessary components such as URL accessors, link generators,
+     * version handlers, POM readers, artifact validators, and classpath loaders.
+     *
+     * @param configuration the configuration to be used for loading
+     * @param executorService the executor service for asynchronous operations
+     * @throws ParserConfigurationException if there is a configuration error in the parser
+     * @throws SAXException if there is an error in parsing XML
+     */
+    public static void load(Configuration configuration, ExecutorService executorService) throws ParserConfigurationException, SAXException {
 
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         SAXParser saxParser = saxParserFactory.newSAXParser();
@@ -50,21 +64,20 @@ public class Loader {
                 configuration
         );
         JarResolver jarResolver = JarResolver.getInstance();
+        Set<VersionedLink> jarVersionedLinks = jarResolver.resolve();
 
         Downloader.init(
                 configuration,
                 urlAccessor
         );
         Downloader downloader = Downloader.getInstance();
+        downloader.download(jarVersionedLinks);
 
         ClassPathLoader.init(
                 configuration,
                 executorService
         );
         ClassPathLoader classpathLoader = ClassPathLoader.getInstance();
-
-        Set<VersionedLink> jarVersionedLinks = jarResolver.resolve();
-        downloader.download(jarVersionedLinks);
         classpathLoader.start();
     }
 }

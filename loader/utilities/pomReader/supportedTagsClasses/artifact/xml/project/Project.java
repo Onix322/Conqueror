@@ -10,6 +10,13 @@ import loader.utilities.version.Version;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Represents a Maven project with its associated metadata.
+ * This class extends Artifact to include additional fields
+ * such as version, modelVersion, name, packaging, dependencies,
+ * parent, dependencyManagement, and properties.
+ * It provides a builder pattern for easy instantiation and modification.
+ */
 public class Project extends Artifact implements XMLParsed {
 
     private Version version;

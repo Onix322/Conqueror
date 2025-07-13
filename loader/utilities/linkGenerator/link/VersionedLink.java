@@ -6,6 +6,10 @@ import loader.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifac
 import java.net.URI;
 import java.util.Objects;
 
+/**
+ * Represents a versioned link associated with a {@link VersionedArtifact}, a URI, and a link extension.
+ * Extends the {@link Link} class to include version-specific artifact details.
+ */
 public class VersionedLink extends Link {
     private VersionedArtifact artifact;
 

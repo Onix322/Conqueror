@@ -3,6 +3,12 @@ package loader.utilities.version.versionHandler;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * DefaultProperties is a utility class that manages a set of default properties.
+ * It allows retrieval, addition, and modification of properties, with a fallback to system properties.
+ * * The properties are initialized with the Java specification version,
+ * and can be extended with additional properties as needed.
+ */
 public class DefaultProperties {
     private static Map<String, String> properties = Map.ofEntries(
             Map.entry("java.specification.version", System.getProperty("java.specification.version"))

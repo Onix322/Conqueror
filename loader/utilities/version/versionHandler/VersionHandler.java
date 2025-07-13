@@ -22,6 +22,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * VersionHandler is responsible for managing and resolving versions of dependencies in a Maven project.
+ * It handles null versions, interval versions, and searches for versions in dependency management and parent POMs.
+ */
 public class VersionHandler {
 
     private final UrlAccessor urlAccessor;

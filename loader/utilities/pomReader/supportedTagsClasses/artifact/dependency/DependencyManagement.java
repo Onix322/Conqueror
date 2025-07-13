@@ -2,6 +2,11 @@ package loader.utilities.pomReader.supportedTagsClasses.artifact.dependency;
 
 import java.util.Objects;
 
+/*
+ * Represents the dependency management section of a Maven POM file.
+ * This class encapsulates a collection of dependencies and provides
+ * methods to access and modify them.
+ */
 public class DependencyManagement {
     private Dependencies dependencies;
 
@@ -17,7 +22,7 @@ public class DependencyManagement {
         this.dependencies = dependencies;
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -40,7 +45,7 @@ public class DependencyManagement {
                 '}';
     }
 
-    public static class Builder{
+    public static class Builder {
         private Dependencies dependencies;
 
         private Builder() {
@@ -56,7 +61,7 @@ public class DependencyManagement {
             return this;
         }
 
-        public DependencyManagement build(){
+        public DependencyManagement build() {
             return new DependencyManagement(this);
         }
     }

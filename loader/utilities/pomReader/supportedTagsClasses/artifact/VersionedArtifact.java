@@ -4,6 +4,11 @@ import loader.utilities.version.Version;
 
 import java.util.Objects;
 
+/**
+ * Represents a versioned artifact in a Maven POM file.
+ * This class extends the Artifact class to include a version field,
+ * providing a way to encapsulate both the artifact's identity and its version.
+ */
 public class VersionedArtifact extends Artifact {
     private Version version;
 

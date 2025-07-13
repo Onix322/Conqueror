@@ -5,6 +5,12 @@ import loader.utilities.version.Version;
 
 import java.util.Objects;
 
+/**
+ * Represents a Maven parent artifact in a POM file.
+ * This class extends VersionedArtifact to include additional
+ * information such as the relative path to the parent POM.
+ * It provides a builder pattern for easy instantiation and modification.
+ */
 public class Parent extends VersionedArtifact {
     private String relativePath;
 

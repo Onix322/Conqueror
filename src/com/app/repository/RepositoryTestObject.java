@@ -6,8 +6,8 @@ import src.com.config.hibernate.RepositoryHibernate;
 import src.com.server.annotations.component.Component;
 
 @Component
-public class RepositoryTestObjectHibernate extends RepositoryHibernate<TestObject, Integer> {
-    public RepositoryTestObjectHibernate(SessionFactoryImpl sessionFactory) {
+public class RepositoryTestObject extends RepositoryHibernate<TestObject, Integer> {
+    public RepositoryTestObject(SessionFactoryImpl sessionFactory) {
         super(sessionFactory);
     }
 }

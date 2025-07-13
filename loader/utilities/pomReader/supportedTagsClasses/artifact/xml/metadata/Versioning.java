@@ -4,6 +4,11 @@ import loader.utilities.version.FixedVersion;
 
 import java.util.Objects;
 
+/**
+ * Represents the versioning information of a Maven artifact.
+ * This class encapsulates the latest and release versions, as well as a collection of all versions.
+ * It provides methods to access and modify these properties, along with a builder pattern for instantiation.
+ */
 public class Versioning {
     private FixedVersion latest;
     private FixedVersion release;

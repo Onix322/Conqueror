@@ -2,6 +2,10 @@ package loader.utilities.pomReader.handlers;
 
 import loader.utilities.version.versionHandler.VersionParser;
 
+/**
+ * Factory class for creating instances of {@link XMLHandler}.
+ * Ensures a single instance of the factory is initialized and provides a thread-safe way to create {@link XMLHandler} objects.
+ */
 public class XMLHandlerFactory {
 
     private final VersionParser versionParser;
@@ -27,6 +31,11 @@ public class XMLHandlerFactory {
         return XMLHandlerFactory.Holder.INSTANCE;
     }
 
+    /**
+     * Creates a new instance of {@link XMLHandler}.
+     * This method uses the {@link VersionParser} instance provided during factory initialization
+     * @return a new {@link XMLHandler} instance
+     */
     public XMLHandler create() {
         return new XMLHandler(versionParser);
     }

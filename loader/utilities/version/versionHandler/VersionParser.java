@@ -8,6 +8,17 @@ import loader.utilities.version.Version;
 
 import java.util.*;
 
+/**
+ * VersionParser is a utility class for parsing and handling version strings.
+ * It supports both fixed and interval versions, allowing for complex version
+ * handling in projects.
+ * <p>
+ * This class is designed to be a singleton, ensuring that only one instance
+ * exists throughout the application.
+ * It provides methods to parse version strings,
+ * handle variables, and calculate version ranks based on predefined rules.
+ * </p>
+ */
 public class VersionParser {
 
     public final int DEFAULT_RANK_POINTS = 100;
@@ -53,6 +64,15 @@ public class VersionParser {
         return VersionParser.Holder.INSTANCE;
     }
 
+    /**
+     * Handles a raw version string, determining if it is an interval or fixed version.
+     * If the version starts with "[${" or "(${", it is treated as an interval variable.
+     * Otherwise, it is treated as a fixed variable.
+     *
+     * @param rawVersion The raw version string to handle.
+     * @param properties A map of properties for variable resolution.
+     * @return A Version object representing the parsed version.
+     */
     public Version handleVariable(String rawVersion, Map<String, String> properties) {
         if (rawVersion.startsWith("[${") || rawVersion.startsWith("(${")) {
             return handleIntervalVariable(rawVersion, properties);
@@ -60,6 +80,14 @@ public class VersionParser {
         return handleFixedVariable(rawVersion, properties);
     }
 
+    /**
+     * Handles an interval variable version string, parsing it into an IntervalVersion object.
+     * The version string is expected to be in the format "[v1,v2]" or "(v1,v2)".
+     *
+     * @param rawVersion The raw version string to handle.
+     * @param properties A map of properties for variable resolution.
+     * @return An IntervalVersion object representing the parsed interval version.
+     */
     public Version handleIntervalVariable(String rawVersion, Map<String, String> properties) {
         String[] split = rawVersion.split(",");
 
@@ -80,6 +108,14 @@ public class VersionParser {
         return new IntervalVersion(v1, v2);
     }
 
+    /**
+     * Handles a fixed variable version string, parsing it into a FixedVersion object.
+     * If the version starts with "${", it resolves the variable using the provided properties.
+     *
+     * @param rawVersion The raw version string to handle.
+     * @param properties A map of properties for variable resolution.
+     * @return A FixedVersion object representing the parsed fixed version, or null if not found.
+     */
     public Version handleFixedVariable(String rawVersion, Map<String, String> properties) {
         if (!rawVersion.startsWith("${")) return this.parse(rawVersion);
         if (properties == null) {
@@ -96,6 +132,14 @@ public class VersionParser {
         return this.parse(prop);
     }
 
+    /**
+     * Parses a string into an Integer.
+     * If the string is blank, it returns 0.
+     * If the string cannot be parsed, it throws a NumberFormatException with a descriptive message.
+     *
+     * @param integer The string to parse.
+     * @return The parsed Integer value.
+     */
     public Integer parseInt(String integer) {
         try {
             if(integer.isBlank()) return 0;
@@ -105,10 +149,25 @@ public class VersionParser {
         }
     }
 
+    /**
+     * Handles the versioning of a Project object using a PomReader.
+     * This method delegates the version handling to the VersionHandler.
+     *
+     * @param project The Project object to handle versions for.
+     * @param pomReader The PomReader used to read the project's POM file.
+     * @return The Project object with handled versions.
+     */
     public Project handleVersions(Project project, PomReader pomReader) {
         return this.versionHandler.handleVersion(project, pomReader);
     }
 
+    /**
+     * Parses a raw version string into a Version object.
+     * It determines whether the version is an interval or fixed version based on the presence of brackets.
+     *
+     * @param rawVersion The raw version string to parse.
+     * @return A Version object representing the parsed version.
+     */
     public Version parse(String rawVersion) {
         if (rawVersion.contains("[") || rawVersion.contains("(")) {
             return parseInterval(rawVersion);
@@ -117,6 +176,13 @@ public class VersionParser {
         }
     }
 
+    /**
+     * Parses a raw version string into a FixedVersion object.
+     * It extracts the interval direction and calculates the rank based on the version components.
+     *
+     * @param rawVersion The raw version string to parse.
+     * @return A FixedVersion object representing the parsed fixed version.
+     */
     public FixedVersion parseFixed(String rawVersion) {
         VersionIntervalDirection direction = this.extractIntervalDirection(rawVersion);
         String[] version = rawVersion.replace(direction.getValue(), "")
@@ -125,6 +191,13 @@ public class VersionParser {
         return new FixedVersion(version, rank, direction);
     }
 
+    /**
+     * Parses a raw interval version string into an IntervalVersion object.
+     * It splits the string by commas and parses each part into a FixedVersion.
+     *
+     * @param rawInterval The raw interval version string to parse.
+     * @return An IntervalVersion object representing the parsed interval version.
+     */
     public IntervalVersion parseInterval(String rawInterval) {
         String[] rawVersions = rawInterval.split(",");
         List<FixedVersion> list = new LinkedList<>();
@@ -135,6 +208,14 @@ public class VersionParser {
         return new IntervalVersion(list.getFirst(), list.getLast());
     }
 
+    /**
+     * Calculates the rank of a version based on its components.
+     * The rank is calculated using the major version, minor version, iteration,
+     * last component, and qualifier points.
+     *
+     * @param version An array of strings representing the version components.
+     * @return The calculated rank as an integer.
+     */
     public int rankCalculator(String[] version) {
         if (version[0].isEmpty()) return 0;
         //find qualifier / gather data
@@ -154,6 +235,14 @@ public class VersionParser {
                 + iteration;
     }
 
+    /**
+     * Finds the qualifier from a version array.
+     * It checks each component of the version and returns the last valid qualifier found.
+     * If no valid qualifier is found, it defaults to "final".
+     *
+     * @param version An array of strings representing the version components.
+     * @return The qualifier as a string.
+     */
     public String findQualifier(String[] version) {
         String key = "final";
         for (String sb : version) {
@@ -163,6 +252,14 @@ public class VersionParser {
         return key;
     }
 
+    /**
+     * Finds the iteration number from a version array.
+     * It extracts the numeric part from components that match the pattern "digit-word(-digit)".
+     * If no valid iteration is found, it defaults to 0.
+     *
+     * @param version An array of strings representing the version components.
+     * @return The iteration number as an Integer, or 0 if not found.
+     */
     public Integer findQualifierIteration(String[] version) {
 
         StringBuilder rawIteration = new StringBuilder();
@@ -178,11 +275,26 @@ public class VersionParser {
         return rawIteration.isEmpty() ? 0 : this.parseInt(rawIteration.reverse().toString());
     }
 
+    /**
+     * Finds the major version from a version array.
+     * It extracts the numeric part from the first component of the version.
+     *
+     * @param version An array of strings representing the version components.
+     * @return The major version as an integer.
+     */
     public int findMajorVersion(String[] version) {
 //        System.out.println(version[0]);
         return this.parseInt(version[0].replaceAll("\\D", ""));
     }
 
+    /**
+     * Finds the minor version from a version array.
+     * It extracts the numeric part from the second component of the version.
+     * If the second component is not present, it defaults to 0.
+     *
+     * @param version An array of strings representing the version components.
+     * @return The minor version as an integer, or 0 if not found.
+     */
     public int findMinorVersion(String[] version) {
         StringBuilder sb = new StringBuilder();
         if (version.length <= 1) return 0;
@@ -195,6 +307,14 @@ public class VersionParser {
         return this.parseInt(sb.toString());
     }
 
+    /**
+     * Finds the last component of a version array.
+     * It extracts the numeric part from the third component of the version.
+     * If the third component is not present, it defaults to 0.
+     *
+     * @param version An array of strings representing the version components.
+     * @return The last component as an integer, or 0 if not found.
+     */
     public int findLast(String[] version) {
         if (version.length <= 2) return 0;
         String rawVersion = version[2].replaceAll("\\D+", "");
@@ -202,6 +322,14 @@ public class VersionParser {
         return this.parseInt(rawVersion);
     }
 
+    /**
+     * Extracts the interval direction from a raw version string.
+     * It checks the first and last characters of the string to determine the direction.
+     * If neither character indicates a direction, it defaults to EQUAL.
+     *
+     * @param rawVersion The raw version string to extract the direction from.
+     * @return The VersionIntervalDirection representing the direction of the interval.
+     */
     public VersionIntervalDirection extractIntervalDirection(String rawVersion) {
         String start = rawVersion.substring(0, 1);
         String end = rawVersion.substring(rawVersion.length() - 1);

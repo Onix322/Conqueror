@@ -5,6 +5,11 @@ import loader.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
 
 import java.util.Objects;
 
+/**
+ * Represents the metadata of an artifact in a Maven POM file.
+ * This class encapsulates the group ID, artifact ID, and versioning information.
+ * It implements the XMLParsed interface to indicate that it can be parsed from XML.
+ */
 public class Metadata extends Artifact implements XMLParsed {
     private Versioning versioning;
     public Metadata(Builder builder) {

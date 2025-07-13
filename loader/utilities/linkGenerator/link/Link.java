@@ -6,6 +6,10 @@ import loader.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
 import java.net.URI;
 import java.util.Objects;
 
+/**
+ * Represents a link associated with an artifact, a URI, and an optional link extension.
+ * Provides methods for accessing and modifying these properties.
+ */
 public class Link  {
     private Artifact artifact;
     private URI uri;

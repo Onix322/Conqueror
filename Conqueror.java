@@ -18,7 +18,7 @@ public class Conqueror {
         ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
         //* Start App
-        Loader.load(configuration, executorService, args);
+        Loader.load(configuration, executorService);
 
     }
 

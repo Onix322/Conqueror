@@ -1,5 +1,10 @@
 package loader.utilities.pomReader.supportedTagsClasses;
 
+/*
+ * This enum represents the various XML tags that can be found in a Maven POM file.
+ * Each tag corresponds to a specific element in the POM structure, such as project,
+ * dependencies, dependency, etc. The enum provides a method to find a tag by its name.
+ */
 public enum TagElement {
     NONE(""),
     PROJECT("project"),
@@ -43,6 +48,12 @@ public enum TagElement {
         return tagName;
     }
 
+    /**
+     * Finds a TagElement by its tag name.
+     *
+     * @param tagName the name of the tag to find
+     * @return the TagElement corresponding to the tag name, or NONE if not found
+     */
     public static TagElement find(String tagName){
         for (TagElement te : TagElement.values()){
             if(te.getTagName().equals(tagName)){

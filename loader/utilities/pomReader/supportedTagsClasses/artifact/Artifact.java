@@ -2,6 +2,12 @@ package loader.utilities.pomReader.supportedTagsClasses.artifact;
 
 import java.util.Objects;
 
+/**
+ * Represents a generic artifact with a group ID and an artifact ID.
+ * This class serves as a base class for more specific artifact types.
+ * It provides methods to access and modify the group ID and artifact ID,
+ * as well as methods for equality checks, hash code generation, and string representation.
+ */
 public abstract class Artifact {
     private String groupId;
     private String artifactId;

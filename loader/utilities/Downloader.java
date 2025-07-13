@@ -11,6 +11,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Set;
 
+/**
+ * Downloader is a utility class responsible for downloading files from specified URLs.
+ * It uses a Configuration object to determine the location where files should be saved
+ * and a UrlAccessor to manage the connections to the URLs.
+ * This class follows the Singleton design pattern to ensure that only one instance
+ * exists throughout the application lifecycle.
+ */
+
 public class Downloader {
 
     private final String dependenciesLocation;
@@ -38,6 +46,13 @@ public class Downloader {
         return Downloader.Holder.INSTANCE;
     }
 
+    /**
+     * Downloads a set of versioned links to the specified location.
+     * If the set is empty, it logs a message indicating that there are no jars to download.
+     * For each versioned link, it opens a connection, reads the content, and writes it to a file.
+     *
+     * @param versionedLinks a set of VersionedLink objects representing the files to be downloaded
+     */
     public void download(Set<VersionedLink> versionedLinks) {
         if(versionedLinks.isEmpty()){
             System.out.println("[" + this.getClass().getSimpleName() + "] -> No jars for downloading...");

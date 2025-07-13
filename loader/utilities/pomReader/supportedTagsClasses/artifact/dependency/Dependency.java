@@ -9,6 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Represents a Maven dependency with its associated metadata.
+ * This class extends VersionedArtifact to include additional fields
+ * such as type, classifier, scope, optional flag, and exclusions.
+ * It provides a builder pattern for easy instantiation and modification.
+ */
 public class Dependency extends VersionedArtifact {
 
     private Version version;

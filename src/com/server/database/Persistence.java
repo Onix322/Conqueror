@@ -12,6 +12,7 @@ import java.util.Optional;
  * 1. Create a folder where the implementation of the interface will be
  * 2. Create the implementation inside the folder.
  * 3. Use the implementation in repositories.
+ * </p>
  */
 public interface Persistence<T, ID extends Number> {
 
@@ -24,6 +25,4 @@ public interface Persistence<T, ID extends Number> {
     T save(T entity);
 
     T update(Class<T> entityClass, T entity, ID id);
-
-    T modify(Class<T> entityClass, T modifier, ID id);
 }

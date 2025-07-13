@@ -2,6 +2,11 @@ package loader.utilities.version;
 
 import java.util.Objects;
 
+/**
+ * Represents a version that is defined by an interval between two fixed versions.
+ * This class implements the Version interface and provides methods to handle
+ * the interval version logic.
+ */
 public class IntervalVersion implements Version {
 
     private FixedVersion first;

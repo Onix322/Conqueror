@@ -80,11 +80,22 @@ public class RepositoryHibernate<T, ID extends Number> implements Persistence<T,
 
     @Override
     public T update(Class<T> entityClass, T entity, ID id) {
-        return null;
-    }
+        Session session = this.emf.openSession();
+        Transaction transaction = null;
+        T result;
+        try {
+            transaction = session.beginTransaction();
+            result = session.merge(entity);
+            transaction.commit();
+            session.flush();
+            session.refresh(entity);
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            throw e;
+        } finally {
+            session.close();
+        }
 
-    @Override
-    public T modify(Class<T> entityClass, T modifier, ID id) {
-        return null;
+        return result;
     }
 }

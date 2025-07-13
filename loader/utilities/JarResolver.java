@@ -14,6 +14,10 @@ import configuration.Configuration;
 
 import java.util.*;
 
+/**
+ * JarResolver is responsible for resolving JAR dependencies from a Maven POM file.
+ * It reads the POM file, resolves dependencies recursively, and generates links for JAR files.
+ */
 public class JarResolver {
 
     private final LinkGenerator linkGenerator;
@@ -46,7 +50,12 @@ public class JarResolver {
         return JarResolver.Holder.INSTANCE;
     }
 
-    //resolve root
+    /**
+     * Resolves the JAR dependencies from the POM file located at pomFileLocation.
+     * It reads the POM file, extracts dependencies, and recursively resolves them.
+     *
+     * @return a set of VersionedLink objects representing the resolved JAR dependencies.
+     */
     public Set<VersionedLink> resolve() {
         System.out.println("[" + this.getClass().getSimpleName() + "] -> Resolving pom.xml...");
         XMLParsed xmlParsed = this.pomReader.readString(pomFileLocation);
@@ -58,7 +67,15 @@ public class JarResolver {
         return this.generateJarLinks(new LinkedHashSet<>(allDps));
     }
 
-    //resolve recursive
+    /**
+     * Recursively resolves dependencies from the given set of loaded dependencies.
+     * It checks each dependency's POM file, extracts its dependencies, and continues resolving them recursively.
+     *
+     * @param loadedDps the set of currently loaded dependencies
+     * @param visited a set of visited VersionedLinks to avoid cycles
+     * @param exclusions a list of exclusions to filter out certain dependencies
+     * @return a set of all resolved dependencies
+     */
     private Set<Dependency> recursiveResolve(Set<Dependency> loadedDps, Set<VersionedLink> visited, List<Exclusion> exclusions) {
         Set<Dependency> allDps = new LinkedHashSet<>(loadedDps);
         for (Dependency dp : loadedDps) {
@@ -75,6 +92,13 @@ public class JarResolver {
         return allDps;
     }
 
+    /**
+     * Generates a set of VersionedLink objects for JAR files based on the provided dependencies.
+     * Each dependency is converted into a VersionedLink with the JAR file extension.
+     *
+     * @param dependencies the set of dependencies to generate links for
+     * @return a set of VersionedLink objects representing the JAR files
+     */
     private Set<VersionedLink> generateJarLinks(Set<Dependency> dependencies) {
 
         Set<VersionedLink> versionedLinks = new HashSet<>();
@@ -87,6 +111,17 @@ public class JarResolver {
         return versionedLinks;
     }
 
+    /**
+     * Checks if a dependency must be processed further based on various conditions.
+     * It checks for exclusions, existence in the repository, scope, type, and whether it has been visited.
+     *
+     * @param pomVersionedLink the VersionedLink of the POM file for the dependency
+     * @param visited a set of visited VersionedLinks
+     * @param allDps a set of all dependencies to be processed
+     * @param dp the current dependency being checked
+     * @param exclusions a list of exclusions to filter out certain dependencies
+     * @return true if the dependency must be checked further, false otherwise
+     */
     private boolean mustCheck(VersionedLink pomVersionedLink, Set<VersionedLink> visited, Set<Dependency> allDps, Dependency dp, List<Exclusion> exclusions) {
         boolean removedExclusion = exclusions.removeIf(e -> e.getArtifactId().equals(dp.getArtifactId()) && e.getGroupId().equals(dp.getGroupId()));
         if(removedExclusion){

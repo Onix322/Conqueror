@@ -5,6 +5,11 @@ import loader.utilities.version.versionHandler.VersionIntervalDirection;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Represents a fixed version of a software component.
+ * This class implements the Version interface and provides methods
+ * to manage version information, including ranking points and direction.
+ */
 public class FixedVersion implements Version {
 
     private String[] version;
