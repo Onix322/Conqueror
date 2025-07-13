@@ -1,5 +1,11 @@
 package src.com.server.parsers.json.utils.coordinate;
 
+/**
+ * Represents a coordinate with a start and end index.
+ * Used to define a range within a sequence, such as a substring in a string or a segment in an array.
+ * In JSON parsing, it can be used to indicate the position of a value within the JSON structure.
+ * for example, an object or array in a JSON document.
+ */
 public class Coordinate {
 
     private int startIndex;

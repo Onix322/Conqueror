@@ -4,6 +4,11 @@ import src.com.server.httpServer.utils.route.ControllerRoute;
 
 import java.util.Map;
 
+/**
+ * ControllerMetaData is a class that holds metadata for a controller in a web application.
+ * It includes the route of the controller, the class representing the controller,
+ * and a mapping of method names to their corresponding MethodMetaData.
+ */
 public class ControllerMetaData implements MetaData<ControllerMetaData> {
     private ControllerRoute path;
     private Class<?> clazz;

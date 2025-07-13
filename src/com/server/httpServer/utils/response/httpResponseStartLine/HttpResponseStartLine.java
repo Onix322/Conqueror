@@ -2,6 +2,11 @@ package src.com.server.httpServer.utils.response.httpResponseStartLine;
 
 import src.com.server.httpServer.utils.response.HttpStatus;
 
+/**
+ * Represents the start line of an HTTP response, which includes the HTTP version,
+ * status code, and reason phrase.
+ * This class is used to construct the status line for HTTP responses.
+ */
 public class HttpResponseStartLine {
     private String version;
     private Integer statusCode;

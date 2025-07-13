@@ -5,6 +5,10 @@ import src.com.server.httpServer.utils.response.httpResponseHeaders.HttpResponse
 import src.com.server.httpServer.utils.response.httpResponseStartLine.HttpResponseStartLine;
 import src.com.server.httpServer.utils.response.httpResponseBody.HttpResponseBody;
 
+/**
+ * Represents an HTTP response, encapsulating the start line, headers, connection type, and body.
+ * This class provides methods to construct the full response string and access its components.
+ */
 public class HttpResponse {
 
     private HttpResponseStartLine startLine;

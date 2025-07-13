@@ -13,6 +13,11 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * JsonMapper is a utility class that provides methods to convert Java objects
+ * into JSON representations. It uses reflection to access the fields of the object
+ * and constructs JSON objects and arrays accordingly.
+ */
 @Component
 public final class JsonMapper {
 
@@ -26,6 +31,13 @@ public final class JsonMapper {
         return this.PRIMITIVE_PARSER;
     }
 
+    /**
+     * Converts a Java object into a JSON object.
+     *
+     * @param o the object to convert
+     * @return a JsonObject representing the object
+     * @throws Exception if an error occurs during conversion
+     */
     public JsonObject toJsonObject(Object o) throws Exception {
         List<JsonProperty> properties = new LinkedList<>();
         Field[] fields = o.getClass().getDeclaredFields();
@@ -42,6 +54,13 @@ public final class JsonMapper {
         return new JsonObject(properties.toArray(new JsonProperty[0]));
     }
 
+    /**
+     * Converts a collection of objects into a JSON array.
+     *
+     * @param o the collection to convert
+     * @return a JsonArray representing the collection
+     * @throws Exception if an error occurs during conversion
+     */
     public JsonArray toJsonArray(Collection<?> o) throws Exception {
 
         List<JsonValue> values = new LinkedList<>();
@@ -55,6 +74,13 @@ public final class JsonMapper {
         return new JsonArray(values.toArray(new JsonValue[0]));
     }
 
+    /**
+     * Converts an object into a JsonValue based on its type.
+     *
+     * @param o the object to convert
+     * @return a JsonValue representing the object
+     * @throws Exception if an error occurs during conversion
+     */
     private JsonValue getJsonValue(Object o) throws Exception {
         JsonValue jsonValue;
         if(o == null){

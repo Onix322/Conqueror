@@ -2,6 +2,12 @@ package src.com.server.httpServer.utils;
 
 import src.com.server.exceptions.NoCompatibleHttpVersionFound;
 
+/**
+ * Enum representing the HTTP versions supported by the server.
+ * Currently, only HTTP/1.1 is supported.
+ * This enum provides a method to convert a string representation of an HTTP version
+ * to its corresponding enum value.
+ */
 public enum HttpVersion {
     HTTP_1_1("HTTP/1.1");
 

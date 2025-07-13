@@ -28,6 +28,12 @@ public final class RouteProcessor {
         this.PRIMITIVE_PARSER = primitiveParser;
     }
 
+    /**
+     * Processes the given HttpRequest to extract route metadata.
+     *
+     * @param request the HttpRequest to process
+     * @return RouteMetaData containing controller and method metadata, along with path variables if any
+     */
     public RouteMetaData process(HttpRequest request) {
         try{
             ControllerMetaData controllerMetaData = this.processControllerMetaData(request.getStartLine());
@@ -49,6 +55,16 @@ public final class RouteProcessor {
         }
     }
 
+    /**
+     * Processes the controller metadata based on the HTTP request start line.
+     *
+     * @param startLine the start line of the HTTP request
+     * @return ControllerMetaData containing the controller's route and class information
+     * @throws InvocationTargetException if an error occurs during method invocation
+     * @throws IllegalAccessException if access to the method is denied
+     * @throws NoSuchMethodException if the method does not exist
+     * @throws NoSuchObjectException if no controller is found for the given path
+     */
     private ControllerMetaData processControllerMetaData(HttpRequestStartLine startLine) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, NoSuchObjectException {
         String path = startLine.getPath().getRawPath();
         String[] fragments = this.pathFragments(path);
@@ -72,6 +88,14 @@ public final class RouteProcessor {
         return controllerMetaData;
     }
 
+    /**
+     * Processes the method metadata based on the controller metadata and HTTP request start line.
+     *
+     * @param controllerMetaData the metadata of the controller
+     * @param startLine          the start line of the HTTP request
+     * @return MethodMetaData containing the method's route and HTTP method information
+     * @throws NoSuchMethodException if no method is found for the given path
+     */
     private MethodMetaData processMethodMetaData(ControllerMetaData controllerMetaData, HttpRequestStartLine startLine) throws NoSuchMethodException {
 
         String path = startLine.getPath().getRawPath().replaceAll(controllerMetaData.getPath().getRoute(), "");
@@ -119,6 +143,13 @@ public final class RouteProcessor {
         return methodMetaData;
     }
 
+    /**
+     * Processes path variables from the HTTP request start line and the route.
+     *
+     * @param startLine the start line of the HTTP request
+     * @param route     the route to match against
+     * @return an array of PathVariable objects representing the path variables found
+     */
     private PathVariable[] processPathVariables(HttpRequestStartLine startLine, String route) {
 
         List<String> stFragments = Arrays.stream(this.pathFragments(startLine.getPath().getRawPath())).toList();
@@ -141,6 +172,12 @@ public final class RouteProcessor {
         return variables.toArray(PathVariable[]::new);
     }
 
+    /**
+     * Splits the given path into fragments, filtering out empty fragments.
+     *
+     * @param path the path to split
+     * @return an array of non-empty path fragments
+     */
     private String[] pathFragments(String path) {
         return Stream.of(path.split("/"))
                 .filter(f -> !f.isEmpty())
@@ -148,6 +185,13 @@ public final class RouteProcessor {
                 .toArray(String[]::new);
     }
 
+    /**
+     * Joins the given path fragments into a single string, excluding specified indices.
+     *
+     * @param fragments   the array of path fragments to join
+     * @param exceptIndex indices of fragments to exclude from the join
+     * @return a string representing the joined path fragments
+     */
     private String joinFragments(String[] fragments, int... exceptIndex) {
         StringBuilder stringBuilder = new StringBuilder();
         List<Integer> integers = Arrays.stream(exceptIndex).boxed().toList();
@@ -161,6 +205,12 @@ public final class RouteProcessor {
         return stringBuilder.toString();
     }
 
+    /**
+     * Handles a path variable by parsing it and returning a standardized format.
+     *
+     * @param fragment the path variable fragment to handle
+     * @return a standardized string representation of the path variable, or null if parsing fails
+     */
     private String handleVariable(String fragment) {
         String var = fragment.replaceAll("/", "");
         Object stringParsed = this.PRIMITIVE_PARSER.parse(var);
@@ -168,6 +218,12 @@ public final class RouteProcessor {
         return "/{" + stringParsed.getClass().getSimpleName().toLowerCase(Locale.ROOT) + "}";
     }
 
+    /**
+     * Counts the number of path variables in the given method metadata.
+     *
+     * @param methodMetaData the MethodMetaData to analyze
+     * @return the count of path variables in the method's route
+     */
     private int countPathVariables(MethodMetaData methodMetaData){
         int count = 0;
         String route = methodMetaData.getPath().getRoute();

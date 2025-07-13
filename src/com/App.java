@@ -12,6 +12,13 @@ import java.util.concurrent.ExecutorService;
 
 public class App {
 
+    /**
+     * The main method to start the application.
+     *
+     * @param configuration the configuration for the application
+     * @param executorService the executor service for handling asynchronous tasks
+     * @throws Exception if an error occurs during application startup
+     */
     public static void start(Configuration configuration, ExecutorService executorService) throws Exception {
         System.out.println("Starting app...");
 

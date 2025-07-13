@@ -4,6 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * Factory class for creating HttpRequestHeader instances from a header string.
+ * This class provides a method to parse the header string and create an appropriate HttpRequestHeader object.
+ */
 public class HttpRequestHeaderFactory {
     public static HttpRequestHeader create(String header) {
 

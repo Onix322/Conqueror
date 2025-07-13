@@ -6,6 +6,12 @@ import src.com.server.httpServer.utils.route.MethodRoute;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
+/**
+ * MethodMetaData is a class that encapsulates metadata about an HTTP method.
+ * It includes the method's route, name, parameters, return type, and HTTP method type.
+ * This class implements the MetaData interface to provide a structured way to access
+ * and manipulate method metadata.
+ */
 public class MethodMetaData implements MetaData<MethodMetaData> {
     private MethodRoute path;
     private String name;

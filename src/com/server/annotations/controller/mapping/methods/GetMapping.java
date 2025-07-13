@@ -8,6 +8,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotation to map HTTP GET requests onto specific handler methods.
+ * This annotation can be used to specify the HTTP method and the path for the mapping.
+ * By default, it maps to the GET method and the path "/get".
+ */
 @Mapping
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

@@ -5,6 +5,11 @@ import src.com.server.parsers.json.utils.properties.JsonValue;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * JsonArray represents a JSON array structure.
+ * It implements JsonType and JsonIterator to provide access to its elements.
+ * This class encapsulates an array of JsonValue objects.
+ */
 public class JsonArray implements JsonType, JsonIterator<JsonValue> {
 
     private JsonValue[] array;

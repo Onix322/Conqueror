@@ -22,6 +22,11 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * TransformationHandler is responsible for handling the transformation of HTTP requests.
+ * It reads the request from a BufferedReader, parses the headers, and processes the body
+ * according to the requirements specified in the RouteMetaData.
+ */
 @Component
 public final class TransformationHandler {
 
@@ -31,6 +36,14 @@ public final class TransformationHandler {
         this.JSON_SERVICE = jsonService;
     }
 
+    /**
+     * Handles the transformation of an HTTP request from a BufferedReader.
+     * It reads the start line, headers, and body of the request, and returns an HttpRequest object.
+     *
+     * @param in BufferedReader to read the HTTP request from
+     * @return HttpRequest object containing the parsed request data
+     * @throws Exception if there is an error during parsing
+     */
     public HttpRequest handleTransformation(BufferedReader in) throws Exception {
 
         HttpRequestStartLine startLine = null;
@@ -77,6 +90,15 @@ public final class TransformationHandler {
                 .build();
     }
 
+    /**
+     * Handles the casting of the HTTP request body based on the requirements specified in the RouteMetaData.
+     * It checks if the body is required or optional and processes it accordingly.
+     *
+     * @param routeMetaData RouteMetaData containing method metadata for casting
+     * @param request HttpRequest to be processed
+     * @return HttpRequest with the body cast to the appropriate type
+     * @throws Exception if there is an error during casting
+     */
     public HttpRequest handleCasting(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
         System.out.println(request.getStartLine().getMethod().hasBody());
         return switch (request.getStartLine().getMethod().hasBody()){
@@ -85,6 +107,16 @@ public final class TransformationHandler {
             default -> request;
         };
     }
+
+    /**
+     * Casts the HTTP request body to the required type specified in the RouteMetaData.
+     * It parses the raw body and maps it to the appropriate class type.
+     *
+     * @param routeMetaData RouteMetaData containing method metadata for casting
+     * @param request HttpRequest to be processed
+     * @return HttpRequest with the body cast to the required type
+     * @throws Exception if there is an error during casting
+     */
     public HttpRequest castRequiredBody(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
         HttpRequestBody body = new HttpRequestBody(null);
         String rawBody = request.getHttpRequestBody().getBody(String.class);
@@ -111,6 +143,15 @@ public final class TransformationHandler {
                 .build();
     }
 
+    /**
+     * Casts the HTTP request body to an optional type specified in the RouteMetaData.
+     * It checks if the body is eligible for casting and processes it accordingly.
+     *
+     * @param routeMetaData RouteMetaData containing method metadata for casting
+     * @param request HttpRequest to be processed
+     * @return HttpRequest with the body cast to the optional type if applicable
+     * @throws Exception if there is an error during casting
+     */
     public HttpRequest castOptionalBody(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
         boolean isEligibleForBody = Arrays.stream(routeMetaData.getMethodMetaData().getParameters())
                 .anyMatch(p -> p.isAnnotationPresent(RequestBody.class));
@@ -121,6 +162,14 @@ public final class TransformationHandler {
         return request;
     }
 
+    /**
+     * Retrieves the class type of the request body parameter from the method metadata.
+     * It checks for the presence of the @RequestBody annotation and ensures that there is exactly one such parameter.
+     *
+     * @param method MethodMetaData containing method parameters
+     * @return Class type of the request body parameter
+     * @throws NoSuchElementException if no @RequestBody is present or if multiple are found
+     */
     private Class<?> getRequestBodyParam(MethodMetaData method) throws NoSuchElementException {
         List<Parameter> parameters = Arrays.stream(method.getParameters())
                 .filter(p -> p.isAnnotationPresent(RequestBody.class))

@@ -2,6 +2,11 @@ package src.com.server.parsers.json.utils.properties;
 
 import java.util.Objects;
 
+/**
+ * JsonKey is a utility class that represents a key in a JSON object.
+ * It implements the JsonKeyValue interface, providing methods to get the key,
+ * set a new key, and override equals, hashCode, and toString methods.
+ */
 public class JsonKey implements JsonKeyValue<String>{
     private String key;
 

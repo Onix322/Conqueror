@@ -1,5 +1,9 @@
 package src.com.server.httpServer.utils.request.httpRequestBody;
 
+/**
+ * HttpRequestBody is a utility class that encapsulates the body of an HTTP request.
+ * It allows for easy access and manipulation of the request body, which can be of any type.
+ */
 public class HttpRequestBody{
 
     private Object body;

@@ -1,5 +1,10 @@
 package src.com.server.httpServer.utils.request.httpRequestHeader;
 
+/**
+ * Represents an HTTP request header with a key and a value.
+ * This class is used to encapsulate the key-value pairs of HTTP headers
+ * that are sent in an HTTP request.
+ */
 public class HttpRequestHeader {
     private String key;
     private Object value;

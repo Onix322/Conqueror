@@ -1,5 +1,12 @@
 package src.com.server.httpServer.utils.responseEntity;
 
+/**
+ * ResponseSuccessful is a utility class that encapsulates the successful response of an HTTP request.
+ * It allows for easy construction and retrieval of HTTP status, message, and data.
+ * This class is used to build a response entity that can be returned to the client.
+ *
+ * @param <T> the type of data contained in the response
+ */
 public class ResponseSuccessful<T> {
     private int httpStatus;
     private String message;

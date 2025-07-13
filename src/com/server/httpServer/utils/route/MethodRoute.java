@@ -1,5 +1,10 @@
 package src.com.server.httpServer.utils.route;
 
+/**
+ * MethodRoute is a utility class that encapsulates the route of an HTTP method.
+ * It allows for easy access and manipulation of the route, which is a string representing
+ * the path of the HTTP method.
+ */
 public class MethodRoute {
     private String route;
 

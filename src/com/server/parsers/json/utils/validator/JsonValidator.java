@@ -4,6 +4,11 @@ import src.com.server.exceptions.JsonNotValid;
 import src.com.server.parsers.json.utils.formatter.JsonFormatedString;
 import src.com.server.annotations.component.Component;
 
+/*
+ * JsonValidator is a utility class that provides methods to validate JSON strings.
+ * It checks if the JSON string has balanced brackets and if it contains valid word characters.
+ * If the JSON string is not valid, it throws a JsonNotValid exception.
+ */
 @Component
 public final class JsonValidator {
 

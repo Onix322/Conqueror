@@ -2,6 +2,11 @@ package src.com.server.parsers.json.utils.properties;
 
 import java.util.Objects;
 
+/**
+ * JsonProperty is a utility class that encapsulates a key-value pair in a JSON object.
+ * It implements the JsonKeyValue interface, providing methods to access and manipulate
+ * the key and value of the property.
+ */
 public class JsonProperty implements JsonKeyValue<JsonProperty> {
     private JsonKey key;
     private JsonValue value;

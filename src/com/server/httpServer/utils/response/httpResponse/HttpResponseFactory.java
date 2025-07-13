@@ -6,6 +6,12 @@ import src.com.server.httpServer.utils.response.httpResponseStartLine.HttpRespon
 import src.com.server.httpServer.utils.response.HttpStatus;
 import src.com.server.httpServer.utils.response.httpResponseBody.HttpResponseBody;
 
+/**
+ * Factory class to create instances of HttpResponse.
+ * This class provides a static method to create an HttpResponse
+ * with the specified parameters such as HTTP version, status, content type,
+ * connection type, and body.
+ */
 public class HttpResponseFactory {
     public static HttpResponse create(String version, HttpStatus status, String contentType, HttpConnectionType connectionType, Object body){
 

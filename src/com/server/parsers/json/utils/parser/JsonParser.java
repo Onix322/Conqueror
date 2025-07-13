@@ -1,13 +1,12 @@
 package src.com.server.parsers.json.utils.parser;
 
+import src.com.server.annotations.component.Component;
 import src.com.server.exceptions.JsonNotValid;
 import src.com.server.exceptions.JsonPropertyFormatError;
 import src.com.server.parsers.json.utils.coordinate.Coordinate;
-import src.com.server.parsers.json.utils.mapper.JsonMapper;
-import src.com.server.parsers.primitiveParser.PrimitiveParser;
-import src.com.server.parsers.json.utils.validator.JsonValidator;
 import src.com.server.parsers.json.utils.formatter.JsonFormat;
 import src.com.server.parsers.json.utils.formatter.JsonFormatedString;
+import src.com.server.parsers.json.utils.mapper.JsonMapper;
 import src.com.server.parsers.json.utils.mapper.ObjectMapper;
 import src.com.server.parsers.json.utils.properties.JsonKey;
 import src.com.server.parsers.json.utils.properties.JsonProperty;
@@ -15,12 +14,18 @@ import src.com.server.parsers.json.utils.properties.JsonValue;
 import src.com.server.parsers.json.utils.types.JsonArray;
 import src.com.server.parsers.json.utils.types.JsonObject;
 import src.com.server.parsers.json.utils.types.JsonType;
-import src.com.server.annotations.component.Component;
+import src.com.server.parsers.json.utils.validator.JsonValidator;
+import src.com.server.parsers.primitiveParser.PrimitiveParser;
 
 import java.util.*;
 
+/**
+ * JsonParser is responsible for parsing JSON strings into structured objects
+ * and vice versa. It validates, formats, and maps JSON data to Java objects
+ * and collections.
+ */
 @Component
-public final class JsonParser implements Parser{
+public final class JsonParser implements Parser {
 
     private final JsonValidator JSON_VALIDATOR;
     private final JsonFormat JSON_FORMAT;
@@ -36,13 +41,39 @@ public final class JsonParser implements Parser{
         this.PRIMITIVE_PARSER = primitiveParser;
     }
 
+    /**
+     * Maps a JsonObject to a Java object of the specified type.
+     *
+     * @param jsonType The JsonObject to map.
+     * @param type     The class type to map to.
+     * @param <T>      The type parameter for the mapped object.
+     * @return An instance of the specified type mapped from the JsonObject.
+     * @throws Exception If mapping fails.
+     */
     public <T> T mapObject(JsonObject jsonType, Class<T> type) throws Exception {
         return this.OBJECT_MAPPER.mapObject(jsonType, type);
     }
+
+    /**
+     * Maps a JsonArray to a Collection of the specified type.
+     *
+     * @param jsonArray       The JsonArray to map.
+     * @param collectionClass The class type of the collection to map to.
+     * @param <E>             The type parameter for the elements in the collection.
+     * @return A Collection of elements mapped from the JsonArray.
+     * @throws Exception If mapping fails.
+     */
     public <E> Collection<E> mapArray(JsonArray jsonArray, Class<? extends Collection> collectionClass) throws Exception {
         return this.OBJECT_MAPPER.mapArray(jsonArray, collectionClass);
     }
 
+    /**
+     * Maps a Java object or collection to a JsonType (JsonObject or JsonArray).
+     *
+     * @param o The object or collection to map.
+     * @return A JsonType representation of the input object.
+     * @throws Exception If mapping fails.
+     */
     public JsonType mapJson(Object o) throws Exception {
         if (o instanceof Collection<?>) {
             return this.JSON_MAPPER.toJsonArray((Collection<?>) o);
@@ -51,6 +82,13 @@ public final class JsonParser implements Parser{
         }
     }
 
+    /**
+     * Parses a JSON string into a structured JsonType object (JsonObject or JsonArray).
+     *
+     * @param string The JSON string to parse.
+     * @return A JsonType representation of the parsed JSON.
+     * @throws JsonNotValid If the JSON string is not valid.
+     */
     public JsonType parse(String string) {
         //format
         JsonFormatedString jsonFormatedString = JSON_FORMAT.format(string);
@@ -67,8 +105,18 @@ public final class JsonParser implements Parser{
         return this.assembler(parsedObjects);
     }
 
-    /*
-     * With the help of coordinates will cut the objects and save them in a map (k= object id , v = object) witch will be the result
+
+    /**
+     * Extracts and replaces nested JSON objects from a formatted JSON string.
+     *
+     * <p>This method identifies the deepest nested JSON objects within the input string,
+     * assigns them unique placeholder IDs (e.g., "o-0", "o-1"), and replaces the original
+     * objects in the string with these placeholders. The extracted objects are stored
+     * in a map where the keys are the placeholder IDs and the values are the corresponding
+     * JSON object strings.</p>
+     *
+     * @param json The formatted JSON string to process.
+     * @return A map containing placeholder IDs as keys and the corresponding JSON object strings as values.
      */
     private Map<String, String> gatherRawObjects(JsonFormatedString json) {
 
@@ -90,11 +138,21 @@ public final class JsonParser implements Parser{
         return rawObjects;
     }
 
+    /**
+     * Parses a map of JSON object strings into a map of JsonType objects.
+     *
+     * <p>This method iterates over the provided map of JSON object strings, determines
+     * whether each string represents a JSON object or array, and parses it into the
+     * corresponding JsonType (JsonObject or JsonArray). The parsed objects are stored
+     * in a new map with the same keys as the input map.</p>
+     *
+     * @param objects A map containing JSON object strings as values.
+     * @return A map containing the parsed JsonType objects.
+     */
     private Map<String, JsonType> parseTypes(Map<String, String> objects) {
 
         Set<String> keys = objects.keySet();
         Map<String, JsonType> parsedTypes = new LinkedHashMap<>();
-
         for (String k : keys) {
             String v = objects.get(k);
             switch (v.charAt(0)) {
@@ -111,6 +169,16 @@ public final class JsonParser implements Parser{
         return parsedTypes;
     }
 
+    /**
+     * Parses a JSON string representing an object into a JsonObject.
+     *
+     * <p>This method validates the JSON string format, extracts properties,
+     * and constructs a JsonObject from the parsed properties.</p>
+     *
+     * @param stringObject The JSON string to parse.
+     * @return A JsonObject representation of the parsed JSON string.
+     * @throws JsonNotValid If the JSON string is not valid.
+     */
     private JsonObject parseObject(String stringObject) {
         String regexObjects = "^\\{\\s*(?:\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)\\s*(?:,\\s*\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)\\s*)*)?\\s*}$";
 
@@ -129,6 +197,16 @@ public final class JsonParser implements Parser{
         return new JsonObject(properties.toArray(new JsonProperty[0]));
     }
 
+    /**
+     * Parses a JSON string representing an array into a JsonArray.
+     *
+     * <p>This method validates the JSON string format, extracts values,
+     * and constructs a JsonArray from the parsed values.</p>
+     *
+     * @param stringArray The JSON string to parse.
+     * @return A JsonArray representation of the parsed JSON string.
+     * @throws JsonNotValid If the JSON string is not valid.
+     */
     private JsonArray parseArray(String stringArray) {
         String regexArrays = "^\\[\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null)(?:\\s*,\\s*(?:\"(?:\\\\[\"\\\\/bfnrt]|\\\\u[0-9a-fA-F]{4}|[^\"\\\\])*\"|-?\\d+(?:\\.\\d+)?|true|false|null))*\\s*]$";
 
@@ -142,7 +220,7 @@ public final class JsonParser implements Parser{
         for (Coordinate coordinate : coordinates) {
             String value = stringArray.substring(coordinate.getStartIndex() + 1, coordinate.getEndIndex());
             JsonValue jsonValue;
-            if(this.PRIMITIVE_PARSER.isPrimitive(value)){
+            if (this.PRIMITIVE_PARSER.isPrimitive(value)) {
                 jsonValue = new JsonValue(this.PRIMITIVE_PARSER.parse(value));
             } else {
                 jsonValue = new JsonValue(value);
@@ -152,6 +230,16 @@ public final class JsonParser implements Parser{
         return new JsonArray(values.toArray(new JsonValue[0]));
     }
 
+    /**
+     * Splits a string property into a JsonProperty object.
+     *
+     * <p>This method takes a string formatted as "key: value" and splits it into
+     * a JsonKey and JsonValue. It handles both primitive values and string values.</p>
+     *
+     * @param stringProperty The string property to split.
+     * @return A JsonProperty object containing the key and value.
+     * @throws JsonPropertyFormatError If the property format is invalid.
+     */
     private JsonProperty splitStringProperty(String stringProperty) {
         StringBuilder stringBuilder = new StringBuilder();
         String[] keyValue = new String[2];
@@ -178,7 +266,7 @@ public final class JsonParser implements Parser{
             throw new JsonPropertyFormatError("Property format is invalid: " + stringProperty);
         }
 
-        if(this.PRIMITIVE_PARSER.isPrimitive(keyValue[1])){
+        if (this.PRIMITIVE_PARSER.isPrimitive(keyValue[1])) {
             return new JsonProperty(
                     new JsonKey(keyValue[0]),
                     new JsonValue(this.PRIMITIVE_PARSER.parse(keyValue[1]))
@@ -237,8 +325,14 @@ public final class JsonParser implements Parser{
         return parseObj.get(keys.getLast());
     }
 
-    /*
-     * Locates the properties/values in objects / arrays and returns a List wit all coordinates
+    /**
+     * Extracts the locations of JSON elements (objects and arrays) in a formatted JSON string.
+     *
+     * <p>This method identifies the start and end indices of each JSON element in the input string,
+     * allowing for proper parsing and handling of nested structures.</p>
+     *
+     * @param string The formatted JSON string to analyze.
+     * @return A list of Coordinate objects representing the start and end indices of each JSON element.
      */
     private List<Coordinate> getElementsLocation(String string) {
 
@@ -266,8 +360,14 @@ public final class JsonParser implements Parser{
         return coordinates;
     }
 
-    /*
-     * Counting objects
+    /**
+     * Counts the number of JSON objects and arrays in a formatted JSON string.
+     *
+     * <p>This method iterates through the string, counting occurrences of '{' and '['
+     * while ignoring characters inside string literals.</p>
+     *
+     * @param json The formatted JSON string to analyze.
+     * @return The count of JSON objects and arrays found in the string.
      */
     private Integer countObjects(JsonFormatedString json) {
         int number = 0;
@@ -288,9 +388,14 @@ public final class JsonParser implements Parser{
         return number;
     }
 
-    /*
-     * This method finds the deepest object in the string and returns it's location (as coordinates)
-     * Coordinates will be used to cut the object from string , add it in a map with k= object id , v = object
+    /**
+     * Finds the deepest JSON object or array bounds in a formatted JSON string.
+     *
+     * <p>This method traverses the string to determine the maximum depth of nested
+     * objects or arrays and returns the start and end indices of the deepest one.</p>
+     *
+     * @param json The formatted JSON string to analyze.
+     * @return A Coordinate object containing the start and end indices of the deepest object or array.
      */
     private Coordinate findDeepestObjectBounds(JsonFormatedString json) {
         int maxDepth = 0;

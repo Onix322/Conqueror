@@ -6,6 +6,11 @@ import src.com.server.parsers.json.utils.properties.JsonProperty;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * JsonObject represents a JSON object containing an array of properties.
+ * It implements JsonType and JsonIterator to provide functionality for
+ * accessing and manipulating the properties of the JSON object.
+ */
 public class JsonObject implements JsonType, JsonIterator<JsonProperty> {
 
     private JsonProperty[] properties;

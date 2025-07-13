@@ -2,6 +2,11 @@ package src.com.server.environment;
 
 import configuration.Configuration;
 
+/**
+ * Environment is an enum representing different application environments.
+ * It provides methods to retrieve the environment string and to get the current
+ * environment based on a configuration property.
+ */
 public enum Environment {
     PROD("prod"),
     DEBUG("debug"),

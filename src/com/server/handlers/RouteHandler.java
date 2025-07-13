@@ -12,6 +12,11 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * RouteHandler is responsible for handling HTTP requests and invoking the appropriate controller methods
+ * based on the route metadata. It processes different HTTP methods (GET, POST, DELETE, PUT, PATCH)
+ * and manages path variables and request bodies.
+ */
 @Component
 public final class RouteHandler {
 
@@ -21,6 +26,14 @@ public final class RouteHandler {
         this.CONTEXT_PROCESSOR = applicationContext;
     }
 
+    /**
+     * Handles the routing of HTTP requests to the appropriate controller methods based on the route metadata.
+     * It determines the HTTP method and invokes the corresponding method on the controller instance.
+     *
+     * @param route   The metadata of the route to be handled.
+     * @param request The HTTP request containing information such as path variables and request body.
+     * @return The result of invoking the controller method, which can be a response object or void.
+     */
     public Object handleRoute(RouteMetaData route, HttpRequest request) {
         Object instanceController = this.CONTEXT_PROCESSOR.requestInstance(route.getControllerMetaData().getClassOf());
 
@@ -38,6 +51,17 @@ public final class RouteHandler {
         }
     }
 
+    /**
+     * Handles the GET request mapping by invoking the appropriate method on the controller instance.
+     * It checks for path variables and returns the result of the method invocation.
+     *
+     * @param route             The metadata of the route to be handled.
+     * @param instanceController The controller instance to invoke the method on.
+     * @return The result of the method invocation.
+     * @throws NoSuchMethodException If the method does not exist in the controller.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws IllegalAccessException If access to the method is denied.
+     */
     private Object handleGetMapping(RouteMetaData route, Object instanceController) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if (route.getPathVariables().length > 0) {
             List<Object> vars = this.getPathVars(route);
@@ -47,6 +71,18 @@ public final class RouteHandler {
         }
     }
 
+    /**
+     * Handles the POST request mapping by invoking the appropriate method on the controller instance.
+     * It checks for the request body and returns the result of the method invocation.
+     *
+     * @param route             The metadata of the route to be handled.
+     * @param request           The HTTP request containing the body.
+     * @param instanceController The controller instance to invoke the method on.
+     * @return The result of the method invocation.
+     * @throws NoSuchMethodException If the method does not exist in the controller.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws IllegalAccessException If access to the method is denied.
+     */
     private Object handlePostMapping(RouteMetaData route, HttpRequest request, Object instanceController) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if (request.getHttpRequestBody().getBody() == null) {
             throw new IllegalArgumentException("HTTP " + request.getStartLine().getMethod() + " body is empty or null: " + request.getHttpRequestBody().getBody());
@@ -55,6 +91,17 @@ public final class RouteHandler {
         return this.returnTypeInstance(instanceController, route, vars);
     }
 
+    /**
+     * Handles the DELETE request mapping by invoking the appropriate method on the controller instance.
+     * It checks for path variables and returns the result of the method invocation.
+     *
+     * @param route             The metadata of the route to be handled.
+     * @param instanceController The controller instance to invoke the method on.
+     * @return The result of the method invocation.
+     * @throws NoSuchMethodException If the method does not exist in the controller.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws IllegalAccessException If access to the method is denied.
+     */
     private Object handleDeleteMapping(RouteMetaData route, Object instanceController) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         if (route.getPathVariables().length == 0) {
             throw new NoSuchElementException("Delete mapping must have at least 1 path variable!");
@@ -63,6 +110,18 @@ public final class RouteHandler {
         return this.returnTypeInstance(instanceController, route, vars);
     }
 
+    /**
+     * Handles the PUT request mapping by invoking the appropriate method on the controller instance.
+     * It checks for path variables and request body, and returns the result of the method invocation.
+     *
+     * @param route             The metadata of the route to be handled.
+     * @param request           The HTTP request containing the body.
+     * @param instanceController The controller instance to invoke the method on.
+     * @return The result of the method invocation.
+     * @throws NoSuchMethodException If the method does not exist in the controller.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws IllegalAccessException If access to the method is denied.
+     */
     private Object handlePutMapping(RouteMetaData route, HttpRequest request, Object instanceController)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
@@ -93,6 +152,20 @@ public final class RouteHandler {
         return returnTypeInstance(instanceController, route, finalArgs);
     }
 
+    /**
+     * Handles the PATCH request mapping by invoking the appropriate method on the controller instance.
+     * It checks for path variables and request body, and returns the result of the method invocation.
+     *
+     * @param route             The metadata of the route to be handled.
+     * @param request           The HTTP request containing the body.
+     * @param instanceController The controller instance to invoke the method on.
+     * @return The result of the method invocation.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws NoSuchMethodException If the method does not exist in the controller.
+     * @throws IllegalAccessException If access to the method is denied.
+     * @throws InstantiationException If an error occurs while creating an instance of a class.
+     * @throws NoSuchFieldException If a field is not found in a class.
+     */
     private Object handlePatchMapping(RouteMetaData route, HttpRequest request, Object instanceController)
             throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException, NoSuchFieldException {
 
@@ -133,7 +206,17 @@ public final class RouteHandler {
         return returnTypeInstance(instanceController, route, finalArgs);
     }
 
-    // WITH path variables
+    /**
+     * Invokes the method on the controller instance with the provided path variables.
+     *
+     * @param instanceController The controller instance to invoke the method on.
+     * @param routeMetaData      The metadata of the route containing method and controller information.
+     * @param vars               The list of path variable values to be passed as arguments.
+     * @return The result of the method invocation.
+     * @throws NoSuchMethodException If the method does not exist in the controller.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws IllegalAccessException If access to the method is denied.
+     */
     private Object returnTypeInstance(Object instanceController, RouteMetaData routeMetaData, List<Object> vars) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         Method method = routeMetaData.getControllerMetaData().getClassOf()
@@ -142,7 +225,16 @@ public final class RouteHandler {
         return method.invoke(instanceController, vars.toArray(new Object[0]));
     }
 
-    // WITHOUT path variables
+    /**
+     * Invokes the method on the controller instance without any path variables.
+     *
+     * @param instanceController The controller instance to invoke the method on.
+     * @param routeMetaData      The metadata of the route containing method and controller information.
+     * @return The result of the method invocation.
+     * @throws NoSuchMethodException If the method does not exist in the controller.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws IllegalAccessException If access to the method is denied.
+     */
     private Object returnTypeInstance(Object instanceController, RouteMetaData routeMetaData) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = routeMetaData.getControllerMetaData().getClassOf()
                 .getDeclaredMethod(routeMetaData.getMethodMetaData().getName());
@@ -156,6 +248,14 @@ public final class RouteHandler {
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
+    /**
+     * Repositions the parameters based on their types and the provided path values.
+     * This method ensures that the parameters are arranged in the order they are defined in the method.
+     *
+     * @param parameters   The array of parameters defined in the method.
+     * @param pathValues   The list of path values extracted from the request.
+     * @return A list of arranged parameter values matching the method's parameter types.
+     */
     private List<Object> repositionParameters(Parameter[] parameters, List<Object> pathValues){
         List<Object> arrangedValues = new LinkedList<>();
         for (Parameter p : parameters){

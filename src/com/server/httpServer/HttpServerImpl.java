@@ -28,6 +28,11 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * HttpServerImpl is the implementation of the HttpServer interface.
+ * It handles incoming HTTP requests, processes them, and sends back responses.
+ * The server runs on a specified port and listens for incoming connections.
+ */
 @Component
 public final class HttpServerImpl implements HttpServer {
 
@@ -56,11 +61,22 @@ public final class HttpServerImpl implements HttpServer {
         this.EXCEPTION_MAPPER = exceptionManager;
     }
 
+    /**
+     * Returns the configuration of the server.
+     * This method is used to retrieve the server's configuration properties.
+     *
+     * @return Configuration object containing server properties
+     */
     @Override
     public Configuration getConfig() {
         return CONFIGURATION;
     }
 
+    /**
+     * Starts the HTTP server.
+     * It binds to the specified port and listens for incoming connections.
+     * When a client connects, it processes the request in a separate thread.
+     */
     @Override
     public void start() {
         Logger.log(this.getClass(), "Starting server...");
@@ -80,11 +96,21 @@ public final class HttpServerImpl implements HttpServer {
         }
     }
 
+    /**
+     * Stops the HTTP server.
+     * This method closes the executor service, which stops processing any further requests.
+     */
     @Override
     public void stop() {
         EXECUTOR_SERVICE.close();
     }
 
+    /**
+     * Listens for incoming client connections and processes requests.
+     * This method is executed in a separate thread for each client connection.
+     *
+     * @param clientSocket the socket representing the client connection
+     */
     private void listen(Socket clientSocket) {
 
         EXECUTOR_SERVICE.submit(() -> {
@@ -108,6 +134,15 @@ public final class HttpServerImpl implements HttpServer {
         });
     }
 
+    /**
+     * Handles the casting of the HTTP request body based on the requirements specified in the RouteMetaData.
+     * It checks if the body is required or optional and processes it accordingly.
+     *
+     * @param routeMetaData RouteMetaData containing method metadata for casting
+     * @param request HttpRequest to be processed
+     * @return HttpRequest with the body cast to the appropriate type
+     * @throws Exception if there is an error during casting
+     */
     private HttpRequest handleCasting(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
         if (!request.getStartLine().getMethod().hasBody().equals(BodyRequirement.FORBIDDEN)) {
             return this.TRANSFORMATION_HANDLER.handleCasting(routeMetaData, request);
@@ -115,6 +150,14 @@ public final class HttpServerImpl implements HttpServer {
         return request;
     }
 
+    /**
+     * Handles the incoming HTTP request from the client socket.
+     * It reads the request data, parses it, and returns an HttpRequest object.
+     *
+     * @param clientSocket the socket representing the client connection
+     * @return HttpRequest object containing the parsed request data
+     * @throws Exception if there is an error during request handling
+     */
     private HttpRequest handleRequest(Socket clientSocket) throws Exception {
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -124,6 +167,15 @@ public final class HttpServerImpl implements HttpServer {
         return httpRequest;
     }
 
+    /**
+     * Handles the response for the given route and request.
+     * It processes the request using the RouteHandler and returns an HttpResponse object.
+     *
+     * @param route the RouteMetaData containing information about the route
+     * @param request the HttpRequest to be processed
+     * @return HttpResponse object containing the response data
+     * @throws Exception if there is an error during response handling
+     */
     private HttpResponse handleResponse(RouteMetaData route, HttpRequest request) throws Exception {
         Object responseBody = this.ROUTE_HANDLER.handleRoute(route, request);
         JsonType jsonResponse = null;
@@ -140,6 +192,13 @@ public final class HttpServerImpl implements HttpServer {
         );
     }
 
+    /**
+     * Handles errors that occur during request processing.
+     * It maps the exception to an appropriate HTTP status and creates a ResponseFailed object.
+     *
+     * @param e the exception that occurred
+     * @return HttpResponse object containing the error response
+     */
     private HttpResponse handleError(Exception e) {
         HttpStatus httpStatus = this.EXCEPTION_MAPPER.mapException(e);
         ResponseFailed responseFailed = new ResponseFailed(httpStatus, e.getCause().getLocalizedMessage());
@@ -156,6 +215,13 @@ public final class HttpServerImpl implements HttpServer {
         }
     }
 
+    /**
+     * Sends the HTTP response back to the client.
+     * It writes the response data to the client socket's output stream.
+     *
+     * @param clientSocket the socket representing the client connection
+     * @param httpResponse the HttpResponse to be sent
+     */
     private void sendResponse(Socket clientSocket, HttpResponse httpResponse) {
         try {
             clientSocket.getOutputStream()

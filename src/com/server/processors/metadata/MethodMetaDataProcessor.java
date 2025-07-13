@@ -17,12 +17,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * MethodMetaDataProcessor is responsible for processing metadata of methods in a class.
+ * It extracts method annotations, parameters, return types, and HTTP methods,
+ * and maps them to their respective method metadata.
+ */
 @Component
 public final class MethodMetaDataProcessor implements MetaDataProcessor<Map<String, MethodMetaData>> {
 
     private MethodMetaDataProcessor() {
     }
 
+    /**
+     * Processes the methods of a given class to extract metadata based on the specified annotation type.
+     *
+     * @param clazz The class whose methods are to be processed.
+     * @param extensionOf The annotation type to filter methods by.
+     * @return A map of method names to their corresponding MethodMetaData.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws IllegalAccessException If access to the method is illegal.
+     * @throws NoSuchMethodException If the method does not exist.
+     */
     @Override
     public <A extends Annotation> Map<String, MethodMetaData> process(Class<?> clazz, Class<A> extensionOf) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         Map<String, MethodMetaData> mappedMethods = new LinkedHashMap<>();
@@ -53,6 +68,17 @@ public final class MethodMetaDataProcessor implements MetaDataProcessor<Map<Stri
         return mappedMethods;
     }
 
+    /**
+     * Retrieves the value of a specified method from an annotation.
+     *
+     * @param annotation The annotation from which to retrieve the value.
+     * @param methodName The name of the method to invoke on the annotation.
+     * @param methodReturnType The expected return type of the method.
+     * @return The value returned by the invoked method, cast to the specified type.
+     * @throws InvocationTargetException If an exception occurs during method invocation.
+     * @throws IllegalAccessException If access to the method is illegal.
+     * @throws NoSuchMethodException If the method does not exist.
+     */
     private <T> T getAnnotationValue(Annotation annotation, String methodName, Class<T> methodReturnType) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         Method gotMethod = annotation.annotationType().getDeclaredMethod(methodName);
         Object value = gotMethod.invoke(annotation);

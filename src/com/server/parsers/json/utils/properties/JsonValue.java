@@ -2,6 +2,11 @@ package src.com.server.parsers.json.utils.properties;
 
 import java.util.Objects;
 
+/**
+ * JsonValue is a utility class that encapsulates a JSON value.
+ * It implements the JsonKeyValue interface, allowing for type-safe retrieval of the value.
+ * This class provides methods to get the value, set a new value, and override equals, hashCode, and toString methods.
+ */
 public class JsonValue implements JsonKeyValue<Object>{
     private Object value;
 

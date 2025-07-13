@@ -4,6 +4,11 @@ import src.com.server.httpServer.utils.route.PathVariable;
 
 import java.util.Arrays;
 
+/**
+ * RouteMetaData is a class that encapsulates metadata about a specific route in the server.
+ * It includes information about the controller, method, and any path variables associated with the route.
+ * This class implements the MetaData interface to provide a structured way to access route metadata.
+ */
 public class RouteMetaData implements MetaData<RouteMetaData>{
 
     private ControllerMetaData controllerMetaData;

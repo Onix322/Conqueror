@@ -16,6 +16,10 @@ import java.text.ParseException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * ExceptionManager is responsible for managing exceptions in the application.
+ * It maps exceptions to appropriate HTTP status codes and handles logging based on the environment.
+ */
 @Component
 public class ExceptionManager {
 

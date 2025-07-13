@@ -1,5 +1,10 @@
 package src.com.server.httpServer.utils.response;
 
+/**
+ * HttpStatus is an enumeration that represents the various HTTP status codes
+ * and their associated messages. It provides methods to check the type of status
+ * (success, redirect, client error, server error) and to include stack traces for errors.
+ */
 public enum HttpStatus {
     // SUCCESS (2xx)
     OK(200, "OK"),

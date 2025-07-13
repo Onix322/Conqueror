@@ -7,6 +7,10 @@ import src.com.server.httpServer.utils.request.httpRequestStartLine.HttpRequestS
 import java.net.URISyntaxException;
 import java.util.List;
 
+/**
+ * Represents an HTTP request, encapsulating the start line, headers, and body.
+ * This class is used to construct and manage HTTP requests in a structured manner.
+ */
 public class HttpRequest {
 
     private HttpRequestStartLine startLine;

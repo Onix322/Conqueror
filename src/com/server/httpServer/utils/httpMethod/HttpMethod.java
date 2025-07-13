@@ -1,5 +1,10 @@
 package src.com.server.httpServer.utils.httpMethod;
 
+/**
+ * Enum representing HTTP methods and their body requirements.
+ * Each HTTP method is associated with a specific body requirement,
+ * indicating whether a request with that method should include a body.
+ */
 public enum HttpMethod {
     GET(BodyRequirement.FORBIDDEN),
     POST(BodyRequirement.REQUIRED),

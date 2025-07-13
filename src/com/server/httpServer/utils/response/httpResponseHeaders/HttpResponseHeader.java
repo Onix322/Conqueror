@@ -1,5 +1,11 @@
 package src.com.server.httpServer.utils.response.httpResponseHeaders;
 
+/**
+ * Represents the headers of an HTTP response.
+ * This class encapsulates the content length and content type of the response.
+ * It provides methods to get and set these values, as well as a method to
+ * return a formatted string representation of the headers.
+ */
 public class HttpResponseHeader {
 
     private Integer contentLength;

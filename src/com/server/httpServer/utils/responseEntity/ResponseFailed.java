@@ -2,6 +2,10 @@ package src.com.server.httpServer.utils.responseEntity;
 
 import src.com.server.httpServer.utils.response.HttpStatus;
 
+/**
+ * ResponseFailed is a utility class that encapsulates the details of a failed HTTP response.
+ * It includes the HTTP status code, a message, and an error description.
+ */
 public class ResponseFailed {
     private int status;
     private String message;

@@ -11,6 +11,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Builder class for constructing HTTP requests.
+ * This class allows you to set the start line, headers, and body of the HTTP request.
+ * It provides a fluent interface for building an HttpRequest object.
+ */
 public class HttpRequestBuilder {
     private HttpRequestStartLine startLine;
     private List<HttpRequestHeader> httpRequestHeader;

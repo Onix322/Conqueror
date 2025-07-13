@@ -5,6 +5,10 @@ import src.com.server.httpServer.utils.HttpVersion;
 
 import java.net.URI;
 
+/**
+ * Represents the start line of an HTTP request.
+ * This includes the HTTP method, the request path, and the HTTP version.
+ */
 public class HttpRequestStartLine {
 
     private HttpMethod method;
