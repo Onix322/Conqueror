@@ -1,10 +1,9 @@
 package src.com;
 
-import jakarta.persistence.Entity;
+import configuration.Configuration;
 import src.com.server.annotations.component.Component;
 import src.com.server.annotations.component.configuration.ComponentConfig;
 import src.com.server.annotations.controller.Controller;
-import configuration.Configuration;
 import src.com.server.httpServer.HttpServer;
 import src.com.server.processors.context.ApplicationContext;
 
@@ -12,13 +11,17 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * The main application class that initializes the application context and starts the HTTP server.
+ * <p>
+ * To add annotations, use the following:
+ * applicationContext.registerAnnotation(YourAnnotation.class);
+ * </p>
  */
 public class App {
 
     /**
      * The main method to start the application.
      *
-     * @param configuration the configuration for the application
+     * @param configuration   the configuration for the application
      * @param executorService the executor service for handling asynchronous tasks
      * @throws Exception if an error occurs during application startup
      */
@@ -27,7 +30,6 @@ public class App {
 
         //* ApplicationContext Initialization
         ApplicationContext applicationContext = new ApplicationContext(configuration, executorService);
-        applicationContext.registerAnnotation(Entity.class);
         applicationContext.registerAnnotation(ComponentConfig.class);
         applicationContext.registerAnnotation(Component.class);
         applicationContext.registerAnnotation(Controller.class);

@@ -1,18 +1,61 @@
-package src.com.config.hibernate;
+# Configuration files for the application
+## This directory contains configuration files for the application, which can be used to set up various components.
+### - **Example with Hibernate ORM Integration**: 
+    - Create any configuration for any class and force it into the context
+    - e.g.: Hibernate for database interactions using `@ComponentConfig` and `@ForceInstance` annotations.
 
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import org.hibernate.LockMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import src.com.server.database.Persistence;
 
-import java.util.List;
-import java.util.Optional;
+### 🛠 Sample POM dependency for the build tool
 
+```xml
+<dependency>
+  <groupId>org.hibernate.orm</groupId>
+  <artifactId>hibernate-core</artifactId>
+  <version>6.3.0.Final</version>
+</dependency>
+```
+
+### 🛠 Configuration class for Hibernate
+
+```java
+@ComponentConfig
+public class HibernateConfig {
+
+    @ComponentConfig
+    public class HibernateConfig {
+
+        @ForceInstance
+        public Configuration registerCfg(configuration.Configuration configuration, ApplicationContext applicationContext){
+            Configuration cfg = new Configuration();
+            List<Class<?>> entities = applicationContext.getEntities()
+                    .stream()
+                    .filter(e -> e.isAnnotationPresent(Entity.class))
+                    .toList();
+
+            Map<String, String> props = new HashMap<>();
+            cfg.setProperty("jakarta.persistence.jdbc.driver", "com.mysql.cj.jdbc.Driver");
+            cfg.setProperty("jakarta.persistence.jdbc.url", configuration.readProperty("database.url"));
+            cfg.setProperty("jakarta.persistence.jdbc.user", configuration.readProperty("database.user"));
+            cfg.setProperty("jakarta.persistence.jdbc.password", configuration.readProperty("database.password"));
+            cfg.setProperty("hibernate.hbm2ddl.auto", configuration.readProperty("hibernate.hbm2ddl-auto"));
+            cfg.setProperty("hibernate.show_sql", configuration.readProperty("hibernate.show_sql"));
+            cfg.setProperty("hibernate.archive.autodetection", "class");
+
+            cfg.addAnnotatedClasses(entities.toArray(Class[]::new));
+
+            return cfg;
+        }
+
+        @ForceInstance
+        public SessionFactory registerEntityManagerFactory(Configuration configuration) {
+            return configuration.buildSessionFactory();
+        }
+    }
+}
+```
+### 🛠 And implementation of the configuration and repository
+
+```java
 public class RepositoryHibernate<T, ID extends Number> implements Persistence<T, ID> {
 
     private final SessionFactory emf;
@@ -20,8 +63,7 @@ public class RepositoryHibernate<T, ID extends Number> implements Persistence<T,
     public RepositoryHibernate(SessionFactory emf) {
         this.emf = emf;
     }
-
-
+    
     @Override
     public Optional<T> findById(Class<T> entity, ID id) {
         Session session = this.emf.openSession();
@@ -99,3 +141,4 @@ public class RepositoryHibernate<T, ID extends Number> implements Persistence<T,
         return result;
     }
 }
+```
