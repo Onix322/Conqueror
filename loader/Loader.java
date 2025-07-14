@@ -15,6 +15,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Loader is responsible for initializing and loading various components required for the application.
@@ -27,11 +29,10 @@ public class Loader {
      * version handlers, POM readers, artifact validators, and classpath loaders.
      *
      * @param configuration the configuration to be used for loading
-     * @param executorService the executor service for asynchronous operations
      * @throws ParserConfigurationException if there is a configuration error in the parser
      * @throws SAXException if there is an error in parsing XML
      */
-    public static void load(Configuration configuration, ExecutorService executorService) throws ParserConfigurationException, SAXException {
+    public static void load(Configuration configuration) throws ParserConfigurationException, SAXException {
 
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         SAXParser saxParser = saxParserFactory.newSAXParser();
@@ -72,6 +73,9 @@ public class Loader {
         );
         Downloader downloader = Downloader.getInstance();
         downloader.download(jarVersionedLinks);
+
+        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
         ClassPathLoader.init(
                 configuration,

@@ -10,6 +10,9 @@ import src.com.server.processors.context.ApplicationContext;
 
 import java.util.concurrent.ExecutorService;
 
+/**
+ * The main application class that initializes the application context and starts the HTTP server.
+ */
 public class App {
 
     /**
