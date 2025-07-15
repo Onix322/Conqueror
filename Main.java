@@ -1,6 +1,6 @@
 import configuration.Configuration;
 import configuration.ConfigurationImpl;
-import loader.Loader;
+import build_tool.Loader;
 
 /**
  * Main class to start the application.

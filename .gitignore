@@ -93,7 +93,7 @@ fabric.properties
 !.idea/runConfigurations
 
 ### Conqueror project ###
-src/com/libs
-target/classes/*
-target/classpath.txt
+framework/src/com/libs
+build_tool/target/classes/*
+build_tool/target/classpath.txt
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all

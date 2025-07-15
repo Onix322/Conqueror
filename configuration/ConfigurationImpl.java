@@ -1,6 +1,6 @@
 package configuration;
 
-import src.com.server.exceptions.ConfigPropertyNonExistent;
+import framework.src.server.exceptions.ConfigPropertyNonExistent;
 
 import java.io.IOError;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public final class ConfigurationImpl implements Configuration {
     }
 
     private InputStream getStream() throws IOError {
-        InputStream stream = ClassLoader.getSystemResourceAsStream("./config.properties");
+        InputStream stream = ClassLoader.getSystemResourceAsStream("configuration/config.properties");
 
         if (stream == null) {
             throw new IOError(new Throwable("File 'config.properties' is not created. Please create 'config.properties'!"));
