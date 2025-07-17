@@ -1,7 +1,7 @@
-package build_tool;
+package build_tool.utilities;
 
+import build_tool.InterfaceCLI;
 import configuration.Configuration;
-import build_tool.utilities.*;
 import build_tool.utilities.linkGenerator.LinkGenerator;
 import build_tool.utilities.linkGenerator.link.VersionedLink;
 import build_tool.utilities.pomReader.PomReader;
@@ -14,25 +14,44 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Loader is responsible for initializing and loading various components required for the application.
  * It sets up the necessary configurations, parsers, and handlers to process Maven POM files and manage dependencies.
  */
 public class Loader {
+
+    private final Configuration configuration;
+
+    private Loader(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    private static class Holder {
+        private static Loader INSTANCE = null;
+    }
+
+    public static synchronized void init(Configuration configuration) {
+        if (Loader.Holder.INSTANCE == null) {
+            Loader.Holder.INSTANCE = new Loader(configuration);
+        }
+    }
+
+    public static Loader getInstance() {
+        if (Loader.Holder.INSTANCE == null) {
+            throw new IllegalStateException("Loader is not initialized. Use Loader.init().");
+        }
+        return Loader.Holder.INSTANCE;
+    }
     /**
      * Initializes the Loader with the provided configuration and executor service.
      * This method sets up the necessary components such as URL accessors, link generators,
      * version handlers, POM readers, artifact validators, and classpath loaders.
      *
-     * @param configuration the configuration to be used for loading
      * @throws ParserConfigurationException if there is a configuration error in the parser
      * @throws SAXException if there is an error in parsing XML
      */
-    public static void load(Configuration configuration) throws ParserConfigurationException, SAXException {
+    public void load() throws ParserConfigurationException, SAXException {
 
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         SAXParser saxParser = saxParserFactory.newSAXParser();
@@ -73,15 +92,5 @@ public class Loader {
         );
         Downloader downloader = Downloader.getInstance();
         downloader.download(jarVersionedLinks);
-
-        ThreadFactory threadFactory = Executors.defaultThreadFactory();
-        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
-
-        ClassPathLoader.init(
-                configuration,
-                executorService
-        );
-        ClassPathLoader classpathLoader = ClassPathLoader.getInstance();
-        classpathLoader.start();
     }
 }

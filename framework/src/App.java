@@ -1,6 +1,7 @@
 package framework.src;
 
 import configuration.Configuration;
+import configuration.ConfigurationImpl;
 import framework.src.server.annotations.component.Component;
 import framework.src.server.annotations.component.ComponentEntity;
 import framework.src.server.annotations.component.configuration.ComponentConfig;
@@ -8,7 +9,10 @@ import framework.src.server.annotations.controller.Controller;
 import framework.src.server.httpServer.HttpServer;
 import framework.src.server.processors.context.ApplicationContext;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * The main application class that initializes the application context and starts the HTTP server.
@@ -19,14 +23,14 @@ import java.util.concurrent.ExecutorService;
  */
 public class App {
 
-    /**
-     * The main method to start the application.
-     *
-     * @param configuration   the configuration for the application
-     * @param executorService the executor service for handling asynchronous tasks
-     * @throws Exception if an error occurs during application startup
-     */
-    public static void start(Configuration configuration, ExecutorService executorService) throws Exception {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+
+        ConfigurationImpl.init();
+        Configuration configuration = ConfigurationImpl.getInstance();
+
+        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+        ExecutorService executorService = Executors.newThreadPerTaskExecutor(threadFactory);
+
         System.out.println("Starting app...");
 
         //* ApplicationContext Initialization

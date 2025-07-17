@@ -52,8 +52,6 @@ public class VersionParser {
     public static void init(VersionHandler versionHandler) {
         if (VersionParser.Holder.INSTANCE == null) {
             VersionParser.Holder.INSTANCE = new VersionParser(versionHandler);
-        } else {
-            throw new IllegalStateException("VersionParser has already been initialized.");
         }
     }
 

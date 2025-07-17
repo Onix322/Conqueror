@@ -1,22 +1,27 @@
+import build_tool.InterfaceCLI;
+import build_tool.utilities.Loader;
 import configuration.Configuration;
 import configuration.ConfigurationImpl;
-import build_tool.Loader;
 
 /**
  * Main class to start the application.
- * It initializes the server configuration and starts the application loader.
+ * It initializes the server configuration and starts the application.
  */
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        //* Server Configuration
+        //* Setup Configuration
         ConfigurationImpl.init();
         Configuration configuration = ConfigurationImpl.getInstance();
 
+        Loader.init(configuration);
+        Loader loader = Loader.getInstance();
+
         //* Start App
-        Loader.load(configuration);
+        InterfaceCLI.init(configuration, loader);
+        InterfaceCLI interfaceCLI = InterfaceCLI.getInstance();
 
+        interfaceCLI.open();
     }
-
 }
