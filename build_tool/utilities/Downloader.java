@@ -6,9 +6,11 @@ import configuration.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileAttributeView;
 import java.util.Set;
 
 /**
@@ -54,16 +56,19 @@ public class Downloader {
      * @param versionedLinks a set of VersionedLink objects representing the files to be downloaded
      */
     public void download(Set<VersionedLink> versionedLinks) {
-        if(versionedLinks.isEmpty()){
+        if (versionedLinks.isEmpty()) {
             System.out.println("[" + this.getClass().getSimpleName() + "] -> No jars for downloading...");
             return;
         }
 
         System.out.println("[" + this.getClass().getSimpleName() + "] -> Downloading jars...");
         File dir = new File(dependenciesLocation);
-        for(VersionedLink versionedLink : versionedLinks){
-            try (InputStream stream = urlAccessor.open(versionedLink.getUri().toURL())){
-                if(stream == null) return;
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        for (VersionedLink versionedLink : versionedLinks) {
+            try (InputStream stream = urlAccessor.open(versionedLink.getUri().toURL())) {
+                if (stream == null) return;
                 System.out.println("[" + this.getClass().getSimpleName() + "] -> Downloading "
                         + versionedLink.getArtifact().getGroupId()
                         + "::" + versionedLink.getArtifact().getArtifactId()

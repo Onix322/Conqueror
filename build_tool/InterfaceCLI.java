@@ -49,6 +49,7 @@ public class InterfaceCLI {
         this.loader.load();
         Optional<ProcessHandle> handle = Optional.empty();
         while (running) {
+            System.out.println("[conqueror] -> Type 'help' to see the available commands.");
             System.out.print("[conqueror] -> ");
             String command = scanner.nextLine().trim();
             switch (command) {
@@ -148,18 +149,24 @@ public class InterfaceCLI {
         command.add("result/app");
         command.addAll(collectJavaSources(Paths.get("framework/src")));
 
-        Path outputLocation = Path.of(configuration.readProperty("output.location"));
-        File outputFile = outputLocation.toFile();
         Path outputAppLocation = Path.of(configuration.readProperty("output.app.location"));
-        File outputAppFile = outputLocation.toFile();
+        File outputAppFile = outputAppLocation.toFile();
 
         Path configLocation = Path.of(configuration.readProperty("config.location"));
         Path appOutputConfig = Paths.get(outputAppLocation.toString(), configLocation.toString());
 
-        outputFile.createNewFile();
-        outputAppFile.createNewFile();
+        if(!outputAppFile.exists()){
+            outputAppFile.mkdirs();
+        }
 
-        Files.copy(configLocation, appOutputConfig, StandardCopyOption.REPLACE_EXISTING);
+        appOutputConfig.toFile().mkdirs();
+        appOutputConfig.toFile().setWritable(true);
+
+        Files.copy(
+                configLocation.normalize(),
+                appOutputConfig.normalize(),
+                StandardCopyOption.REPLACE_EXISTING
+        );
 
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.inheritIO();
