@@ -69,6 +69,7 @@ public class InterfaceCLI {
                     result.set(null);
                 }
                 default -> command.exec();
+
             }
         }
     }
