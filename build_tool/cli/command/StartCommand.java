@@ -38,7 +38,7 @@ public class StartCommand implements Command<Process> {
 
         List<String> command = new ArrayList<>();
         command.add("cmd.exe");
-        command.add("/c"); // /c: execută și închide, dar `start` va face fereastră nouă
+        command.add("/c");
         command.add("start");
         command.add('"' + appName + '"');
         command.add("cmd.exe");

@@ -31,6 +31,7 @@ public class HelpCommand implements Command<Boolean> {
                 - stop           -> Stop the app
                 - run            -> Init, Build and Start
                 - status         -> Check if app status
+                - jar            -> Creates a jar file in a specific directory
                 - quit           -> exit build tool
                 """);
 

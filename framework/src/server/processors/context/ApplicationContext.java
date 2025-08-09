@@ -136,6 +136,7 @@ public final class ApplicationContext {
      * @throws ClassNotFoundException If a class cannot be found during the scanning process.
      */
     public void applicationContextInit() throws IOException, ClassNotFoundException {
+        System.out.println(Arrays.toString(this.FILE.listFiles()));
         List<File> files = Arrays.asList(Objects.requireNonNull(this.FILE.listFiles()));
         List<Class<?>> allComponents = gather(files, PACKAGE);
         Object circularDependency = null; // in case is circular

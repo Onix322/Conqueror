@@ -42,6 +42,7 @@ public class InterfaceCLI {
         while (running) {
             System.out.print("[conqueror] -> ");
             String line = scanner.nextLine().trim().toLowerCase();
+
             Command<?> command = this.commandRegistry.requestCommand(line);
 
             switch (line) {
@@ -53,10 +54,7 @@ public class InterfaceCLI {
                     }
                     CommandResult<?> commandResult = command.exec();
                     commandResult.getResult()
-                            .ifPresent(e -> {
-                                Process process = (Process) e;
-                                result.set(process);
-                            });
+                            .ifPresent(e -> result.set((Process) e));
                 }
                 case "status" -> command.exec(result.get());
                 case "stop" -> {

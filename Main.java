@@ -10,7 +10,7 @@ import configuration.ConfigurationImpl;
  */
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         //* Setup Configuration
         ConfigurationImpl.init();
@@ -47,6 +47,10 @@ public class Main {
 
         RunCommand.init(initCommand, startCommand, buildCommand);
         RunCommand runCommand = RunCommand.getInstance();
+
+        JarCommand.init(configuration);
+        JarCommand jarCommand = JarCommand.getInstance();
+
         //CommandRegistry
         CommandRegistry.init(noCommand);
         CommandRegistry commandRegistry = CommandRegistry.getInstance();
@@ -57,6 +61,7 @@ public class Main {
         commandRegistry.registerCommand("status", () -> statusCommand);
         commandRegistry.registerCommand("help", () -> helpCommand);
         commandRegistry.registerCommand("run", () -> runCommand);
+        commandRegistry.registerCommand("jar", () -> jarCommand);
         commandRegistry.registerCommand("quit", () -> quitCommand);
 
         InterfaceCLI.init(commandRegistry);
