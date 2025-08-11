@@ -4,6 +4,7 @@ import build_tool.cli.command.Command;
 import build_tool.cli.command.CommandRegistry;
 import build_tool.cli.command.CommandResult;
 
+import javax.smartcardio.TerminalFactory;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -54,7 +55,12 @@ public class InterfaceCLI {
                     }
                     CommandResult<?> commandResult = command.exec();
                     commandResult.getResult()
-                            .ifPresent(e -> result.set((Process) e));
+                            .ifPresent(e -> {
+                                result.set((Process) e);
+                                if(((Process) e).isAlive()){
+                                    System.out.println("App started successfully.");
+                                }
+                            });
                 }
                 case "status" -> command.exec(result.get());
                 case "stop" -> {

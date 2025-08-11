@@ -32,19 +32,7 @@ public class StartCommand implements Command<Process> {
     @Override
     public CommandResult<Process> exec(Object... args) {
         System.out.println("Starting app...");
-        String appName = configuration.readProperty("app.name");
-        Path outputAppLocation = Path.of(configuration.readProperty("output.app.location"));
-        Path appEntry = Path.of(configuration.readProperty("app.entry"));
-
-        List<String> command = new ArrayList<>();
-        command.add("cmd.exe");
-        command.add("/c");
-        command.add("start");
-        command.add('"' + appName + '"');
-        command.add("cmd.exe");
-        command.add("/k");
-        command.add("java -cp " + outputAppLocation + " " + appEntry);
-
+        List<String> command = this.osCompatibleCommand(System.getProperty("os.name"));
         ProcessBuilder pb = new ProcessBuilder(command);
         try {
             return CommandResult.<Process>builder()
@@ -54,6 +42,27 @@ public class StartCommand implements Command<Process> {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
 
+    private List<String> osCompatibleCommand(String os){
+        String appName = configuration.readProperty("app.name");
+        Path outputAppLocation = Path.of(configuration.readProperty("output.app.location"));
+        Path appEntry = Path.of(configuration.readProperty("app.entry"));
+
+        List<String> command = new ArrayList<>();
+        if (os.toLowerCase().contains("win")) {
+            command.add("cmd.exe");
+            command.add("/c");
+            command.add("start");
+            command.add('"' + appName + '"');
+            command.add("cmd.exe");
+            command.add("/k");
+        } else {
+            command.add("sh");
+            command.add("-c");
+        }
+
+        command.add("java -cp " + outputAppLocation + " " + appEntry);
+        return command;
     }
 }
