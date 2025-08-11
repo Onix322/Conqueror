@@ -2,9 +2,7 @@ package build_tool.cli.command;
 
 public class HelpCommand implements Command<Boolean> {
 
-    private HelpCommand() {
-
-    }
+    private HelpCommand() {}
 
     public static class Holder {
         public static HelpCommand INSTANCE = null;
@@ -19,7 +17,6 @@ public class HelpCommand implements Command<Boolean> {
     public static HelpCommand getInstance() {
         return HelpCommand.Holder.INSTANCE;
     }
-
 
     @Override
     public CommandResult<Boolean> exec(Object... args) {

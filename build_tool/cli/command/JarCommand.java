@@ -2,7 +2,6 @@ package build_tool.cli.command;
 
 import configuration.Configuration;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,22 +28,19 @@ public class JarCommand implements Command<Boolean> {
         return JarCommand.Holder.INSTANCE;
     }
 
-
     @Override
     public CommandResult<Boolean> exec(Object... args) {
         String appEntry = this.configuration.readProperty("app.entry");
         String outputAppLocation = this.configuration.readProperty("output.app.location");
         String outputJarsLocation = this.configuration.readProperty("output.jars.location");
         Path outputAppLocationPath = Paths.get(outputAppLocation)
-                .toAbsolutePath()
                 .normalize();
         Path outputJarsLocationPath = Paths.get(outputJarsLocation)
-                .toAbsolutePath()
                 .normalize();
         ProcessBuilder processBuilder = new ProcessBuilder(
                 "jar",
                 "--create",
-                "--file", outputJarsLocationPath.toString() + "/app.jar",
+                "--file", outputJarsLocationPath + "/app.jar",
                 "--main-class", appEntry,
                 "-C", outputAppLocationPath.toString(), "."
         );
