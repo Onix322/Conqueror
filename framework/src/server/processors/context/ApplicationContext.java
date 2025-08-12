@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -39,8 +40,9 @@ public final class ApplicationContext {
         this.force(configuration.getClass(), configuration);
         this.force(executorService.getClass(), executorService);
         this.force(this.getClass(), this);
-        String path = configuration.readProperty("project.path");
-        this.FILE = new File(path);
+        Path resultPath = Path.of(configuration.readProperty("project.result.path"))
+                .normalize();
+        this.FILE = resultPath.toFile();
         this.PACKAGE = configuration.readProperty("project.package");
     }
 
