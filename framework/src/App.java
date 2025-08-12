@@ -2,6 +2,7 @@ package framework.src;
 
 import configuration.Configuration;
 import configuration.ConfigurationImpl;
+import framework.src.boot.Boot;
 import framework.src.server.annotations.component.Component;
 import framework.src.server.annotations.component.ComponentEntity;
 import framework.src.server.annotations.component.configuration.ComponentConfig;
@@ -10,9 +11,6 @@ import framework.src.server.httpServer.HttpServer;
 import framework.src.server.processors.context.ApplicationContext;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,32 +47,11 @@ public class App {
                 .start();
     }
 
-    public static void boot(){
-        Path target = Path.of("result/app/framework");
-        ProcessBuilder extract = new ProcessBuilder(
-                "jar",
-                "-xf",
-                "app.jar"
-        );
-
-        try {
-            extract.inheritIO().start().waitFor();
-            Files.createDirectories(target);
-            Files.move(
-                    Path.of("framework/"),
-                    target,
-                    StandardCopyOption.REPLACE_EXISTING
-            );
-        } catch (InterruptedException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static void main(String[] args) {
         List<String> argsList = List.of(args);
         try {
-            if(argsList.contains("-boot")){
-                boot();
+            if (argsList.contains("-boot")) {
+                Boot.boot("app.jar", "framework", "result/app/framework", false);
             }
             appInit();
         } catch (IOException | ClassNotFoundException e) {

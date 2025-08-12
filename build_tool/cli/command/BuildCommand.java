@@ -3,13 +3,13 @@ package build_tool.cli.command;
 import configuration.Configuration;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BuildCommand implements Command<Process> {
@@ -18,7 +18,6 @@ public class BuildCommand implements Command<Process> {
     private final Path sourcePath;
     private final Path depsPath;
     private final Path configPath;
-    private final Path bootPath;
 
     public BuildCommand(Configuration configuration) {
         this.outputAppPath = Path.of(configuration.readProperty("output.app.location"))
@@ -28,8 +27,6 @@ public class BuildCommand implements Command<Process> {
         this.depsPath = Path.of(configuration.readProperty("dependencies.location"))
                 .normalize();
         this.configPath = Path.of(configuration.readProperty("config.location"))
-                .normalize();
-        this.bootPath = Path.of(configuration.readProperty("boot.location"))
                 .normalize();
     }
 
@@ -89,7 +86,7 @@ public class BuildCommand implements Command<Process> {
         }
     }
 
-    private List<String> createCommand(){
+    private List<String> createCommand() {
         List<String> command = new ArrayList<>();
         command.add("javac");
         command.add("--release");
@@ -133,13 +130,13 @@ public class BuildCommand implements Command<Process> {
         Path bootOut = to.normalize();
         File bootFile = bootOut.toFile();
 
-        if(!bootFile.exists()){
+        if (!bootFile.exists()) {
             bootFile.mkdir();
         }
 
-        try (Stream<Path> paths = Files.walk(from)){
-            for(Path p : paths.toList()){
-                if(p.equals(from)) continue;
+        try (Stream<Path> paths = Files.walk(from)) {
+            for (Path p : paths.toList()) {
+                if (p.equals(from)) continue;
                 Path source = from.relativize(p.normalize());
                 Path target = bootOut.resolve(source);
                 Files.copy(p, target.normalize(), StandardCopyOption.REPLACE_EXISTING);
