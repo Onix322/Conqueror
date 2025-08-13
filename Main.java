@@ -1,4 +1,4 @@
-import build_tool.InterfaceCLI;
+import build_tool.cli.InterfaceCLI;
 import build_tool.cli.command.*;
 import build_tool.utilities.Loader;
 import configuration.Configuration;

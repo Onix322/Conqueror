@@ -1,10 +1,9 @@
-package build_tool;
+package build_tool.cli;
 
 import build_tool.cli.command.Command;
 import build_tool.cli.command.CommandRegistry;
 import build_tool.cli.command.CommandResult;
 
-import javax.smartcardio.TerminalFactory;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 

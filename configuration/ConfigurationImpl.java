@@ -2,9 +2,13 @@ package configuration;
 
 import framework.src.server.exceptions.ConfigPropertyNonExistent;
 
+import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public final class ConfigurationImpl implements Configuration {
@@ -59,13 +63,22 @@ public final class ConfigurationImpl implements Configuration {
     }
 
     private InputStream getStream() throws IOError {
-        InputStream stream = ClassLoader.getSystemResourceAsStream("configuration/config.properties");
+        Path configPath = Path.of("configuration" + File.separator + "config.properties");
 
-        if (stream == null) {
-            throw new IOError(new Throwable("File 'config.properties' is not created. Please create 'config.properties'!"));
+        try{
+            InputStream in = configPath.toUri()
+                    .toURL()
+                    .openStream();
+
+            if(in == null){
+                Files.createDirectories(Path.of("configuration"));
+                Files.createFile(Path.of("configuration/config.properties"));
+            }
+
+            return in;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        return stream;
     }
 
     @Override

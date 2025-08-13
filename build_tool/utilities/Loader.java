@@ -1,6 +1,5 @@
 package build_tool.utilities;
 
-import build_tool.InterfaceCLI;
 import configuration.Configuration;
 import build_tool.utilities.linkGenerator.LinkGenerator;
 import build_tool.utilities.linkGenerator.link.VersionedLink;
