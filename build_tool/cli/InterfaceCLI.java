@@ -3,6 +3,7 @@ package build_tool.cli;
 import build_tool.cli.command.Command;
 import build_tool.cli.command.CommandRegistry;
 import build_tool.cli.command.CommandResult;
+import build_tool.cli.console.Console;
 
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,7 +45,7 @@ public class InterfaceCLI {
             String line = scanner.nextLine().trim().toLowerCase();
 
             Command<?> command = this.commandRegistry.requestCommand(line);
-
+            Console console = new Console();
             switch (line) {
                 case "start", "run" -> {
                     if (result.get() != null) {
@@ -55,9 +56,12 @@ public class InterfaceCLI {
                     CommandResult<?> commandResult = command.exec();
                     commandResult.getResult()
                             .ifPresent(e -> {
-                                result.set((Process) e);
-                                if(((Process) e).isAlive()){
+                                Process process = (Process) e;
+                                result.set(process);
+                                if (process.isAlive()) {
                                     System.out.println("App started successfully.");
+                                    console.setProcess(process);
+                                    console.open();
                                 }
                             });
                 }
@@ -65,11 +69,13 @@ public class InterfaceCLI {
                 case "stop" -> {
                     command.exec(result.get());
                     result.set(null);
+                    console.close();
                 }
                 case "quit" -> {
                     command.exec(result.get());
                     running = false;
                     result.set(null);
+                    console.close();
                 }
                 default -> command.exec();
 

@@ -34,6 +34,7 @@ public class StartCommand implements Command<Process> {
         System.out.println("Starting app...");
         List<String> command = this.osCompatibleCommand(System.getProperty("os.name"));
         ProcessBuilder pb = new ProcessBuilder(command);
+        pb.redirectErrorStream(true);
         try {
             return CommandResult.<Process>builder()
                     .setResult(pb.start())
@@ -45,24 +46,15 @@ public class StartCommand implements Command<Process> {
     }
 
     private List<String> osCompatibleCommand(String os){
-        String appName = configuration.readProperty("app.name");
         Path outputAppLocation = Path.of(configuration.readProperty("output.app.location"));
-        Path appEntry = Path.of(configuration.readProperty("app.entry"));
+        String appEntry = configuration.readProperty("app.entry");
 
         List<String> command = new ArrayList<>();
-        if (os.toLowerCase().contains("win")) {
-            command.add("cmd.exe");
-            command.add("/c");
-            command.add("start");
-            command.add('"' + appName + '"');
-            command.add("cmd.exe");
-            command.add("/k");
-        } else {
-            command.add("sh");
-            command.add("-c");
-        }
+        command.add("java");
+        command.add("-cp");
+        command.add(outputAppLocation.normalize().toString().replace("\\", "/"));
+        command.add(appEntry);
 
-        command.add("java -cp " + outputAppLocation + " " + appEntry);
         return command;
     }
 }

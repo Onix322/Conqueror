@@ -134,6 +134,14 @@ public class BuildCommand implements Command<Process> {
             bootFile.mkdir();
         }
 
+        if(!Files.exists(from)){
+            try {
+                Files.createDirectories(from);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         try (Stream<Path> paths = Files.walk(from)) {
             for (Path p : paths.toList()) {
                 if (p.equals(from)) continue;
