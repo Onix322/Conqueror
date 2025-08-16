@@ -28,6 +28,7 @@ public class QuitCommand implements Command<Boolean>{
         if(args.length != 1) {
             throw new IllegalArgumentException("Invalid number of arguments! Max && Min = 1");
         }
+
         stopCommand.exec(args[0]);
         System.out.println("Have a nice day!");
 

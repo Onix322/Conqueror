@@ -39,13 +39,12 @@ public class InterfaceCLI {
         Scanner scanner = new Scanner(System.in);
         AtomicReference<Process> result = new AtomicReference<>();
         System.out.println("[conqueror] -> Type 'help' to see the available commands.");
-
+        Console console = new Console();
         while (running) {
             System.out.print("[conqueror] -> ");
             String line = scanner.nextLine().trim().toLowerCase();
 
             Command<?> command = this.commandRegistry.requestCommand(line);
-            Console console = new Console();
             switch (line) {
                 case "start", "run" -> {
                     if (result.get() != null) {
@@ -59,26 +58,26 @@ public class InterfaceCLI {
                                 Process process = (Process) e;
                                 result.set(process);
                                 if (process.isAlive()) {
-                                    System.out.println("App started successfully.");
                                     console.setProcess(process);
                                     console.open();
+                                    System.out.println("App started successfully.");
                                 }
                             });
                 }
                 case "status" -> command.exec(result.get());
                 case "stop" -> {
                     command.exec(result.get());
-                    result.set(null);
                     console.close();
+                    result.set(null);
                 }
                 case "quit" -> {
-                    command.exec(result.get());
                     running = false;
-                    result.set(null);
+                    scanner.close();
                     console.close();
+                    command.exec(result.get());
+                    result.set(null);
                 }
                 default -> command.exec();
-
             }
         }
     }

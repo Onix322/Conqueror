@@ -2,6 +2,7 @@ package build_tool.cli.command;
 
 import configuration.Configuration;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -32,7 +33,16 @@ public class StartCommand implements Command<Process> {
     @Override
     public CommandResult<Process> exec(Object... args) {
         System.out.println("Starting app...");
-        List<String> command = this.osCompatibleCommand(System.getProperty("os.name"));
+
+        Path outputAppLocation = Path.of(configuration.readProperty("output.app.location"));
+        String appEntry = configuration.readProperty("app.entry");
+
+        List<String> command = new ArrayList<>();
+        command.add("java");
+        command.add("-cp");
+        command.add(outputAppLocation.normalize().toString().replace(File.separator, "/"));
+        command.add(appEntry);
+
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
         try {
@@ -43,18 +53,5 @@ public class StartCommand implements Command<Process> {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-    }
-
-    private List<String> osCompatibleCommand(String os){
-        Path outputAppLocation = Path.of(configuration.readProperty("output.app.location"));
-        String appEntry = configuration.readProperty("app.entry");
-
-        List<String> command = new ArrayList<>();
-        command.add("java");
-        command.add("-cp");
-        command.add(outputAppLocation.normalize().toString().replace("\\", "/"));
-        command.add(appEntry);
-
-        return command;
     }
 }

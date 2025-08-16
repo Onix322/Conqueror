@@ -2,9 +2,8 @@ package build_tool.cli.console;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 public class Console {
 
@@ -12,6 +11,10 @@ public class Console {
     private boolean alive = false;
     private JFrame frame;
     private JTextArea textArea;
+    private JScrollPane scrollPane;
+
+    private final int width = 800;
+    private final int height = 600;
 
     public Console(Process process) {
         this.init();
@@ -23,8 +26,10 @@ public class Console {
     }
 
     private void init(){
+        this.frame = this.frame();
         this.textArea = this.textArea();
-        this.frame = this.frame(textArea);
+        this.scrollPane = this.scrollPane(textArea);
+        frame.add(scrollPane);
     }
 
     public void open(){
@@ -50,12 +55,16 @@ public class Console {
         }).start();
     }
 
-
     public void close(){
+        if (process == null) {
+            throw new IllegalStateException("Process is not set!");
+        }
         alive = false;
-        frame.setVisible(false);
         frame.dispose();
-        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        process.children().forEach(ProcessHandle::destroy);
+        process.destroy();
     }
 
     public boolean isAlive(){
@@ -74,14 +83,23 @@ public class Console {
     private JFrame frame(JComponent... jComponents){
         JFrame frame = new JFrame();
 
-        frame.setSize(800, 600);
+        frame.setSize(this.width, this.height);
         frame.setBackground(new Color(Color.black.getRGB()));
         frame.setTitle("Conqueror");
-
+        frame.setResizable(true);
+        frame.repaint();
         for(JComponent jc : jComponents){
-            frame.add(jc);
+            frame.getContentPane().add(jc);
         }
         return frame;
+    }
+
+    private JScrollPane scrollPane(JTextArea textArea) {
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setSize(this.width, this.height);
+        JScrollBar verticalScrollBar = scrollPane.createVerticalScrollBar();
+        verticalScrollBar.setEnabled(true);
+        return scrollPane;
     }
 
     private JTextArea textArea(){
@@ -89,6 +107,8 @@ public class Console {
         textArea.setEditable(false);
         textArea.setVisible(true);
         textArea.setCaretColor(Color.BLACK);
+        textArea.setFont(textArea.getFont().deriveFont(16f));
+        textArea.setSize(this.width, this.height);
         return textArea;
     }
 }

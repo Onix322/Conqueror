@@ -38,8 +38,7 @@ public class Boot {
             ProcessBuilder pb = new ProcessBuilder(
                     jarTool.toString(),
                     "-xf",
-                    jarPath,
-                    dirToExtract
+                    jarPath
             );
             pb.inheritIO();
 
