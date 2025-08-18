@@ -3,8 +3,8 @@ package build_tool.utilities;
 import configuration.Configuration;
 import build_tool.utilities.linkGenerator.LinkGenerator;
 import build_tool.utilities.linkGenerator.link.VersionedLink;
-import build_tool.utilities.pomReader.PomReader;
-import build_tool.utilities.pomReader.handlers.XMLHandlerFactory;
+import build_tool.utilities.depsReader.DepsReader;
+import build_tool.utilities.depsReader.handlers.XMLHandlerFactory;
 import build_tool.utilities.version.versionHandler.VersionHandler;
 import build_tool.utilities.version.versionHandler.VersionParser;
 import org.xml.sax.SAXException;
@@ -70,14 +70,14 @@ public class Loader {
         XMLHandlerFactory.init(versionParser);
         XMLHandlerFactory xmlHandlerFactory = XMLHandlerFactory.getInstance();
 
-        PomReader.init(saxParser, xmlHandlerFactory, versionParser);
-        PomReader pomReaderNew = PomReader.getInstance();
+        DepsReader.init(saxParser, xmlHandlerFactory, versionParser);
+        DepsReader depsReaderNew = DepsReader.getInstance();
 
         ArtifactValidator.init(configuration);
         ArtifactValidator artifactValidator = ArtifactValidator.getInstance();
 
         JarResolver.init(
-                pomReaderNew,
+                depsReaderNew,
                 linkGenerator,
                 artifactValidator,
                 configuration

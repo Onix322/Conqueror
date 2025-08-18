@@ -1,6 +1,6 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.exclusion;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.exclusion;
 
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.Artifact;
 
 /**
  * Represents an exclusion in a Maven POM file.

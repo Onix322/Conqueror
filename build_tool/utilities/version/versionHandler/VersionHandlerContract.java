@@ -1,7 +1,7 @@
 package build_tool.utilities.version.versionHandler;
 
 
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.project.Project;
 
 /**
  * VersionHandlerContract defines a contract for handling versioning in a project.

@@ -94,7 +94,7 @@ fabric.properties
 
 ### Conqueror project ###
 framework/src/com/libs
-build_tool/target/classes/*
+build_tool/target/libs/*
 build_tool/target/classpath.txt
 result
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all

@@ -1,4 +1,4 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.metadata;
 
 import build_tool.utilities.version.FixedVersion;
 

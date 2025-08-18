@@ -1,7 +1,7 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.metadata;
 
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.Artifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.XMLParsed;
 
 import java.util.Objects;
 

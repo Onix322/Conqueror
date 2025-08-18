@@ -1,4 +1,4 @@
-package build_tool.utilities.pomReader.handlers;
+package build_tool.utilities.depsReader.handlers;
 
 import build_tool.utilities.version.versionHandler.VersionParser;
 

@@ -1,8 +1,8 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency;
 
 
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.exclusion.Exclusion;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.VersionedArtifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.exclusion.Exclusion;
 import build_tool.utilities.version.Version;
 
 import java.util.ArrayList;

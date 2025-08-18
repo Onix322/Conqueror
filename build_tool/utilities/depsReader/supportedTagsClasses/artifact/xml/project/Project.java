@@ -1,10 +1,10 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.project;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.project;
 
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency.DependencyManagement;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.parent.Parent;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.Artifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency.Dependencies;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency.DependencyManagement;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.parent.Parent;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.XMLParsed;
 import build_tool.utilities.version.Version;
 
 import java.util.Map;

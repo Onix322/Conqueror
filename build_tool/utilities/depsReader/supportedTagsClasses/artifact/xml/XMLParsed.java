@@ -1,4 +1,4 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml;
 
 /*
  * Interface representing a parsed XML structure.

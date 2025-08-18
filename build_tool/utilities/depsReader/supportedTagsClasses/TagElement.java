@@ -1,4 +1,4 @@
-package build_tool.utilities.pomReader.supportedTagsClasses;
+package build_tool.utilities.depsReader.supportedTagsClasses;
 
 /*
  * This enum represents the various XML tags that can be found in a Maven POM file.

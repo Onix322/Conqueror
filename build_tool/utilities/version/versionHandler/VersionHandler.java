@@ -5,15 +5,15 @@ import build_tool.utilities.linkGenerator.LinkGenerator;
 import build_tool.utilities.linkGenerator.link.Link;
 import build_tool.utilities.linkGenerator.link.LinkExtension;
 import build_tool.utilities.linkGenerator.link.VersionedLink;
-import build_tool.utilities.pomReader.PomReader;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency.DependencyManagement;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.parent.Parent;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Metadata;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.metadata.Versions;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
+import build_tool.utilities.depsReader.DepsReader;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency.Dependencies;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency.Dependency;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency.DependencyManagement;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.parent.Parent;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.metadata.Metadata;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.metadata.Versions;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.project.Project;
 import build_tool.utilities.version.FixedVersion;
 import build_tool.utilities.version.IntervalVersion;
 import build_tool.utilities.version.Version;
@@ -53,7 +53,7 @@ public class VersionHandler {
         return Holder.INSTANCE;
     }
 
-    public Project handleVersion(Project project, PomReader pomReader) {
+    public Project handleVersion(Project project, DepsReader depsReader) {
         if (project.getDependencies() == null) {
             project.setDependencies(new Dependencies());
         }
@@ -61,14 +61,14 @@ public class VersionHandler {
 
             // Resolve null version
             if (dependency.getVersion() == null) {
-                Version notNullVersion = this.handleNullVersion(dependency, pomReader);
+                Version notNullVersion = this.handleNullVersion(dependency, depsReader);
                 dependency.setVersion(notNullVersion);
             }
             if (dependency.getVersion() != null && dependency.getVersion().isFixed()) continue;
 
             // Interval treating
             if (dependency.getVersion().isInterval()) {
-                Version versionFromInterval = this.handleInterval(dependency, pomReader);
+                Version versionFromInterval = this.handleInterval(dependency, depsReader);
                 dependency.setVersion(versionFromInterval);
                 continue;
             }
@@ -79,7 +79,7 @@ public class VersionHandler {
                 continue;
             }
             // Parent search
-            Version parentVersion = this.searchParent(dependency, project.getParent(), pomReader);
+            Version parentVersion = this.searchParent(dependency, project.getParent(), depsReader);
             if (dmVersion != null && dmVersion.isFixed()) {
                 dependency.setVersion(parentVersion);
             }
@@ -88,9 +88,9 @@ public class VersionHandler {
         return project;
     }
 
-    private Version handleNullVersion(Dependency dependency, PomReader pomReader) {
+    private Version handleNullVersion(Dependency dependency, DepsReader depsReader) {
         Link metadataLink = this.linkGenerator.generateLink(dependency);
-        XMLParsed xmlParsed = pomReader.readString(metadataLink.getUri().toString());
+        XMLParsed xmlParsed = depsReader.readString(metadataLink.getUri().toString());
         if (xmlParsed == null) return FixedVersion.unknown();
         Metadata versionMetadata = xmlParsed.getAs();
         return versionMetadata.getVersioning().getVersions().getLast();
@@ -109,22 +109,22 @@ public class VersionHandler {
         return dmOptional.isPresent() ? dmOptional.get().getVersion() : dependency.getVersion();
     }
 
-    private Version searchParent(Dependency dependency, Parent parent, PomReader pomReader) {
+    private Version searchParent(Dependency dependency, Parent parent, DepsReader depsReader) {
         if (parent == null) return dependency.getVersion();
         VersionedLink versionedLink = this.linkGenerator.generateVersionedLink(parent, LinkExtension.POM);
-        Project parentPom = pomReader.readString(versionedLink.getUri().toString())
+        Project parentPom = depsReader.readString(versionedLink.getUri().toString())
                 .getAs();
         return this.searchDependencyManagement(dependency, parentPom.getDependencyManagement());
     }
 
-    public Version handleInterval(Dependency dependency, PomReader pomReader) {
+    public Version handleInterval(Dependency dependency, DepsReader depsReader) {
 
         if (!dependency.getVersion().isInterval()) {
             return dependency.getVersion();
         }
 
         Link metadataLink = this.linkGenerator.generateLink(dependency);
-        Metadata versionMetadata = pomReader.readString(metadataLink.getUri().toString())
+        Metadata versionMetadata = depsReader.readString(metadataLink.getUri().toString())
                 .getAs();
 
         IntervalVersion intervalVersion = dependency.getVersion().getAs(IntervalVersion.class);

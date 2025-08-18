@@ -4,12 +4,12 @@ package build_tool.utilities;
 import build_tool.utilities.linkGenerator.LinkGenerator;
 import build_tool.utilities.linkGenerator.link.LinkExtension;
 import build_tool.utilities.linkGenerator.link.VersionedLink;
-import build_tool.utilities.pomReader.PomReader;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependencies;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency.Dependency;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.exclusion.Exclusion;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
+import build_tool.utilities.depsReader.DepsReader;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency.Dependencies;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency.Dependency;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.exclusion.Exclusion;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.project.Project;
 import configuration.Configuration;
 
 import java.util.*;
@@ -21,14 +21,14 @@ import java.util.*;
 public class JarResolver {
 
     private final LinkGenerator linkGenerator;
-    private final PomReader pomReader;
+    private final DepsReader depsReader;
     private final String pomFileLocation;
     private final ArtifactValidator artifactValidator;
     private final Set<VersionedLink> visited = new HashSet<>();
 
-    public JarResolver(PomReader pomReader, LinkGenerator linkGenerator, ArtifactValidator artifactValidator, Configuration configuration) {
+    public JarResolver(DepsReader depsReader, LinkGenerator linkGenerator, ArtifactValidator artifactValidator, Configuration configuration) {
         this.linkGenerator = linkGenerator;
-        this.pomReader = pomReader;
+        this.depsReader = depsReader;
         this.artifactValidator = artifactValidator;
         this.pomFileLocation = configuration.readProperty("pom.location");
     }
@@ -37,9 +37,9 @@ public class JarResolver {
         private static JarResolver INSTANCE = null;
     }
 
-    public static synchronized void init(PomReader pomReader, LinkGenerator linkGenerator, ArtifactValidator artifactValidator, Configuration configuration) {
+    public static synchronized void init(DepsReader depsReader, LinkGenerator linkGenerator, ArtifactValidator artifactValidator, Configuration configuration) {
         if (JarResolver.Holder.INSTANCE == null) {
-            JarResolver.Holder.INSTANCE = new JarResolver(pomReader, linkGenerator, artifactValidator, configuration);
+            JarResolver.Holder.INSTANCE = new JarResolver(depsReader, linkGenerator, artifactValidator, configuration);
         }
     }
 
@@ -57,8 +57,8 @@ public class JarResolver {
      * @return a set of VersionedLink objects representing the resolved JAR dependencies.
      */
     public Set<VersionedLink> resolve() {
-        System.out.println("[" + this.getClass().getSimpleName() + "] -> Resolving pom.xml...");
-        XMLParsed xmlParsed = this.pomReader.readString(pomFileLocation);
+        System.out.println("[" + this.getClass().getSimpleName() + "] -> Resolving deps.xml...");
+        XMLParsed xmlParsed = this.depsReader.readString(pomFileLocation);
         if (xmlParsed == null) return Set.of();
         Dependencies dependencies = xmlParsed.<Project>getAs().getDependencies();
         List<Exclusion> exclusions = new LinkedList<>();
@@ -83,7 +83,7 @@ public class JarResolver {
             boolean checking = mustCheck(pomVersionedLink, visited, allDps, dp, exclusions);
             if (!checking) continue;
             visited.add(pomVersionedLink);
-            XMLParsed xmlParsed = this.pomReader.readString(pomVersionedLink.getUri().toString());
+            XMLParsed xmlParsed = this.depsReader.readString(pomVersionedLink.getUri().toString());
             if (xmlParsed == null) continue;
             Project project = xmlParsed.getAs();
             Dependencies dependencies = project.getDependencies();

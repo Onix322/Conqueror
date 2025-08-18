@@ -1,7 +1,7 @@
 package build_tool.utilities.version.versionHandler;
 
-import build_tool.utilities.pomReader.PomReader;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
+import build_tool.utilities.depsReader.DepsReader;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.project.Project;
 import build_tool.utilities.version.FixedVersion;
 import build_tool.utilities.version.IntervalVersion;
 import build_tool.utilities.version.Version;
@@ -152,11 +152,11 @@ public class VersionParser {
      * This method delegates the version handling to the VersionHandler.
      *
      * @param project The Project object to handle versions for.
-     * @param pomReader The PomReader used to read the project's POM file.
+     * @param depsReader The PomReader used to read the project's POM file.
      * @return The Project object with handled versions.
      */
-    public Project handleVersions(Project project, PomReader pomReader) {
-        return this.versionHandler.handleVersion(project, pomReader);
+    public Project handleVersions(Project project, DepsReader depsReader) {
+        return this.versionHandler.handleVersion(project, depsReader);
     }
 
     /**

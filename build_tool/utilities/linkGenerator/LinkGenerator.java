@@ -3,8 +3,8 @@ package build_tool.utilities.linkGenerator;
 import build_tool.utilities.linkGenerator.link.Link;
 import build_tool.utilities.linkGenerator.link.LinkExtension;
 import build_tool.utilities.linkGenerator.link.VersionedLink;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.Artifact;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.Artifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.VersionedArtifact;
 import build_tool.utilities.version.Version;
 
 import java.net.URI;

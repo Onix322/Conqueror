@@ -3,6 +3,7 @@ package build_tool.cli.command;
 import configuration.Configuration;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -46,8 +47,20 @@ public class JarCommand implements Command<Boolean> {
         );
 
         try {
+            System.out.println("Starting jar creation process...");
             Process process = processBuilder.start();
-            process.waitFor();
+            int exitCode = process.waitFor();
+            if(exitCode == 0){
+                System.out.println("Process finished successfully!");
+            }
+
+            if(Files.exists(outputJarsLocationPath.resolve("app.jar"))){
+                System.out.println("Jar created: " + Files.exists(outputJarsLocationPath.resolve("app.jar")));
+                System.out.println("Jar path: " + outputJarsLocationPath.resolve("app.jar"));
+            } else {
+                System.err.println("Jar created: false");
+            }
+
             process.descendants().forEach(ProcessHandle::destroy);
             process.destroy();
             return CommandResult.<Boolean>builder()

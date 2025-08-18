@@ -1,9 +1,9 @@
-package build_tool.utilities.pomReader;
+package build_tool.utilities.depsReader;
 
-import build_tool.utilities.pomReader.handlers.XMLHandler;
-import build_tool.utilities.pomReader.handlers.XMLHandlerFactory;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.XMLParsed;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.xml.project.Project;
+import build_tool.utilities.depsReader.handlers.XMLHandler;
+import build_tool.utilities.depsReader.handlers.XMLHandlerFactory;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.XMLParsed;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.xml.project.Project;
 import build_tool.utilities.version.versionHandler.VersionParser;
 
 import javax.xml.parsers.SAXParser;
@@ -11,33 +11,33 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * PomReader is a singleton class responsible for reading and parsing Maven POM files.
+ * DepsReader is a singleton class responsible for reading and parsing Maven POM files.
  * It uses a SAXParser to read XML data and an XMLHandler to process the parsed data.
  * The class also integrates with VersionParser to handle versioning of artifacts.
  */
-public class PomReader {
+public class DepsReader {
 
     private final SAXParser saxParser;
     private final XMLHandlerFactory xmlHandlerFactory;
     private final VersionParser versionParser;
 
-    private PomReader(SAXParser saxParser, XMLHandlerFactory xmlHandlerFactory, VersionParser versionParser) {
+    private DepsReader(SAXParser saxParser, XMLHandlerFactory xmlHandlerFactory, VersionParser versionParser) {
         this.saxParser = saxParser;
         this.xmlHandlerFactory = xmlHandlerFactory;
         this.versionParser = versionParser;
     }
 
     private static class Holder {
-        private static PomReader INSTANCE = null;
+        private static DepsReader INSTANCE = null;
     }
 
     public static synchronized void init(SAXParser saxParser, XMLHandlerFactory xmlHandlerFactory, VersionParser versionParser) {
         if (Holder.INSTANCE == null) {
-            Holder.INSTANCE = new PomReader(saxParser, xmlHandlerFactory, versionParser);
+            Holder.INSTANCE = new DepsReader(saxParser, xmlHandlerFactory, versionParser);
         }
     }
 
-    public static PomReader getInstance() {
+    public static DepsReader getInstance() {
         if (Holder.INSTANCE == null) {
             throw new IllegalStateException("PomReader is not initialized. Use PomReader.init().");
         }

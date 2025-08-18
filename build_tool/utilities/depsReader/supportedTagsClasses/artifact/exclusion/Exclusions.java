@@ -1,4 +1,4 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.exclusion;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.exclusion;
 
 import java.util.ArrayList;
 

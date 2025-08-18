@@ -1,4 +1,4 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.dependency;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.dependency;
 
 import java.util.Objects;
 

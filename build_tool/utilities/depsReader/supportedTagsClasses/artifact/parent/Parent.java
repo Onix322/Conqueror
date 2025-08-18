@@ -1,6 +1,6 @@
-package build_tool.utilities.pomReader.supportedTagsClasses.artifact.parent;
+package build_tool.utilities.depsReader.supportedTagsClasses.artifact.parent;
 
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.VersionedArtifact;
 import build_tool.utilities.version.Version;
 
 import java.util.Objects;

@@ -13,8 +13,8 @@ public class Console {
     private JTextArea textArea;
     private JScrollPane scrollPane;
 
-    private final int width = 800;
-    private final int height = 600;
+    private final int DEFAULT_WIDTH = 800;
+    private final int DEFAULT_HEIGHT = 600;
 
     public Console(Process process) {
         this.init();
@@ -39,6 +39,7 @@ public class Console {
         alive = true;
         frame.setVisible(true);
         frame.setFocusable(true);
+        frame.setFocusableWindowState(true);
         new Thread(() -> {
             try (BufferedReader br = process.inputReader()){
                 String line;
@@ -56,13 +57,12 @@ public class Console {
     }
 
     public void close(){
-        if (process == null) {
-            throw new IllegalStateException("Process is not set!");
-        }
+
         alive = false;
         frame.dispose();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        if (process == null) return;
         process.children().forEach(ProcessHandle::destroy);
         process.destroy();
     }
@@ -83,7 +83,7 @@ public class Console {
     private JFrame frame(JComponent... jComponents){
         JFrame frame = new JFrame();
 
-        frame.setSize(this.width, this.height);
+        frame.setSize(this.DEFAULT_WIDTH, this.DEFAULT_HEIGHT);
         frame.setBackground(new Color(Color.black.getRGB()));
         frame.setTitle("Conqueror");
         frame.setResizable(true);
@@ -96,7 +96,7 @@ public class Console {
 
     private JScrollPane scrollPane(JTextArea textArea) {
         JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setSize(this.width, this.height);
+        scrollPane.setSize(this.DEFAULT_WIDTH, this.DEFAULT_HEIGHT);
         JScrollBar verticalScrollBar = scrollPane.createVerticalScrollBar();
         verticalScrollBar.setEnabled(true);
         return scrollPane;
@@ -108,7 +108,7 @@ public class Console {
         textArea.setVisible(true);
         textArea.setCaretColor(Color.BLACK);
         textArea.setFont(textArea.getFont().deriveFont(16f));
-        textArea.setSize(this.width, this.height);
+        textArea.setSize(this.DEFAULT_WIDTH, this.DEFAULT_HEIGHT);
         return textArea;
     }
 }

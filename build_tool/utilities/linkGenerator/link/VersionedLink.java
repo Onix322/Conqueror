@@ -1,7 +1,7 @@
 package build_tool.utilities.linkGenerator.link;
 
 
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.VersionedArtifact;
 
 import java.net.URI;
 import java.util.Objects;

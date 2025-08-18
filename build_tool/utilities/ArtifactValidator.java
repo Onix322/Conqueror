@@ -2,7 +2,7 @@ package build_tool.utilities;
 
 
 import build_tool.utilities.linkGenerator.link.VersionedLink;
-import build_tool.utilities.pomReader.supportedTagsClasses.artifact.VersionedArtifact;
+import build_tool.utilities.depsReader.supportedTagsClasses.artifact.VersionedArtifact;
 import configuration.Configuration;
 
 import java.io.File;

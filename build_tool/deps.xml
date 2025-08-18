@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project>
     <modelVersion>1.0.0</modelVersion>
     <artifactId>conqueror</artifactId>
 
@@ -11,4 +11,5 @@
             </dependency>
         </dependencies>
     -->
+
 </project>
