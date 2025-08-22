@@ -1,5 +1,6 @@
 import build_tool.cli.InterfaceCLI;
 import build_tool.cli.command.*;
+import build_tool.cli.process.JavaProcessManager;
 import build_tool.utilities.Loader;
 import configuration.Configuration;
 import configuration.ConfigurationImpl;
@@ -21,13 +22,16 @@ public class Main {
 
         //* Start App
         //Commands
+        JavaProcessManager.init(configuration);
+        JavaProcessManager javaProcessManager = JavaProcessManager.getInstance();
+
         InitCommand.init(loader);
         InitCommand initCommand = InitCommand.getInstance();
 
-        BuildCommand.init(configuration);
+        BuildCommand.init(configuration, javaProcessManager);
         BuildCommand buildCommand = BuildCommand.getInstance();
 
-        StartCommand.init(configuration);
+        StartCommand.init(configuration,  javaProcessManager);
         StartCommand startCommand = StartCommand.getInstance();
 
         StopCommand.init();
@@ -48,7 +52,7 @@ public class Main {
         RunCommand.init(initCommand, startCommand, buildCommand);
         RunCommand runCommand = RunCommand.getInstance();
 
-        JarCommand.init(configuration);
+        JarCommand.init(configuration, javaProcessManager);
         JarCommand jarCommand = JarCommand.getInstance();
 
         //CommandRegistry

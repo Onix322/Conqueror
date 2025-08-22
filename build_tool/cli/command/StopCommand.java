@@ -9,7 +9,7 @@ public class StopCommand implements Command<Boolean> {
         public static StopCommand INSTANCE = null;
     }
 
-    public static void init() {
+    public synchronized static void init() {
         if (StopCommand.Holder.INSTANCE == null) {
             StopCommand.Holder.INSTANCE = new StopCommand();
         }
@@ -30,7 +30,7 @@ public class StopCommand implements Command<Boolean> {
                 .setCommandType("stop");
 
         if (args[0] == null) {
-            System.out.println("No app found...");
+            System.out.println("No running app found...");
             return result.build();
         }
 

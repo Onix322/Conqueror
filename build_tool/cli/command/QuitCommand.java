@@ -12,7 +12,7 @@ public class QuitCommand implements Command<Boolean>{
         public static QuitCommand INSTANCE = null;
     }
 
-    public static void init(StopCommand stopCommand) {
+    public synchronized static void init(StopCommand stopCommand) {
         if(QuitCommand.Holder.INSTANCE == null) {
             QuitCommand.Holder.INSTANCE = new QuitCommand(stopCommand);
         }

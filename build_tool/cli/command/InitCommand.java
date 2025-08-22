@@ -17,7 +17,7 @@ public class InitCommand implements Command<Boolean> {
         public static InitCommand INSTANCE = null;
     }
 
-    public static void init(Loader loader) {
+    public synchronized static void init(Loader loader) {
         if(Holder.INSTANCE == null) {
             Holder.INSTANCE = new InitCommand(loader);
         }

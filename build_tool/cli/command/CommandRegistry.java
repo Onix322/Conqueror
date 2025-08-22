@@ -18,7 +18,7 @@ public class CommandRegistry {
         public static CommandRegistry INSTANCE = null;
     }
 
-    public static void init(NoCommand noCommand) {
+    public synchronized static void init(NoCommand noCommand) {
         if (CommandRegistry.Holder.INSTANCE == null) {
             CommandRegistry.Holder.INSTANCE = new CommandRegistry(noCommand);
         }

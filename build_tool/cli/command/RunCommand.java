@@ -15,7 +15,7 @@ public class RunCommand implements Command<Process> {
         public static RunCommand INSTANCE = null;
     }
 
-    public static void init(InitCommand initCommand, StartCommand startCommand, BuildCommand buildCommand) {
+    public synchronized static void init(InitCommand initCommand, StartCommand startCommand, BuildCommand buildCommand) {
         if (RunCommand.Holder.INSTANCE == null) {
             RunCommand.Holder.INSTANCE = new RunCommand(initCommand, startCommand, buildCommand);
         }

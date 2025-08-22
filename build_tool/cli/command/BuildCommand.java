@@ -1,5 +1,6 @@
 package build_tool.cli.command;
 
+import build_tool.cli.process.JavaProcessManager;
 import configuration.Configuration;
 
 import java.io.File;
@@ -18,8 +19,9 @@ public class BuildCommand implements Command<Process> {
     private final Path sourcePath;
     private final Path depsPath;
     private final Path configPath;
+    private final JavaProcessManager javaProcessManager;
 
-    public BuildCommand(Configuration configuration) {
+    public BuildCommand(Configuration configuration, JavaProcessManager javaProcessManager) {
         this.outputAppPath = Path.of(configuration.readProperty("output.app.location"))
                 .normalize();
         this.sourcePath = Path.of(configuration.readProperty("project.source"))
@@ -28,15 +30,17 @@ public class BuildCommand implements Command<Process> {
                 .normalize();
         this.configPath = Path.of(configuration.readProperty("config.location"))
                 .normalize();
+
+        this.javaProcessManager = javaProcessManager;
     }
 
     public static class Holder {
         public static BuildCommand INSTANCE = null;
     }
 
-    public static void init(Configuration configuration) {
+    public synchronized static void init(Configuration configuration, JavaProcessManager javaProcessManager) {
         if (BuildCommand.Holder.INSTANCE == null) {
-            BuildCommand.Holder.INSTANCE = new BuildCommand(configuration);
+            BuildCommand.Holder.INSTANCE = new BuildCommand(configuration, javaProcessManager);
         }
     }
 
@@ -47,12 +51,13 @@ public class BuildCommand implements Command<Process> {
     @Override
     public CommandResult<Process> exec(Object... args) {
 
-        List<String> command = this.createCommand();
         this.copyConfigFile();
         this.copyDependencies();
 
         try {
-            ProcessBuilder pb = new ProcessBuilder(command);
+            List<String> commands = this.createCommand();
+            ProcessBuilder pb = this.javaProcessManager.requestJavacProcess(commands);
+
             pb.inheritIO();
             Process process = pb.start();
             if (process.isAlive()) {
@@ -88,7 +93,6 @@ public class BuildCommand implements Command<Process> {
 
     private List<String> createCommand() {
         List<String> command = new ArrayList<>();
-        command.add("javac");
         command.add("--release");
         command.add("21");
         command.add("-d");

@@ -8,7 +8,7 @@ public class StatusCommand implements Command<Boolean> {
         public static StatusCommand INSTANCE = null;
     }
 
-    public static void init() {
+    public synchronized static void init() {
         if (StatusCommand.Holder.INSTANCE == null) {
             StatusCommand.Holder.INSTANCE = new StatusCommand();
         }

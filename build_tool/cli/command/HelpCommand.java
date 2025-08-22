@@ -8,7 +8,7 @@ public class HelpCommand implements Command<Boolean> {
         public static HelpCommand INSTANCE = null;
     }
 
-    public static void init() {
+    public synchronized static void init() {
         if (HelpCommand.Holder.INSTANCE == null) {
             HelpCommand.Holder.INSTANCE = new HelpCommand();
         }

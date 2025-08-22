@@ -5,13 +5,13 @@
 - The annotation must be added in App.java file for the application to recognize it.
 - The custom object (entity) is annotated with your custom annotation, which indicates is part of the context application.
 
-#### Custom Annotation
+#### 1. Creating Custom Annotation
 ```java
 public @interface CustomAnnotationEntity {
     // This annotation can be used to mark classes as entities in the application.
 }
 ```
-#### Adding the custom annotation to the application context
+#### 2. Adding the custom annotation to the application context
 ```java
 public class App {
     public static void main(String[] args) {
@@ -22,7 +22,7 @@ public class App {
 }
 ```
 
-#### Creating the custom object with the custom annotation
+#### 3. Creating the custom object with the custom annotation
 ```java
 @CustomAnnotationEntity
 public class TestObject {
@@ -52,6 +52,8 @@ public class TestObjectController {
         this.TEST_OBJECT_SERVICE = testObjectService;
     }
 
+    // Note the {integer} is a variable 
+    // In mapping annotations variables are declared by: { + variable type + }, and are used in the order of insertion.
     @GetMapping("/get/{integer}")
     public ResponseSuccessful<TestObject> getById(Integer id) {
         return ResponseSuccessful.<TestObject>builder()

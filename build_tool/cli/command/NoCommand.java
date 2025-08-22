@@ -7,7 +7,7 @@ public class NoCommand implements Command<Boolean>{
         public static NoCommand INSTANCE = null;
     }
 
-    public static void init() {
+    public synchronized static void init() {
         if (NoCommand.Holder.INSTANCE == null) {
             NoCommand.Holder.INSTANCE = new NoCommand();
         }
@@ -19,7 +19,7 @@ public class NoCommand implements Command<Boolean>{
 
     @Override
     public CommandResult<Boolean> exec(Object... args) {
-        System.out.println("Inexistent command. Type 'help' for command overview.");
+        System.out.println("Nonexistent command. Type 'help' for command overview.");
         return CommandResult.<Boolean>builder()
                 .setResult(null)
                 .setCommandType("none")
