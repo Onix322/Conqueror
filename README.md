@@ -82,8 +82,8 @@ git clone <repo-url>
 ```
 
 #### 4. **Set up project in IDE**
-- Mark the main directory as **source root**
-- Add `build_tool/target/libs` as library root
+- Mark the main directory as **source root** (if is not yet).
+- Add `build_tool/target/libs` as library root.
 
 #### 5. **Start the application**
 - Run the main class or script
@@ -438,29 +438,6 @@ CONQUEROR
 > E.g.: In IntelliJ: `Project Structure > Modules > Dependencies > + Add Folder`.
 
 ---
-
-```bash
-git clone <repo-url>
-```
-1.5. **Add `build_tool/target/libs`**
-   - Add to your IDE classpath (e.g., IntelliJ IDEA). This is crucial for runtime dependency resolution.
-   - Alternatively, you can run the build tool from the command line.
-   - If you want to run the build tool from the command line, ensure you have Java installed and set up correctly.
-   - If you don't use an IDE you can run the build tool using the following command: 
-
-   - ```bash
-      java -cp build_tool/target/libs Main
-      ```
-2. **Configure:**
-
-   - Edit `build_tool/config.properties` for local settings and framework settings
-
-3. **Build & Run:**
-   - use  
-```bash
-javac Main.java
-java -cp build_tool/target/libs Main
-```
 
 > Add your custom entities and controllers inside `framework/src/com/app/`
 > Add your custom app configuration (e.g. HibernateConfig) and controllers inside `framework/src/com/app/`
