@@ -27,20 +27,15 @@ public class Boot {
                 }
             }
 
-            String javaHome = System.getenv("JAVA_HOME");
+            String javaHome = System.getProperty("java.home");
             if (javaHome == null) {
                 throw new IllegalStateException("JAVA_HOME is not set. Please configure your JDK path.");
-            }
-
-            Path jarTool = Path.of(javaHome, "bin", "jar.exe");
-            if (!Files.exists(jarTool)) {
-                throw new IllegalStateException("Jar tool not found at: " + jarTool);
             }
 
             System.out.println("Extracting '" + dirToExtract + "' from " + jarPath + "...");
 
             ProcessBuilder pb = new ProcessBuilder(
-                    jarTool.toString(),
+                    "jar",
                     "-xf",
                     jarPath
             );

@@ -2,13 +2,13 @@
 
 ### Creating an entity
 - first, we need to create a `custom object` with a `custom annotation` that will be used in the application.
-- The annotation must be added in App.java file for the application to recognize it.
+- Do not forget to add the annotation in App.java file for the application to recognize it.
 - The custom object (entity) is annotated with your custom annotation, which indicates is part of the context application.
 
 #### 1. Creating Custom Annotation
 ```java
 public @interface CustomAnnotationEntity {
-    // This annotation can be used to mark classes as entities in the application.
+    // This annotation can be used to mark classes as entities in the application context.
 }
 ```
 #### 2. Adding the custom annotation to the application context

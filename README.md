@@ -72,7 +72,7 @@ This project demonstrates a deep understanding of HTTP processing, DI, reflectio
 
 #### 3. **Clone the repository**
 ```bash
-    git clone <repo-url>
+    git clone https://github.com/Onix322/Conqueror.git
 ```
 
 #### 4. **Set up project in IDE**
@@ -433,6 +433,21 @@ CONQUEROR
 ```
 ---
 
+## ⚔️🛠️ About the Project
+
+The project is called **Conqueror Framework & Build Tool**.
+
+It’s a lightweight Java framework with its own custom build tool.  
+The main features include:
+- A simple **dependency container**
+- **Annotation-based support** for components
+- A **persistence module**
+- A **custom JSON parser**
+
+### Goal
+The main goal of this project was to gain a deeper understanding of what happens *“under the hood”* of frameworks like Spring, and to challenge myself by building a minimal custom build system from scratch.
+
+
 ## 🚀 Key Features
 
 ### ✅ Framework
@@ -460,13 +475,16 @@ CONQUEROR
 - Automatically generates download URLs for artifacts
 - Stores all resolved dependencies in `build_tool/target/libs`
 
-> ⚠️ To include dependencies at runtime, you must manually add `build_tool/target/libs` to your **project classpath**. 
-> E.g.: In IntelliJ: `Project Structure > Modules > Dependencies > + Add Folder`.
+> ⚠️ To include dependencies at runtime, you must manually add `build_tool/target/libs` to your **project libraries**. \
+> E.g.: In IntelliJ:
+> 1. `Project Structure > Libraries > + Add Folder > Java > build_tool/target/libs`.
+> 2. `Project Structure > Module > Dependencies > + Add Folder > libs`.
 
 ---
 
-> Add your custom entities and controllers inside `framework/src/com/app/`
-> Add your custom app configuration (e.g. HibernateConfig) and controllers inside `framework/src/com/app/`
+> Add your custom entities and controllers inside `framework/src/com/app/`.
+> \
+> Add your custom app configuration (e.g. HibernateConfig) and controllers inside `framework/src/com/app_config/`.
 
 ## 📦 Build Tool Output
 
@@ -476,16 +494,9 @@ After dependency resolution, the following structure is created:
 build_tool
 │   
 └──target
-  │   classpath.txt # Stores classpath full -java -cp command
   │
   └───libs       # Dependencies are downloaded here
 ```
-
-You must ensure `build_tool/target/libs` is part of your runtime classpath.
-> E.g.: In IntelliJ: `Project Structure > Modules > Dependencies > + Add Folder`. \
-> E.g.: No IDE: `java -cp build_tool/target/libs Main`
-
-
 ---
 
 ## 🙌 Author
