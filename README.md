@@ -83,13 +83,13 @@ git clone <repo-url>
 
 #### 4. **Set up project in IDE**
 - Mark the main directory as **source root** (if is not yet).
-- Add `build_tool/target/libs` as library root.
+- Add `build_tool/target/libs` as **Library** and include it in **Modules**.
 
-#### 5. **Start the application**
+#### 5. **Start the application (IDE)**
 - Run the main class or script
 - Type `help` in the app to see all available commands
 
-#### 6. **Build & Run (CLI)**
+#### 5.1 **Build & Run (CLI)**
 ```bash
 
 javac Main.java
@@ -470,13 +470,10 @@ Developed entirely by **Alexandru Dobos (Onix322)**, software engineer focused o
 
 ## 📄 License
 
-Open-source license. Free for personal and educational use.
+Open-source. Free for who ever want to use it.
 
 ---
 
 For feedback or technical questions: [GitHub Issues] or reach out via direct message.
 
 ---
-
-> *"Don't just use tools. Understand them. Then build your own."* — Alex, Creator of Conqueror
-
