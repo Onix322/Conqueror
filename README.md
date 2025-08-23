@@ -9,15 +9,92 @@ This project demonstrates a deep understanding of HTTP processing, DI, reflectio
 
 ---
 
-## 🛠 How to Run
-1. Install Java 
-2. Install JDK and add jdk's bin directory to OS's env variable PATH
-> E.G. linux: sudo apt install openjdk-21-jre-headless
-> open the installation dir (e.g. $HOME/.jdks/openjdk-21-jre-headless/bin)
-> copy path
-> open $HOME/.bashrc and add "export PATH=<your path>" (e.g.: export PATH=/home/<username>/.jdks/openjdk-21-jre-headless/bin)
-2. **Clone the repo:**
+## 🛠 Quick Start
 
+#### 1. **Install Java**  
+   **NOTE:** After installing Java, if you don’t use an IDE to run the app, make sure you have `JAVA_HOME` set in your OS environment. Basic Java installation **does not always set it automatically**.
+
+#### 2. **Set `JAVA_HOME`**:
+   **NOTE:** If you use an IDE to run the source code (e.g. IntelliJ IDEA) you may not need to do those steps. But to be sure everything runs properly is **recommended** follow all of them. 
+
+- Windows
+```bash
+
+1. Install a JDK (e.g., Java 24) from [Oracle](https://www.oracle.com/java/technologies/javase-downloads.html) or OpenJDK.
+
+# Set JAVA_HOME environment variable (if not set already)
+2. Open **Control Panel → System → Advanced system settings → Environment Variables**
+
+3. Add a new **System variable**:
+   - Variable name: `JAVA_HOME`
+   - Variable value: e.g., `C:\Program Files\Java\jdk-24`
+   
+# Add it in PATH (if not yet)
+4. Edit the `Path` variable and add: `%JAVA_HOME%\bin`
+
+5. Open a new Command Prompt and verify:
+   - echo %JAVA_HOME%
+   - java -version
+```
+
+- Linux (Ubuntu/Debian)
+
+```bash
+
+sudo apt update
+sudo apt install openjdk-24-jdk -y
+
+# Set JAVA_HOME and update PATH persistently in your shell config (~/.bashrc or ~/.zshrc)
+echo 'export JAVA_HOME=/usr/lib/jvm/java-24-openjdk-amd64' >> ~/.bashrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
+
+# Apply changes immediately
+source ~/.bashrc
+
+# Verify
+echo $JAVA_HOME
+java -version
+```
+
+- macOS
+
+```bash
+
+# Install Java (e.g., via Homebrew or official JDK)
+brew install openjdk@24
+
+# Set JAVA_HOME persistently
+echo 'export JAVA_HOME=$(/usr/libexec/java_home)' >> ~/.zshrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
+
+# Apply changes immediately
+source ~/.zshrc
+
+# Verify
+echo $JAVA_HOME
+java -version
+```
+
+#### 3. **Clone the repository**
+```bash
+
+git clone <repo-url>
+```
+
+#### 4. **Set up project in IDE**
+- Mark the main directory as **source root**
+- Add `build_tool/target/libs` as library root
+
+#### 5. **Start the application**
+- Run the main class or script
+- Type `help` in the app to see all available commands
+
+#### 6. **Build & Run (CLI)**
+```bash
+
+javac Main.java
+java -cp build_tool/target/libs Main
+```
 
 ## 🧠 Architecture Overview
 ```
@@ -48,8 +125,11 @@ CONQUEROR
 │   │   │       StatusCommand.java
 │   │   │       StopCommand.java
 │   │   │
-│   │   └───console
-│   │           Console.java
+│   │   ├───console
+│   │   │       Console.java
+│   │   │   
+│   │   └───process
+│   │           JavaProcessManager.java
 │   │
 │   ├───target
 │   │   └───libs
