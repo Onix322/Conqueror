@@ -6,6 +6,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 
+/**
+ *  Boot class is responsible for managing the boot of the app when is started
+ *  And extract all needed files for the app to run properly.
+ */
 public class Boot {
 
     public static void boot(String jarPath, String dirToExtract, String targetDir, boolean force) {

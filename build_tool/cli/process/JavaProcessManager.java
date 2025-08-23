@@ -49,7 +49,6 @@ public class JavaProcessManager {
         Path javacPath = this.requestJavaHome()
                 .resolve("javac");
         commands.addFirst(javacPath.toString());
-        System.out.println(commands);
         return new ProcessBuilder(commands);
     }
 

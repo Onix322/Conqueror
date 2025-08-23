@@ -19,66 +19,60 @@ This project demonstrates a deep understanding of HTTP processing, DI, reflectio
 
 - Windows
 ```bash
-
-1. Install a JDK (e.g., Java 24) from [Oracle](https://www.oracle.com/java/technologies/javase-downloads.html) or OpenJDK.
-
-# Set JAVA_HOME environment variable (if not set already)
-2. Open **Control Panel → System → Advanced system settings → Environment Variables**
-
-3. Add a new **System variable**:
-   - Variable name: `JAVA_HOME`
-   - Variable value: e.g., `C:\Program Files\Java\jdk-24`
-   
-# Add it in PATH (if not yet)
-4. Edit the `Path` variable and add: `%JAVA_HOME%\bin`
-
-5. Open a new Command Prompt and verify:
-   - echo %JAVA_HOME%
-   - java -version
+    1. Install a JDK (e.g., Java 24) from [Oracle](https://www.oracle.com/java/technologies/javase-downloads.html) or OpenJDK.
+    
+    # Set JAVA_HOME environment variable (if not set already)
+    2. Open **Control Panel → System → Advanced system settings → Environment Variables**
+    
+    3. Add a new **System variable**:
+       - Variable name: `JAVA_HOME`
+       - Variable value: e.g., `C:\Program Files\Java\jdk-24`
+       
+    # Add it in PATH (if not yet)
+    4. Edit the `Path` variable and add: `%JAVA_HOME%\bin`
+    
+    5. Open a new Command Prompt and verify:
+       - echo %JAVA_HOME%
+       - java -version
 ```
 
 - Linux (Ubuntu/Debian)
-
 ```bash
-
-sudo apt update
-sudo apt install openjdk-24-jdk -y
-
-# Set JAVA_HOME and update PATH persistently in your shell config (~/.bashrc or ~/.zshrc)
-echo 'export JAVA_HOME=/usr/lib/jvm/java-24-openjdk-amd64' >> ~/.bashrc
-echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
-
-# Apply changes immediately
-source ~/.bashrc
-
-# Verify
-echo $JAVA_HOME
-java -version
+    sudo apt update
+    sudo apt install openjdk-24-jdk -y
+    
+    # Set JAVA_HOME and update PATH persistently in your shell config (~/.bashrc or ~/.zshrc)
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-24-openjdk-amd64' >> ~/.bashrc
+    echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
+    
+    # Apply changes immediately
+    source ~/.bashrc
+    
+    # Verify
+    echo $JAVA_HOME
+    java -version
 ```
-
+    
 - macOS
-
 ```bash
-
-# Install Java (e.g., via Homebrew or official JDK)
-brew install openjdk@24
-
-# Set JAVA_HOME persistently
-echo 'export JAVA_HOME=$(/usr/libexec/java_home)' >> ~/.zshrc
-echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
-
-# Apply changes immediately
-source ~/.zshrc
-
-# Verify
-echo $JAVA_HOME
-java -version
+    # Install Java (e.g., via Homebrew or official JDK)
+    brew install openjdk@24
+    
+    # Set JAVA_HOME persistently
+    echo 'export JAVA_HOME=$(/usr/libexec/java_home)' >> ~/.zshrc
+    echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
+    
+    # Apply changes immediately
+    source ~/.zshrc
+    
+    # Verify
+    echo $JAVA_HOME
+    java -version
 ```
 
 #### 3. **Clone the repository**
 ```bash
-
-git clone <repo-url>
+    git clone <repo-url>
 ```
 
 #### 4. **Set up project in IDE**
@@ -91,9 +85,41 @@ git clone <repo-url>
 
 #### 5.1 **Build & Run (CLI)**
 ```bash
+    javac Main.java
+    java -cp build_tool/target/libs Main
+```
 
-javac Main.java
-java -cp build_tool/target/libs Main
+## Start after compilation
+
+### 1. Compile with commands:
+```bash
+  build
+  jar
+```
+
+### 2. Run app:
+#### Windows
+
+- You must create .bat file to run it
+- Use the following script:
+
+```bash
+    @echo off
+    java -cp "app.jar;classes" framework.src.App -boot
+    pause
+```
+#### Linux / macOS
+
+- You must create .sh file to run it
+- Use the following script:
+```bash
+    #!/bin/bash
+    java -cp "app.jar:classes" framework.src.App -boot
+    read -p "Press [Enter] key to continue..."
+```
+- Make it executable:
+```bash
+    chmod +x run.sh
 ```
 
 ## 🧠 Architecture Overview
@@ -421,7 +447,7 @@ CONQUEROR
 
 > 🔧 To use an ORM (e.g. Hibernate), or any other class as a component from ApplicationContext, install it as a dependency in deps.xml and configure it easily in the `framework/src/com/config` directory \
 > by creating a configuration class (e.g. HibernateConfig) using `@ComponentConfig` over the class and `@ForceInstance` over the method annotations. \
-> Any parameters should be objects witch are registered in the ApplicationContext.\ 
+> Any parameters should be objects which are registered in the ApplicationContext.\ 
 > The class (HibernateConfig) should return the instance of the respective class. \
 > If you want an Annotation to be recognized by the ApplicationContext, you have to register it in App.java. (E.g. @Entity from Hibernate).
 
@@ -470,7 +496,7 @@ Developed entirely by **Alexandru Dobos (Onix322)**, software engineer focused o
 
 ## 📄 License
 
-Open-source. Free for who ever want to use it.
+Open-source. Free for whoever wants to use it.
 
 ---
 

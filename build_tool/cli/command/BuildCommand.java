@@ -19,6 +19,7 @@ public class BuildCommand implements Command<Process> {
     private final Path sourcePath;
     private final Path depsPath;
     private final Path configPath;
+    private final String jdkVersion;
     private final JavaProcessManager javaProcessManager;
 
     public BuildCommand(Configuration configuration, JavaProcessManager javaProcessManager) {
@@ -30,7 +31,7 @@ public class BuildCommand implements Command<Process> {
                 .normalize();
         this.configPath = Path.of(configuration.readProperty("config.location"))
                 .normalize();
-
+        this.jdkVersion = System.getProperty("java.specification.version");
         this.javaProcessManager = javaProcessManager;
     }
 
@@ -94,7 +95,7 @@ public class BuildCommand implements Command<Process> {
     private List<String> createCommand() {
         List<String> command = new ArrayList<>();
         command.add("--release");
-        command.add("21");
+        command.add(jdkVersion);
         command.add("-d");
         command.add(outputAppPath.toString());
         command.addAll(collectJavaSources(Paths.get(sourcePath.toString())));

@@ -22,7 +22,7 @@
 public class HibernateConfig {
 
     @ForceInstance
-    //Note the parameters are, in fact, Dependency Injection
+    //Note the parameters are, in fact, Dependencies which will be injected.
     public Configuration registerCfg(configuration.Configuration configuration, ApplicationContext applicationContext){
         Configuration cfg = new Configuration();
         List<Class<?>> entities = applicationContext.getEntities()
