@@ -1,16 +1,17 @@
-# Conqueror Framework & Build Tool
+# Conqueror Framework & Build Tool ⚔️🛠️
 
-Conqueror is a self-built Java ecosystem composed of:
+Conqueror is a self-developed Java ecosystem composed of:
+- a **lightweight modular web framework**, inspired by Spring but fully decoupled,
+- a **custom build tool**, designed as a minimal alternative to Maven.
 
-- a **modular web framework**, inspired by Spring but fully decoupled,
-- a **custom build tool** designed to replace Maven for personal projects.
-
-This project demonstrates a deep understanding of HTTP processing, DI, reflection, JSON/XML parsing, and Maven dependency resolution.
-
+This project was built to explore and understand the inner mechanisms of enterprise Java frameworks, including:
+- HTTP processing
+- Dependency Injection & Reflection
+- JSON/XML parsing
+- Dependency resolution from Maven Central
 ---
 
-### !!! This project has .md files with examples of how to use and build an app in its respective directories. !!!
-
+### ⚠️ This project includes .md files with examples showing how to use the framework and build an application. You can find them in the corresponding directories.
 ## 🛠 Quick Start
 
 #### 1. **Install Java**  
@@ -463,12 +464,11 @@ The main goal of this project was to gain a deeper understanding of what happens
 ## 🚀 Key Features
 
 ### ✅ Framework
-
-- Custom-built HTTP server
+- Custom HTTP server
 - Annotation-based routing (`@GetMapping`, `@PostMapping`, etc.)
-- Custom Dependency Injection (DI) container
-- Handcrafted JSON parser with no external libraries
-- Optional ORM integration (e.g: Hibernate)
+- Lightweight DI container
+- Handcrafted JSON parser (no external libs)
+- Persistence module with mechanism to integrate any ORM (e.g. Hibernate)
 - Exception management system
 - Minimal configuration, high extensibility
 
@@ -479,13 +479,11 @@ The main goal of this project was to gain a deeper understanding of what happens
 > If you want an Annotation to be recognized by the ApplicationContext, you have to register it in App.java. (E.g. @Entity from Hibernate).
 
 ### ✅ Build Tool
-
 - Downloads dependencies from Maven Central
-- Parses POM files using SAX
-- Resolves latest version within intervals
-- Handles transitive dependencies and exclusions
-- Automatically generates download URLs for artifacts
-- Stores all resolved dependencies in `build_tool/target/libs`
+- Parses POM files via SAX
+- Resolves latest versions (intervals supported)
+- Handles transitive dependencies & exclusions
+- Stores all dependencies in `build_tool/target/libs`
 
 > ⚠️ To include dependencies at runtime, you must manually add `build_tool/target/libs` to your **project libraries**. \
 > E.g.: In IntelliJ:
