@@ -9,6 +9,8 @@ This project demonstrates a deep understanding of HTTP processing, DI, reflectio
 
 ---
 
+### !!! This project has .md files with examples of how to use and build an app in its respective directories. !!!
+
 ## 🛠 Quick Start
 
 #### 1. **Install Java**  
@@ -82,6 +84,16 @@ This project demonstrates a deep understanding of HTTP processing, DI, reflectio
 #### 5. **Start the application (IDE)**
 - Run the main class or script
 - Type `help` in the app to see all available commands
+```bash
+    run - for app init, build and start
+    stop - to stop running
+```
+- or
+```bash
+    build - for app build
+    start - for app start
+    stop - to stop running
+```
 
 #### 5.1 **Build & Run (CLI)**
 ```bash
