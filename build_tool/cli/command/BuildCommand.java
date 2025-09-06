@@ -177,7 +177,13 @@ public class BuildCommand implements Command<Process> {
 
 
     public void deleteFile(){
+
+        if(!Files.exists(outputAppPath)){
+            return;
+        }
+
         try{
+
             List<Path> paths = Files.walk(outputAppPath)
                     .collect(Collectors.toCollection(ArrayList::new))
                     .reversed();
