@@ -53,9 +53,10 @@ public class StartCommand implements Command<Process> {
     private List<String> createCommand(){
         Path outputAppLocation = Path.of(configuration.readProperty("output.app.location"));
         String appEntry = configuration.readProperty("app.entry");
+        String location = outputAppLocation.normalize().toString().replace(File.separator, "/");
         List<String> command = new ArrayList<>();
         command.add("-cp");
-        command.add(outputAppLocation.normalize().toString().replace(File.separator, "/"));
+        command.add(location + ';' + location + "/classes/*");
         command.add(appEntry);
 
         return command;

@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BuildCommand implements Command<Process> {
@@ -52,6 +54,7 @@ public class BuildCommand implements Command<Process> {
     @Override
     public CommandResult<Process> exec(Object... args) {
 
+        this.deleteFile();
         this.copyConfigFile();
         this.copyDependencies();
 
@@ -93,12 +96,25 @@ public class BuildCommand implements Command<Process> {
     }
 
     private List<String> createCommand() {
+
+        List<String> sources = new LinkedList<>();
+        sources.addAll(collectJavaSources(Paths.get("./configuration").normalize()));
+        sources.addAll(collectJavaSources(Paths.get(sourcePath.toString())));
+
         List<String> command = new ArrayList<>();
+
+        String cp = sourcePath.toString()
+                + File.pathSeparator + depsPath.toString() + File.separator + "*"
+                + File.pathSeparator + depsPath.toString() + File.separator + "*";
+
+        command.add("-cp");
+        command.add(cp);
+
         command.add("--release");
         command.add(jdkVersion);
         command.add("-d");
         command.add(outputAppPath.toString());
-        command.addAll(collectJavaSources(Paths.get(sourcePath.toString())));
+        command.addAll(sources);
 
         return command;
     }
@@ -153,6 +169,21 @@ public class BuildCommand implements Command<Process> {
                 Path source = from.relativize(p.normalize());
                 Path target = bootOut.resolve(source);
                 Files.copy(p, target.normalize(), StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void deleteFile(){
+        try{
+            List<Path> paths = Files.walk(outputAppPath)
+                    .collect(Collectors.toCollection(ArrayList::new))
+                    .reversed();
+
+            for (Path path : paths){
+                Files.deleteIfExists(path);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

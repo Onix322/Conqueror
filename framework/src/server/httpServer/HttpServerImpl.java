@@ -44,7 +44,7 @@ public final class HttpServerImpl implements HttpServer {
     private final RouteProcessor ROUTE_PROCESSOR;
     private final ExceptionManager EXCEPTION_MAPPER;
 
-    private HttpServerImpl(Configuration configuration,
+    public HttpServerImpl(Configuration configuration,
                            ExecutorService executorService,
                            TransformationHandler transformationHandler,
                            RouteHandler routeHandler,

@@ -23,7 +23,16 @@ public class App {
 ```
 
 #### 3. Creating the custom object with the custom annotation
+
 ```java
+import framework.src.server.annotations.component.ComponentEntity;
+
+
+// if you are following the examples, you need this '@ComponentEntity'
+// In the example of HibernateConfig because this annotation is adding 
+// the entity class in context and is used by Hibernate configuration
+// to create tables
+@ComponentEntity
 @CustomAnnotationEntity
 public class TestObject {
   //... the rest of the class implementation
@@ -43,60 +52,61 @@ public class TestObject {
   which map the HTTP requests to the respective methods in the controller.
 
 ```java
+
 @Controller("/test-object")
 public class TestObjectController {
 
-    private final TestObjectService TEST_OBJECT_SERVICE;
+  private final TestObjectService TEST_OBJECT_SERVICE;
 
-    private TestObjectController(TestObjectService testObjectService) {
-        this.TEST_OBJECT_SERVICE = testObjectService;
-    }
+  private TestObjectController(TestObjectService testObjectService) {
+    this.TEST_OBJECT_SERVICE = testObjectService;
+  }
 
-    // Note the {integer} is a variable 
-    // In mapping annotations variables are declared by: { + variable type + }, and are used in the order of insertion.
-    @GetMapping("/get/{integer}")
-    public ResponseSuccessful<TestObject> getById(Integer id) {
-        return ResponseSuccessful.<TestObject>builder()
-                .setHttpStatus(HttpStatus.OK.getCode())
-                .setMessage(HttpStatus.OK.getMessage())
-                .setData(this.TEST_OBJECT_SERVICE.findById(id))
-                .build();
-    }
-    @GetMapping
-    public ResponseSuccessful<List<TestObject>> getAll() {
-        return ResponseSuccessful.<List<TestObject>>builder()
-                .setHttpStatus(HttpStatus.OK.getCode())
-                .setMessage(HttpStatus.OK.getMessage())
-                .setData(this.TEST_OBJECT_SERVICE.findAll())
-                .build();
-    }
+  // Note the {integer} is a variable
+  // In mapping annotations variables are declared by: { + variable type + }, and are used in the order of insertion.
+  @GetMapping("/get/{integer}")
+  public ResponseSuccessful<TestObject> getById(Integer id) {
+    return ResponseSuccessful.<TestObject>builder()
+            .setHttpStatus(HttpStatus.OK.getCode())
+            .setMessage(HttpStatus.OK.getMessage())
+            .setData(this.TEST_OBJECT_SERVICE.findById(id))
+            .build();
+  }
+  @GetMapping
+  public ResponseSuccessful<List<TestObject>> getAll() {
+    return ResponseSuccessful.<List<TestObject>>builder()
+            .setHttpStatus(HttpStatus.OK.getCode())
+            .setMessage(HttpStatus.OK.getMessage())
+            .setData(this.TEST_OBJECT_SERVICE.findAll())
+            .build();
+  }
 
-    @DeleteMapping("/{integer}")
-    public ResponseSuccessful<Boolean> remove(Integer id) {
-        return ResponseSuccessful.<Boolean>builder()
-                .setHttpStatus(HttpStatus.OK.getCode())
-                .setMessage(HttpStatus.OK.getMessage())
-                .setData(this.TEST_OBJECT_SERVICE.remove(id))
-                .build();
-    }
+  @DeleteMapping("/{integer}")
+  public ResponseSuccessful<Boolean> remove(Integer id) {
+    return ResponseSuccessful.<Boolean>builder()
+            .setHttpStatus(HttpStatus.OK.getCode())
+            .setMessage(HttpStatus.OK.getMessage())
+            .setData(this.TEST_OBJECT_SERVICE.remove(id))
+            .build();
+  }
 
-    @PostMapping
-    public ResponseSuccessful<TestObject> create(@RequestBody TestObject object) {
-        return ResponseSuccessful.<TestObject>builder()
-                .setHttpStatus(HttpStatus.OK.getCode())
-                .setMessage(HttpStatus.OK.getMessage())
-                .setData(this.TEST_OBJECT_SERVICE.create(object))
-                .build();
-    }
+  @PostMapping
+  public ResponseSuccessful<TestObject> create(@RequestBody TestObject object) {
+    return ResponseSuccessful.<TestObject>builder()
+            .setHttpStatus(HttpStatus.OK.getCode())
+            .setMessage(HttpStatus.OK.getMessage())
+            .setData(this.TEST_OBJECT_SERVICE.create(object))
+            .build();
+  }
 
-    @PutMapping("/{integer}")
-    public ResponseSuccessful<TestObject> update(@RequestBody TestObject object, Integer id) {
-        return ResponseSuccessful.<TestObject>builder()
-                .setHttpStatus(HttpStatus.OK.getCode())
-                .setMessage(HttpStatus.OK.getMessage())
-                .setData(this.TEST_OBJECT_SERVICE.update(object, id))
-                .build();
-    }
+  @PutMapping("/post/{integer}")
+  public ResponseSuccessful<TestObject> update(@RequestBody TestObject object, Integer id) {
+    return ResponseSuccessful.<TestObject>builder()
+            .setHttpStatus(HttpStatus.OK.getCode())
+            .setMessage(HttpStatus.OK.getMessage())
+            .setData(this.TEST_OBJECT_SERVICE.update(object, id))
+            .build();
+  }
 }
 ```
 
@@ -106,39 +116,39 @@ public class TestObjectController {
 - The service class is annotated with `@Service`, which indicates that it is a service component in the application.
 
 ```java
-@Service
+@Component
 public class TestObjectService {
 
-    private final TestObjectRepository TEST_OBJECT_REPOSITORY;
+  private final Repository<TestObject, Integer> TEST_OBJECT_REPOSITORY;
 
-    public TestObjectService(TestObjectRepository testObjectRepository) {
-        this.TEST_OBJECT_REPOSITORY = testObjectRepository;
-    }
+  public TestObjectService(Repository<TestObject, Integer> testObjectRepository) {
+    this.TEST_OBJECT_REPOSITORY = testObjectRepository;
+  }
 
-    public TestObject findById(Integer id) {
-        return this.TEST_OBJECT_REPOSITORY.findById(id)
-                .orElseThrow(() -> new NotFoundException("TestObject not found with id: " + id));
-    }
+  public TestObject findById(Integer id) {
+    return this.TEST_OBJECT_REPOSITORY.findById(TestObject.class, id)
+            .orElseThrow(() -> new NoSuchElementException("TestObject not found with id: " + id));
+  }
 
-    public List<TestObject> findAll() {
-        return this.TEST_OBJECT_REPOSITORY.findAll();
-    }
+  public List<TestObject> findAll() {
+    return this.TEST_OBJECT_REPOSITORY.findAll(TestObject.class);
+  }
 
-    public boolean remove(Integer id) {
-        return this.TEST_OBJECT_REPOSITORY.removeById(id);
-    }
+  public boolean remove(Integer id) {
+    return this.TEST_OBJECT_REPOSITORY.removeById(TestObject.class, id);
+  }
 
-    public TestObject create(TestObject object) {
-        return this.TEST_OBJECT_REPOSITORY.save(object);
-    }
+  public TestObject create(TestObject object) {
+    return this.TEST_OBJECT_REPOSITORY.save(object);
+  }
 
-    public TestObject update(TestObject object, Integer id) {
-        if (!this.TEST_OBJECT_REPOSITORY.existsById(id)) {
-            throw new NotFoundException("TestObject not found with id: " + id);
-        }
-        object.setId(id);
-        return this.TEST_OBJECT_REPOSITORY.save(object);
+  public TestObject update(TestObject object, Integer id) {
+    Optional<TestObject> eo = this.TEST_OBJECT_REPOSITORY.findById(TestObject.class, id);
+    if (eo.isEmpty()) {
+      throw new NoSuchElementException("TestObject not found with id: " + id);
     }
+    return this.TEST_OBJECT_REPOSITORY.update(TestObject.class, object, id);
+  }
 }
 ```
 

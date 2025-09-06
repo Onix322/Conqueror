@@ -53,17 +53,15 @@ public class HibernateConfig {
 ### 🛠 And implementation of the repository configuration
 
 ```java
-public class RepositoryHibernate<T, ID extends Number> implements Persistence<T, ID> {
-
-    private final SessionFactory emf;
-
-    public RepositoryHibernate(SessionFactory emf) {
-        this.emf = emf;
+@Component
+public class Repository<T, ID extends Number> {
+    private final SessionFactory sessionFactory;
+    public Repository(SessionFactoryImpl sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
-    
-    @Override
+
     public Optional<T> findById(Class<T> entity, ID id) {
-        Session session = this.emf.openSession();
+        Session session = this.sessionFactory.openSession();
         T result = session.byId(entity)
                 .with(LockMode.NONE)
                 .load(id);
@@ -71,10 +69,9 @@ public class RepositoryHibernate<T, ID extends Number> implements Persistence<T,
         return Optional.ofNullable(result);
     }
 
-    @Override
     public List<T> findAll(Class<T> entity) {
         List<T> list;
-        Session session = this.emf.openSession();
+        Session session = this.sessionFactory.openSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(entity);
         Root<T> rootEntry = cq.from(entity);
@@ -85,9 +82,8 @@ public class RepositoryHibernate<T, ID extends Number> implements Persistence<T,
         return list;
     }
 
-    @Override
     public boolean removeById(Class<T> entity, ID id) {
-        Session session = this.emf.openSession();
+        Session session = this.sessionFactory.openSession();
         Optional<T> objectBox = this.findById(entity, id);
 
         if (objectBox.isEmpty()) return false;
@@ -99,9 +95,8 @@ public class RepositoryHibernate<T, ID extends Number> implements Persistence<T,
         return true;
     }
 
-    @Override
     public T save(T entity) {
-        Session session = this.emf.openSession();
+        Session session = this.sessionFactory.openSession();
         Transaction transaction = null;
 
         try {
@@ -117,9 +112,8 @@ public class RepositoryHibernate<T, ID extends Number> implements Persistence<T,
         }
     }
 
-    @Override
     public T update(Class<T> entityClass, T entity, ID id) {
-        Session session = this.emf.openSession();
+        Session session = this.sessionFactory.openSession();
         Transaction transaction = null;
         T result;
         try {
