@@ -80,8 +80,13 @@ public final class TransformationHandler {
         while (in.ready() && (b = in.read()) != -1) {
             bodyBuilder.append(Character.toString(b));
         }
-
-        HttpRequestBody httpRequestBody = new HttpRequestBody(bodyBuilder.toString());
+        bodyBuilder.trimToSize();
+        HttpRequestBody httpRequestBody;
+        if(!bodyBuilder.isEmpty()){
+            httpRequestBody = new HttpRequestBody(bodyBuilder.toString());
+        } else {
+            httpRequestBody = new HttpRequestBody(null);
+        }
 
         return HttpRequest.builder()
                 .setHttpRequestHeader(headers)
@@ -101,6 +106,7 @@ public final class TransformationHandler {
      */
     public HttpRequest handleCasting(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
         System.out.println(request.getStartLine().getMethod().hasBody());
+
         return switch (request.getStartLine().getMethod().hasBody()){
             case REQUIRED -> this.castRequiredBody(routeMetaData, request);
             case OPTIONAL -> this.castOptionalBody(routeMetaData, request);
@@ -117,30 +123,40 @@ public final class TransformationHandler {
      * @return HttpRequest with the body cast to the required type
      * @throws Exception if there is an error during casting
      */
-    public HttpRequest castRequiredBody(RouteMetaData routeMetaData, HttpRequest request) throws Exception {
-        HttpRequestBody body = new HttpRequestBody(null);
-        String rawBody = request.getHttpRequestBody().getBody(String.class);
-        Class<?> clazz = this.getRequestBodyParam(routeMetaData.getMethodMetaData());
-        JsonType jsonType = JSON_SERVICE.parse(rawBody);
-        Object obj;
+    public HttpRequest castRequiredBody(RouteMetaData routeMetaData, HttpRequest request) {
 
-        if (jsonType instanceof JsonObject jsonObject) {
-            obj = JSON_SERVICE.mapObject(jsonObject, clazz);
-        } else if (jsonType instanceof JsonArray jsonArray) {
-            obj = JSON_SERVICE.mapArray(jsonArray, LinkedList.class);
-        } else if (rawBody.isEmpty()) {
-            obj = "";
-        } else {
-            obj = null;
+        try {
+            if(request.getHttpRequestBody().getBody() == null){
+                throw new IllegalStateException("No body found!");
+            }
+
+            HttpRequestBody body = new HttpRequestBody(null);
+            String rawBody = request.getHttpRequestBody().getBody(String.class);
+            Class<?> clazz = this.getRequestBodyParam(routeMetaData.getMethodMetaData());
+            JsonType jsonType = JSON_SERVICE.parse(rawBody);
+            Object obj;
+
+            if (jsonType instanceof JsonObject jsonObject) {
+                obj = JSON_SERVICE.mapObject(jsonObject, clazz);
+            } else if (jsonType instanceof JsonArray jsonArray) {
+                obj = JSON_SERVICE.mapArray(jsonArray, LinkedList.class);
+            } else if (rawBody.isEmpty()) {
+                obj = "";
+            } else {
+                obj = null;
+            }
+
+            body.setBody(obj);
+
+            return HttpRequest.builder()
+                    .setHttpRequestHeader(request.getHttpRequestHeader())
+                    .setStartLine(request.getStartLine())
+                    .setHttpRequestBody(body)
+                    .build();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        body.setBody(obj);
-
-        return HttpRequest.builder()
-                .setHttpRequestHeader(request.getHttpRequestHeader())
-                .setStartLine(request.getStartLine())
-                .setHttpRequestBody(body)
-                .build();
     }
 
     /**

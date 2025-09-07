@@ -33,6 +33,7 @@ public class ExceptionManager {
             // Client error (4xx)
             Map.entry(NullPointerException.class, HttpStatus.BAD_REQUEST),
             Map.entry(IllegalArgumentException.class, HttpStatus.BAD_REQUEST),
+            Map.entry(IllegalStateException.class, HttpStatus.BAD_REQUEST),
             Map.entry(IndexOutOfBoundsException.class, HttpStatus.BAD_REQUEST),
             Map.entry(ArrayIndexOutOfBoundsException.class, HttpStatus.BAD_REQUEST),
             Map.entry(StringIndexOutOfBoundsException.class, HttpStatus.BAD_REQUEST),

@@ -3,6 +3,7 @@ package framework.src.server.handlers;
 import framework.src.server.annotations.component.Component;
 import framework.src.server.annotations.controller.mapping.parameters.RequestBody;
 import framework.src.server.exceptions.AnnotationException;
+import framework.src.server.httpServer.utils.httpMethod.BodyRequirement;
 import framework.src.server.httpServer.utils.request.httpRequest.HttpRequest;
 import framework.src.server.httpServer.utils.route.PathVariable;
 import framework.src.server.metadata.RouteMetaData;
@@ -84,9 +85,14 @@ public final class RouteHandler {
      * @throws IllegalAccessException If access to the method is denied.
      */
     private Object handlePostMapping(RouteMetaData route, HttpRequest request, Object instanceController) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        if(!request.getStartLine().getMethod().hasBody().equals(BodyRequirement.REQUIRED)){
+            throw new IllegalArgumentException("HTTP " + request.getStartLine().getMethod() + " body is empty or null: " + request.getHttpRequestBody().getBody());
+        }
         if (request.getHttpRequestBody().getBody() == null) {
             throw new IllegalArgumentException("HTTP " + request.getStartLine().getMethod() + " body is empty or null: " + request.getHttpRequestBody().getBody());
         }
+
         List<Object> vars = List.of(request.getHttpRequestBody().getBody());
         return this.returnTypeInstance(instanceController, route, vars);
     }
